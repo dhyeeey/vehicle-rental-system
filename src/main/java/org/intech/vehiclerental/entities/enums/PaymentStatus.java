@@ -1,0 +1,10 @@
+package org.intech.vehiclerental.entities.enums;
+
+public enum PaymentStatus {
+    PENDING,
+    PROCESSING,
+    SUCCESS,
+    FAILED,
+    REFUNDED,
+    PARTIALLY_REFUNDED
+}

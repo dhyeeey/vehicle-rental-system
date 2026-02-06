@@ -1,0 +1,53 @@
+package org.intech.vehiclerental.entities;
+
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "vehicle_images")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class VehicleImage {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vehicle_id", nullable = false)
+    private Vehicle vehicle;
+
+    @Column(nullable = false, length = 500)
+    private String imageUrl;
+
+    @Column(nullable = false)
+    private Integer displayOrder;
+
+    @Column(nullable = false)
+    private Boolean isPrimary;
+
+    @Column(length = 255)
+    private String caption;
+
+//    @Column(nullable = false)
+//    private LocalDateTime createdAt;
+
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private Instant createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = Instant.now();
+        if (isPrimary == null) {
+            isPrimary = false;
+        }
+    }
+}
