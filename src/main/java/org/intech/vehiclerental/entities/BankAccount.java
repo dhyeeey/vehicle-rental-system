@@ -4,11 +4,15 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.intech.vehiclerental.entities.enums.AccountType;
 
 import java.time.Instant;
 
 @Entity
-@Table(name = "bank_accounts")
+@Table(name = "bank_accounts", indexes = {
+        @Index(name = "idx_bank_account_owner", columnList = "account_owner_id"),
+        @Index(name = "idx_bank_account_number", columnList = "accountNumber")
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -20,69 +24,47 @@ public class BankAccount {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", unique = true)
-    private User user;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "company_id", unique = true)
-    private Company company;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "account_owner_id", nullable = false)
+    private AccountOwner accountOwner;
 
     @Column(nullable = false, length = 100)
     private String accountHolderName;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 20)
     private String accountNumber;
 
-    @Column(nullable = false, length = 50)
-    private String bankName;
-
-    @Column(length = 20)
+    @Column(nullable = false, length = 11)
     private String ifscCode;
 
-    @Column(length = 20)
-    private String swiftCode;
+    @Column(nullable = false, length = 150)
+    private String bankName;
 
-    @Column(length = 50)
-    private String routingNumber;
+    @Column(length = 200)
+    private String branchName;
 
-    @Column(length = 20)
-    private String accountType;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private AccountType accountType;
 
-    @Column(nullable = false)
-    private Boolean isVerified;
+    @Column(length = 150)
+    private String email;
 
-    @Column(nullable = false)
-    private Boolean isPrimary;
+    @Column(length = 15)
+    private String phoneNumber;
 
-//    @Column(nullable = false)
-//    private LocalDateTime createdAt;
-//
-//    @Column(nullable = false)
-//    private LocalDateTime updatedAt;
+    @Column(length = 15)
+    private String upiId;
+
+    @Column(length = 10)
+    private String panNumber;
 
     @CreationTimestamp
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP")
     private Instant createdAt;
 
     @UpdateTimestamp
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP")
     private Instant updatedAt;
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = Instant.now();
-        updatedAt = Instant.now();
-        if (isVerified == null) {
-            isVerified = false;
-        }
-        if (isPrimary == null) {
-            isPrimary = true;
-        }
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = Instant.now();
-    }
 }

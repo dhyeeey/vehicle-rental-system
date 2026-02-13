@@ -1,26 +1,20 @@
 package org.intech.vehiclerental.entities;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 @Entity
-@Table(name = "company")
+@Table(name = "companies")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class Company {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Company extends AccountOwner {
 
     @Column(nullable = false, unique = true, length = 200)
     private String name;
@@ -52,35 +46,20 @@ public class Company {
     @Column(length = 150)
     private String email;
 
-//    @Column(nullable = false)
-//    private LocalDateTime createdAt;
-//
-//    @Column(nullable = false)
-//    private LocalDateTime updatedAt;
-
-    @CreationTimestamp
-    @Column(nullable = false, updatable = false)
-    private Instant createdAt;
-
-    @UpdateTimestamp
-    @Column(nullable = false)
-    private Instant updatedAt;
-
-    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private Set<Vehicle> ownedVehicles = new HashSet<>();
-
-    @OneToOne(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
-    private BankAccount bankAccount;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = Instant.now();
-        updatedAt = Instant.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = Instant.now();
+    @Builder
+    public Company(Long id, List<BankAccount> bankAccounts, List<Vehicle> vehicles,
+                   Instant createdAt, Instant updatedAt, String name, String registrationNumber,
+                   String taxId, String address, String city, String state, String zipCode,
+                   String country, String phoneNumber, String email) {
+        this.name = name;
+        this.registrationNumber = registrationNumber;
+        this.taxId = taxId;
+        this.address = address;
+        this.city = city;
+        this.state = state;
+        this.zipCode = zipCode;
+        this.country = country;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
     }
 }

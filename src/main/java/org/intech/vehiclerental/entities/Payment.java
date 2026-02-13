@@ -10,7 +10,6 @@ import org.intech.vehiclerental.entities.enums.PaymentType;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "payments", indexes = {
@@ -57,7 +56,7 @@ public class Payment {
 //    private LocalDateTime paymentDateTime;
 
     @Column(
-            columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP(3)"
+            columnDefinition = "TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP"
     )
     private Instant paymentDateTime;
 
@@ -67,18 +66,12 @@ public class Payment {
     @Column(length = 1000)
     private String failureReason;
 
-//    @Column(nullable = false)
-//    private LocalDateTime createdAt;
-//
-//    @Column(nullable = false)
-//    private LocalDateTime updatedAt;
-
     @CreationTimestamp
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP")
     private Instant createdAt;
 
     @UpdateTimestamp
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP")
     private Instant updatedAt;
 
     @PrePersist

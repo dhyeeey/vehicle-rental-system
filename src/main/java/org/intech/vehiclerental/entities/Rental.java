@@ -8,14 +8,11 @@ import org.intech.vehiclerental.entities.enums.RentalStatus;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "rentals", indexes = {
-        @Index(name = "idx_rental_status", columnList = "status"),
-        @Index(name = "idx_rental_dates", columnList = "startDateTime, endDateTime"),
         @Index(name = "idx_rental_vehicle", columnList = "vehicle_id")
 })
 @Getter
@@ -32,24 +29,18 @@ public class Rental {
     @Column(nullable = false, unique = true, length = 50)
     private String bookingNumber;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "vehicle_id", nullable = false)
     private Vehicle vehicle;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "renter_id", nullable = false)
     private User renter;
 
-    @Column(nullable = false, columnDefinition = "TIMESTAMP")
-    private Instant startDateTime;
-
-    @Column(nullable = false, columnDefinition = "TIMESTAMP")
-    private Instant endDateTime;
-
-    @Column
+    @Column(columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private Instant actualStartDateTime;
 
-    @Column
+    @Column(columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private Instant actualEndDateTime;
 
     @Column(nullable = false, precision = 10, scale = 2)
@@ -86,18 +77,12 @@ public class Rental {
     @Column(length = 1000)
     private String specialInstructions;
 
-//    @Column(nullable = false)
-//    private LocalDateTime createdAt;
-//
-//    @Column(nullable = false)
-//    private LocalDateTime updatedAt;
-
     @CreationTimestamp
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP")
     private Instant createdAt;
 
     @UpdateTimestamp
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP")
     private Instant updatedAt;
 
     @OneToMany(mappedBy = "rental", cascade = CascadeType.ALL, orphanRemoval = true)

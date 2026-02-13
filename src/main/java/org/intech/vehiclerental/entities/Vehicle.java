@@ -15,7 +15,7 @@ import java.util.Set;
 @Table(name = "vehicles", indexes = {
         @Index(name = "idx_vehicle_registration", columnList = "registrationNumber"),
         @Index(name = "idx_vehicle_status", columnList = "status"),
-        @Index(name = "idx_vehicle_ownership", columnList = "ownershipType")
+        @Index(name = "idx_vehicle_available", columnList = "isAvailable")
 })
 @Getter
 @Setter
@@ -70,17 +70,9 @@ public class Vehicle {
     @Column(precision = 10, scale = 2)
     private BigDecimal pricePerHour;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private OwnershipType ownershipType;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_user_id")
-    private User owner;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_company_id")
-    private Company company;
+    @JoinColumn(name = "account_owner_id", nullable = false)
+    private AccountOwner accountOwner;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
@@ -95,18 +87,12 @@ public class Vehicle {
     @Column(nullable = false)
     private Boolean isAvailable;
 
-//    @Column(nullable = false)
-//    private LocalDateTime createdAt;
-
-//    @Column(nullable = false)
-//    private LocalDateTime updatedAt;
-
     @CreationTimestamp
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP")
     private Instant createdAt;
 
     @UpdateTimestamp
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP")
     private Instant updatedAt;
 
     @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -117,21 +103,13 @@ public class Vehicle {
     @Builder.Default
     private Set<VehicleImage> images = new HashSet<>();
 
-
     @PrePersist
     protected void onCreate() {
-        createdAt = Instant.now();
-        updatedAt = Instant.now();
         if (isAvailable == null) {
             isAvailable = true;
         }
         if (status == null) {
             status = VehicleStatus.ACTIVE;
         }
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = Instant.now();
     }
 }

@@ -5,7 +5,6 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "vehicle_images")
@@ -36,11 +35,8 @@ public class VehicleImage {
     @Column(length = 255)
     private String caption;
 
-//    @Column(nullable = false)
-//    private LocalDateTime createdAt;
-
     @CreationTimestamp
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP")
     private Instant createdAt;
 
     @PrePersist
