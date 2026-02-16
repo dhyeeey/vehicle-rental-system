@@ -3,6 +3,8 @@ package org.intech.vehiclerental.services;
 import org.intech.vehiclerental.dto.requestbody.CreateAccountPayloadBody;
 import org.intech.vehiclerental.dto.requestbody.LoginPayloadBody;
 import org.intech.vehiclerental.entities.User;
+import org.intech.vehiclerental.exceptions.WrongLoginEmailCredentialException;
+import org.intech.vehiclerental.exceptions.WrongLoginPasswordCredentialException;
 import org.intech.vehiclerental.repositories.CompanyRepository;
 import org.intech.vehiclerental.repositories.UserRepository;
 import org.modelmapper.ModelMapper;
@@ -33,10 +35,10 @@ public class LoginAndRegistrationService {
 
     public User findLoginUserByEmailAndPassword(LoginPayloadBody loginPayloadBody){
         User user = userRepository.findByEmail(loginPayloadBody.email())
-                        .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
+                        .orElseThrow(() -> new WrongLoginEmailCredentialException("Invalid email"));
 
         if(!passwordEncoder.matches(loginPayloadBody.password(), user.getPassword())){
-            throw new IllegalArgumentException("Invalid email or password");
+            throw new WrongLoginPasswordCredentialException("Invalid password");
         }
 
         return user;

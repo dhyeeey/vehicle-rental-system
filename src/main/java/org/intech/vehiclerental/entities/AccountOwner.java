@@ -1,5 +1,6 @@
 package org.intech.vehiclerental.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -20,10 +21,12 @@ public abstract class AccountOwner {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "accountOwner",fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    @OneToMany(mappedBy = "accountOwner",fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BankAccount> bankAccounts = new ArrayList<>();
 
-    @OneToMany(mappedBy = "accountOwner", fetch = FetchType.EAGER)
+    @JsonIgnore
+    @OneToMany(mappedBy = "accountOwner", fetch = FetchType.LAZY)
     private List<Vehicle> vehicles = new ArrayList<>();
 
     @CreationTimestamp

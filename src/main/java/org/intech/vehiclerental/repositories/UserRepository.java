@@ -10,6 +10,9 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
+    @Query("select u from User u where u.id = ?1")
+    Optional<User> findById(Long aLong);
+
     @Query("select u from User u where u.email = ?1")
     Optional<User> findByEmail(String email);
 
@@ -25,4 +28,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("select (count(u) > 0) from User u where u.licenseNumber = ?1")
     boolean existsByLicenseNumber(String licenseNumber);
 
+    @Query("select (count(u) > 0) from User u where u.id = ?1")
+    boolean existsById(Long id);
 }

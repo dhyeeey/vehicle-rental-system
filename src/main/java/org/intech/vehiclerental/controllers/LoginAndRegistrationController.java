@@ -40,6 +40,7 @@ public class LoginAndRegistrationController {
         httpServletRequest.changeSessionId();
 
         session.setAttribute("USER_ID", user.getId());
+        session.setAttribute("ACCOUNT_OWNER_TYPE","USER");
 
         return ResponseEntity.ok(user);
     }
@@ -56,9 +57,16 @@ public class LoginAndRegistrationController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-//    @PostMapping("/logout")
-//    public ResponseEntity<?> logout(HttpServletRequest httpServletRequest){
-//
-//    }
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+
+        HttpSession session = request.getSession(false);
+
+        if (session != null) {
+            session.invalidate();
+        }
+
+        return ResponseEntity.ok().build();
+    }
 
 }

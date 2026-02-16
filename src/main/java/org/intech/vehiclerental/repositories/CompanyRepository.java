@@ -13,6 +13,10 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
     @Query("select c from Company c where c.email = ?1")
     Optional<Company> findByEmail(String email);
 
+    @Query("select c from Company c where c.id = ?1")
+    Optional<Company> findById(Long aLong);
 
+    @Query("select (count(c) > 0) from Company c where c.id = ?1")
+    boolean existsById(Long id);
 
 }

@@ -14,8 +14,8 @@ import java.util.Set;
 @Entity
 @Table(name = "vehicles", indexes = {
         @Index(name = "idx_vehicle_registration", columnList = "registrationNumber"),
-        @Index(name = "idx_vehicle_status", columnList = "status"),
-        @Index(name = "idx_vehicle_available", columnList = "isAvailable")
+        @Index(name = "idx_vehicle_id", columnList = "id"),
+        @Index(name = "idx_vehicle_vin", columnList = "vin")
 })
 @Getter
 @Setter

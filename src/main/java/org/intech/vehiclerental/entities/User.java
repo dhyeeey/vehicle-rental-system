@@ -1,14 +1,11 @@
 package org.intech.vehiclerental.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.intech.vehiclerental.entities.enums.UserStatus;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.SerializationFeature;
 
-import java.time.Instant;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -42,6 +39,7 @@ public class User extends AccountOwner {
     @Column(unique = true, length = 50)
     private String licenseNumber;
 
+    @JsonIgnore
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private UserStatus status;
@@ -49,7 +47,8 @@ public class User extends AccountOwner {
     @Column(nullable = true)
     private Boolean isVerified;
 
-    @OneToMany(mappedBy = "renter", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonIgnore
+    @OneToMany(mappedBy = "renter", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
     private Set<Rental> rentals = new HashSet<>();
 

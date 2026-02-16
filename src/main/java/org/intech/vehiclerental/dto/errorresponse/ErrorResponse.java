@@ -3,6 +3,8 @@ package org.intech.vehiclerental.dto.errorresponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import org.intech.vehiclerental.exceptions.WrongLoginEmailCredentialException;
+import org.intech.vehiclerental.exceptions.WrongLoginPasswordCredentialException;
 import org.postgresql.util.PSQLException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -64,5 +66,17 @@ public class ErrorResponse {
         this(httpStatus);
 
         message = ex.getMessage();
+    }
+
+    public ErrorResponse(WrongLoginEmailCredentialException ex, HttpStatus httpStatus) {
+        this(httpStatus);
+        message = ex.getMessage();
+        errors.put("email","Invalid Email");
+    }
+
+    public ErrorResponse(WrongLoginPasswordCredentialException ex, HttpStatus httpStatus) {
+        this(httpStatus);
+        message = ex.getMessage();
+        errors.put("password","Invalid Password");
     }
 }

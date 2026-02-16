@@ -1,7 +1,8 @@
 package org.intech.vehiclerental.advice;
 
 import org.intech.vehiclerental.dto.errorresponse.ErrorResponse;
-import org.postgresql.util.PSQLException;
+import org.intech.vehiclerental.exceptions.WrongLoginEmailCredentialException;
+import org.intech.vehiclerental.exceptions.WrongLoginPasswordCredentialException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,6 +54,18 @@ public class ValidationExceptionHandler {
         }
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    @ExceptionHandler(WrongLoginEmailCredentialException.class)
+    public ResponseEntity<?> invalidLoginEmail(WrongLoginEmailCredentialException ex){
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ErrorResponse(ex, HttpStatus.UNAUTHORIZED));
+    }
+
+    @ExceptionHandler(WrongLoginPasswordCredentialException.class)
+    public ResponseEntity<?> invalidLoginPassword(WrongLoginPasswordCredentialException ex){
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ErrorResponse(ex, HttpStatus.UNAUTHORIZED));
     }
 
 //    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)

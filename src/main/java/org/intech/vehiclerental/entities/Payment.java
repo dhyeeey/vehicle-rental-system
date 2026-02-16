@@ -13,7 +13,6 @@ import java.time.Instant;
 
 @Entity
 @Table(name = "payments", indexes = {
-        @Index(name = "idx_payment_status", columnList = "status"),
         @Index(name = "idx_payment_transaction", columnList = "transactionId")
 })
 @Getter
