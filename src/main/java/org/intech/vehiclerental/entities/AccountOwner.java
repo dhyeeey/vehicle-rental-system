@@ -5,13 +5,16 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.intech.vehiclerental.entities.enums.AccountType;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "account_owners")
+@Table(name = "account_owners",indexes = {
+        @Index(name = "idx_account_owner_email",columnList = "email")
+})
 @Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
@@ -20,6 +23,16 @@ public abstract class AccountOwner {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private AccountType accountType;
+
+    @Column(nullable = false, unique = true, length = 150)
+    private String email;
+
+    @Column(nullable = false)
+    private String password;
 
     @JsonIgnore
     @OneToMany(mappedBy = "accountOwner",fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)

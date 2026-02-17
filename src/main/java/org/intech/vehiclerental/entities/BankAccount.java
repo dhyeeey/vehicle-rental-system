@@ -43,10 +43,6 @@ public class BankAccount {
     @Column(length = 200)
     private String branchName;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private AccountType accountType;
-
     @Column(length = 150)
     private String email;
 

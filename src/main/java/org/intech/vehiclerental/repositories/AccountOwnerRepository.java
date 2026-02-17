@@ -13,5 +13,7 @@ public interface AccountOwnerRepository extends JpaRepository<AccountOwner, Long
     @Query("select ao from AccountOwner ao where ao.id = ?1")
     Optional<AccountOwner> findById(Long aLong);
 
+    @Query("select ao from AccountOwner ao where ao.email = ?1")
+    Optional<AccountOwner> findByEmail(String email);
 
 }

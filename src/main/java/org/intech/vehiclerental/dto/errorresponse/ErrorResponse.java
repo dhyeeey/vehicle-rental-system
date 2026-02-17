@@ -3,6 +3,7 @@ package org.intech.vehiclerental.dto.errorresponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import org.intech.vehiclerental.exceptions.PasswordMismatchException;
 import org.intech.vehiclerental.exceptions.WrongLoginEmailCredentialException;
 import org.intech.vehiclerental.exceptions.WrongLoginPasswordCredentialException;
 import org.postgresql.util.PSQLException;
@@ -78,5 +79,12 @@ public class ErrorResponse {
         this(httpStatus);
         message = ex.getMessage();
         errors.put("password","Invalid Password");
+    }
+
+    public ErrorResponse(PasswordMismatchException ex, HttpStatus httpStatus) {
+        this(httpStatus);
+        message = ex.getMessage();
+        errors.put("confirmPassword","Confirm Password does not match password");
+        errors.put("password","Password does not match confirm password");
     }
 }

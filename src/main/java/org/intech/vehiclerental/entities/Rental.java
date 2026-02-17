@@ -12,9 +12,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "rentals", indexes = {
-        @Index(name = "idx_rental_vehicle", columnList = "vehicle_id")
-})
+@Table(name = "rentals")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -25,9 +23,6 @@ public class Rental {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false, unique = true, length = 50)
-    private String bookingNumber;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "vehicle_id", nullable = false)

@@ -4,9 +4,11 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.intech.vehiclerental.entities.enums.*;
+import org.intech.vehiclerental.entities.enums.FuelType;
+import org.intech.vehiclerental.entities.enums.TransmissionType;
+import org.intech.vehiclerental.entities.enums.VehicleStatus;
+import org.intech.vehiclerental.entities.enums.VehicleType;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
@@ -43,7 +45,7 @@ public class Vehicle {
     @Column(nullable = false)
     private Integer year;
 
-    @Column(length = 50)
+    @Column(length = 50, nullable = false)
     private String color;
 
     @Enumerated(EnumType.STRING)
@@ -64,11 +66,11 @@ public class Vehicle {
     @Column(nullable = false)
     private Integer mileage;
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal pricePerDay;
+    @Column(nullable = false)
+    private Long pricePerDay;
 
-    @Column(precision = 10, scale = 2)
-    private BigDecimal pricePerHour;
+    @Column
+    private Long pricePerHour;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_owner_id", nullable = false)

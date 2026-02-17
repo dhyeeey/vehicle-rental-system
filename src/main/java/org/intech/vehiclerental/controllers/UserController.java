@@ -1,11 +1,10 @@
 package org.intech.vehiclerental.controllers;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
-import org.intech.vehiclerental.entities.User;
-import org.intech.vehiclerental.services.UserService;
+import org.intech.vehiclerental.entities.AccountOwner;
+import org.intech.vehiclerental.services.AccountOwnerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,29 +13,22 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/user")
 public class UserController {
 
-    private UserService userService;
+    private AccountOwnerService accountOwnerService;
 
     @Autowired
-    public UserController(UserService userService){
-        this.userService = userService;
+    public UserController(AccountOwnerService accountOwnerService){
+        this.accountOwnerService = accountOwnerService;
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<?> getUser(HttpServletRequest httpServletRequest){
-        HttpSession httpSession = httpServletRequest.getSession(false);
+    public ResponseEntity<?> getProfile(Authentication authentication) {
 
-        if (httpSession == null || httpSession.getAttribute("USER_ID") == null) {
-            return ResponseEntity.status(401).build();
-        }
+        String email = authentication.getName();
 
-        Long id = (Long) httpSession.getAttribute("USER_ID");
+        AccountOwner accountOwner =
+                accountOwnerService.findAccountByEmail(email);
 
-        String accountOwnerType = (String)httpSession.getAttribute("ACCOUNT_OWNER_TYPE");
-
-        User user = userService.findUserById(id);
-
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(accountOwner);
     }
-
 
 }

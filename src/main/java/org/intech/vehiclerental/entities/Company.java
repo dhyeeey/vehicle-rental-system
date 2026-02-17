@@ -43,14 +43,11 @@ public class Company extends AccountOwner {
     @Column(length = 20)
     private String phoneNumber;
 
-    @Column(length = 150)
-    private String email;
-
     @Builder
     public Company(Long id, List<BankAccount> bankAccounts, List<Vehicle> vehicles,
                    Instant createdAt, Instant updatedAt, String name, String registrationNumber,
                    String taxId, String address, String city, String state, String zipCode,
-                   String country, String phoneNumber, String email) {
+                   String country, String phoneNumber) {
         this.name = name;
         this.registrationNumber = registrationNumber;
         this.taxId = taxId;
@@ -60,6 +57,5 @@ public class Company extends AccountOwner {
         this.zipCode = zipCode;
         this.country = country;
         this.phoneNumber = phoneNumber;
-        this.email = email;
     }
 }

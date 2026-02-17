@@ -1,6 +1,7 @@
 package org.intech.vehiclerental.advice;
 
 import org.intech.vehiclerental.dto.errorresponse.ErrorResponse;
+import org.intech.vehiclerental.exceptions.PasswordMismatchException;
 import org.intech.vehiclerental.exceptions.WrongLoginEmailCredentialException;
 import org.intech.vehiclerental.exceptions.WrongLoginPasswordCredentialException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -64,6 +65,12 @@ public class ValidationExceptionHandler {
 
     @ExceptionHandler(WrongLoginPasswordCredentialException.class)
     public ResponseEntity<?> invalidLoginPassword(WrongLoginPasswordCredentialException ex){
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ErrorResponse(ex, HttpStatus.UNAUTHORIZED));
+    }
+
+    @ExceptionHandler(PasswordMismatchException.class)
+    public ResponseEntity<?> passwordAndConfirmPasswordMismatch(PasswordMismatchException ex){
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new ErrorResponse(ex, HttpStatus.UNAUTHORIZED));
     }

@@ -10,7 +10,6 @@ import java.util.Set;
 
 @Entity
 @Table(name = "users", indexes = {
-        @Index(name = "idx_user_email", columnList = "email"),
         @Index(name = "idx_user_phone", columnList = "phoneNumber"),
         @Index(name = "idx_user_license_number", columnList = "licenseNumber")
 })
@@ -26,12 +25,6 @@ public class User extends AccountOwner {
 
     @Column(nullable = false, length = 100)
     private String lastName;
-
-    @Column(nullable = false, unique = true, length = 150)
-    private String email;
-
-    @Column(nullable = false)
-    private String password;
 
     @Column(nullable = false, unique = true, length = 20)
     private String phoneNumber;

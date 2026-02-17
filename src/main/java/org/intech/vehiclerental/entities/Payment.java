@@ -10,6 +10,7 @@ import org.intech.vehiclerental.entities.enums.PaymentType;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.UUID;
 
 @Entity
 @Table(name = "payments", indexes = {
@@ -23,8 +24,8 @@ import java.time.Instant;
 public class Payment {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID transactionId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rental_id", nullable = false)
@@ -44,9 +45,6 @@ public class Payment {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private PaymentStatus status;
-
-    @Column(unique = true, length = 100)
-    private String transactionId;
 
     @Column(length = 100)
     private String paymentGateway;
