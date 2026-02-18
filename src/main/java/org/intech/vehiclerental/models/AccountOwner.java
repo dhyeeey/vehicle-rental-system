@@ -1,11 +1,12 @@
-package org.intech.vehiclerental.entities;
+package org.intech.vehiclerental.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.intech.vehiclerental.entities.enums.AccountType;
+import org.intech.vehiclerental.models.enums.Role;
+import org.intech.vehiclerental.models.enums.Status;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -18,21 +19,26 @@ import java.util.List;
 @Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
-public abstract class AccountOwner {
+public abstract class AccountOwner{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private AccountType accountType;
+    @Column(nullable = false, length = 30)
+    private Role role;
 
     @Column(nullable = false, unique = true, length = 150)
     private String email;
 
     @Column(nullable = false)
     private String password;
+
+    @JsonIgnore
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    protected Status status;
 
     @JsonIgnore
     @OneToMany(mappedBy = "accountOwner",fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)

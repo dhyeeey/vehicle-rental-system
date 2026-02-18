@@ -1,4 +1,4 @@
-package org.intech.vehiclerental.entities;
+package org.intech.vehiclerental.models;
 
 import jakarta.persistence.*;
 import lombok.*;

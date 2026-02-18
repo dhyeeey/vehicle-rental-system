@@ -1,9 +1,9 @@
-package org.intech.vehiclerental.entities;
+package org.intech.vehiclerental.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
-import org.intech.vehiclerental.entities.enums.UserStatus;
+import org.intech.vehiclerental.models.enums.Status;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -18,7 +18,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User extends AccountOwner {
+public class User extends AccountOwner{
 
     @Column(nullable = false, length = 100)
     private String firstName;
@@ -31,11 +31,6 @@ public class User extends AccountOwner {
 
     @Column(unique = true, length = 50)
     private String licenseNumber;
-
-    @JsonIgnore
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private UserStatus status;
 
     @Column(nullable = true)
     private Boolean isVerified;
@@ -51,7 +46,7 @@ public class User extends AccountOwner {
             isVerified = false;
         }
         if (status == null) {
-            status = UserStatus.ACTIVE;
+            status = Status.ACTIVE;
         }
     }
 }

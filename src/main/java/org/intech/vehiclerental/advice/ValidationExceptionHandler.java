@@ -8,9 +8,12 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import java.util.Map;
 
 @ControllerAdvice
 public class ValidationExceptionHandler {
@@ -65,6 +68,12 @@ public class ValidationExceptionHandler {
 
     @ExceptionHandler(WrongLoginPasswordCredentialException.class)
     public ResponseEntity<?> invalidLoginPassword(WrongLoginPasswordCredentialException ex){
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ErrorResponse(ex, HttpStatus.UNAUTHORIZED));
+    }
+
+    @ExceptionHandler({BadCredentialsException.class})
+    public ResponseEntity<?> handleWrongPassword(BadCredentialsException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new ErrorResponse(ex, HttpStatus.UNAUTHORIZED));
     }

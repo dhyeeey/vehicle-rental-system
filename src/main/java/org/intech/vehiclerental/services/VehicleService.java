@@ -1,9 +1,9 @@
 package org.intech.vehiclerental.services;
 
-import org.intech.vehiclerental.entities.AccountOwner;
-import org.intech.vehiclerental.entities.Company;
-import org.intech.vehiclerental.entities.User;
-import org.intech.vehiclerental.entities.Vehicle;
+import org.intech.vehiclerental.models.AccountOwner;
+import org.intech.vehiclerental.models.Company;
+import org.intech.vehiclerental.models.User;
+import org.intech.vehiclerental.models.Vehicle;
 import org.intech.vehiclerental.repositories.VehicleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -1,8 +1,8 @@
 package org.intech.vehiclerental.services;
 
-import org.intech.vehiclerental.entities.AccountOwner;
-import org.intech.vehiclerental.entities.Company;
-import org.intech.vehiclerental.entities.User;
+import org.intech.vehiclerental.models.AccountOwner;
+import org.intech.vehiclerental.models.Company;
+import org.intech.vehiclerental.models.User;
 import org.intech.vehiclerental.repositories.AccountOwnerRepository;
 import org.intech.vehiclerental.repositories.CompanyRepository;
 import org.intech.vehiclerental.repositories.UserRepository;

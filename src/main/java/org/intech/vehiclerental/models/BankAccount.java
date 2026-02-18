@@ -1,10 +1,9 @@
-package org.intech.vehiclerental.entities;
+package org.intech.vehiclerental.models;
 
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.intech.vehiclerental.entities.enums.AccountType;
 
 import java.time.Instant;
 

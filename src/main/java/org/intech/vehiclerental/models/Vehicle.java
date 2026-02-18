@@ -1,13 +1,13 @@
-package org.intech.vehiclerental.entities;
+package org.intech.vehiclerental.models;
 
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.intech.vehiclerental.entities.enums.FuelType;
-import org.intech.vehiclerental.entities.enums.TransmissionType;
-import org.intech.vehiclerental.entities.enums.VehicleStatus;
-import org.intech.vehiclerental.entities.enums.VehicleType;
+import org.intech.vehiclerental.models.enums.FuelType;
+import org.intech.vehiclerental.models.enums.TransmissionType;
+import org.intech.vehiclerental.models.enums.VehicleStatus;
+import org.intech.vehiclerental.models.enums.VehicleType;
 
 import java.time.Instant;
 import java.util.HashSet;

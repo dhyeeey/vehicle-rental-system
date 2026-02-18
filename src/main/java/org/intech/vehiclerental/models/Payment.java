@@ -1,12 +1,12 @@
-package org.intech.vehiclerental.entities;
+package org.intech.vehiclerental.models;
 
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.intech.vehiclerental.entities.enums.PaymentMethod;
-import org.intech.vehiclerental.entities.enums.PaymentStatus;
-import org.intech.vehiclerental.entities.enums.PaymentType;
+import org.intech.vehiclerental.models.enums.PaymentMethod;
+import org.intech.vehiclerental.models.enums.PaymentStatus;
+import org.intech.vehiclerental.models.enums.PaymentType;
 
 import java.math.BigDecimal;
 import java.time.Instant;

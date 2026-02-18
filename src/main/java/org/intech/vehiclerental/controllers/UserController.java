@@ -1,6 +1,6 @@
 package org.intech.vehiclerental.controllers;
 
-import org.intech.vehiclerental.entities.AccountOwner;
+import org.intech.vehiclerental.models.AccountOwner;
 import org.intech.vehiclerental.services.AccountOwnerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

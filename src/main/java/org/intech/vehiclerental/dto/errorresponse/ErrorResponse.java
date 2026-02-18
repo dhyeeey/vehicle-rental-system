@@ -10,6 +10,7 @@ import org.postgresql.util.PSQLException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
@@ -86,5 +87,24 @@ public class ErrorResponse {
         message = ex.getMessage();
         errors.put("confirmPassword","Confirm Password does not match password");
         errors.put("password","Password does not match confirm password");
+    }
+
+    public ErrorResponse(BadCredentialsException ex, HttpStatus httpStatus) {
+        this(httpStatus);
+        message = ex.getMessage();
+
+        StackTraceElement[] stackTraceElements = ex.getStackTrace();
+        boolean fromDaoAuthenticationProvider = false;
+
+        for (StackTraceElement element : stackTraceElements) {
+            if (element.getClassName().contains("DaoAuthenticationProvider")) {
+                fromDaoAuthenticationProvider = true;
+                break;
+            }
+        }
+
+        if (fromDaoAuthenticationProvider) {
+            errors.put("password", "Invalid Password");
+        }
     }
 }

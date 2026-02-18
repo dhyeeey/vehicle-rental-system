@@ -1,6 +1,6 @@
 package org.intech.vehiclerental.repositories;
 
-import org.intech.vehiclerental.entities.Vehicle;
+import org.intech.vehiclerental.models.Vehicle;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

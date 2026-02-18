@@ -1,4 +1,4 @@
-package org.intech.vehiclerental.entities.enums;
+package org.intech.vehiclerental.models.enums;
 
 public enum VehicleStatus {
     ACTIVE,

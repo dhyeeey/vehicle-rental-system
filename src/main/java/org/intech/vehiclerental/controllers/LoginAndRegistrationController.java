@@ -1,75 +1,69 @@
 package org.intech.vehiclerental.controllers;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.intech.vehiclerental.dto.requestbody.CreateAccountPayloadBody;
 import org.intech.vehiclerental.dto.requestbody.LoginPayloadBody;
-import org.intech.vehiclerental.entities.AccountOwner;
-import org.intech.vehiclerental.entities.User;
+import org.intech.vehiclerental.models.User;
 import org.intech.vehiclerental.services.LoginAndRegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 
 @RestController
 @RequestMapping("/api/auth")
 public class LoginAndRegistrationController {
 
-    private LoginAndRegistrationService loginAndRegistrationService;
+    private final AuthenticationManager authenticationManager;
+    private final LoginAndRegistrationService loginAndRegistrationService;
 
     @Autowired
-    public LoginAndRegistrationController(LoginAndRegistrationService loginAndRegistrationService){
+    public LoginAndRegistrationController(
+            LoginAndRegistrationService loginAndRegistrationService,
+            AuthenticationManager authenticationManager
+    ){
         this.loginAndRegistrationService = loginAndRegistrationService;
+        this.authenticationManager = authenticationManager;
     }
 
     @PostMapping(value="/login")
-    public ResponseEntity<?> login(HttpServletRequest httpServletRequest,
-                                   @Valid @RequestBody(required = true) LoginPayloadBody loginPayloadBody
+    public ResponseEntity<?> login(
+            HttpServletRequest httpServletRequest,
+            @Valid @RequestBody(required = true) LoginPayloadBody loginPayloadBody
     ){
-        AccountOwner accountOwner = loginAndRegistrationService
-                                        .findAccountOwnerByEmailAndPassword(loginPayloadBody);
-
-        // Build authorities based on account type
-        List<GrantedAuthority> authorities =
-                List.of(new SimpleGrantedAuthority("ROLE_" + accountOwner.getAccountType().name()));
-
         Authentication authentication =
-                new UsernamePasswordAuthenticationToken(
-                        accountOwner.getEmail(),   // principal
-                        null,
-                        authorities
+                authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(
+                                loginPayloadBody.email(),
+                                loginPayloadBody.password()
+                        )
                 );
 
-        SecurityContext context = SecurityContextHolder.createEmptyContext();
-        context.setAuthentication(authentication);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        SecurityContextHolder.setContext(context);
-
+        // Create or get session
         HttpSession session = httpServletRequest.getSession(true);
-        httpServletRequest.changeSessionId();
 
+        // Store security context in session
         session.setAttribute(
                 HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
-                context
+                SecurityContextHolder.getContext()
         );
+
+        // regenerate session ID for security
+        httpServletRequest.changeSessionId();
 
         return ResponseEntity.ok().build();
     }
@@ -86,19 +80,5 @@ public class LoginAndRegistrationController {
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
-
-    @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
-
-        Authentication authentication =
-                SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication != null) {
-            new SecurityContextLogoutHandler().logout(request, response, authentication);
-        }
-
-        return ResponseEntity.ok().build();
-    }
-
 
 }

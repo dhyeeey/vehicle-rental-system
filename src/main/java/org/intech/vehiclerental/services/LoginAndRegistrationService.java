@@ -2,10 +2,10 @@ package org.intech.vehiclerental.services;
 
 import org.intech.vehiclerental.dto.requestbody.CreateAccountPayloadBody;
 import org.intech.vehiclerental.dto.requestbody.LoginPayloadBody;
-import org.intech.vehiclerental.entities.AccountOwner;
-import org.intech.vehiclerental.entities.Company;
-import org.intech.vehiclerental.entities.User;
-import org.intech.vehiclerental.entities.enums.AccountType;
+import org.intech.vehiclerental.models.AccountOwner;
+import org.intech.vehiclerental.models.Company;
+import org.intech.vehiclerental.models.User;
+import org.intech.vehiclerental.models.enums.Role;
 import org.intech.vehiclerental.exceptions.PasswordMismatchException;
 import org.intech.vehiclerental.exceptions.WrongLoginEmailCredentialException;
 import org.intech.vehiclerental.exceptions.WrongLoginPasswordCredentialException;
@@ -98,7 +98,7 @@ public class LoginAndRegistrationService {
 
         user.setEmail(createAccountPayloadBody.email());
         user.setPassword(passwordEncoder.encode(createAccountPayloadBody.password()));
-        user.setAccountType(AccountType.INDIVIDUAL);
+        user.setRole(Role.ROLE_INDIVIDUAL);
 
         User savedUser = userRepository.save(user);
 

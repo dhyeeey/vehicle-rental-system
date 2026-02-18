@@ -1,13 +1,13 @@
-package org.intech.vehiclerental.test;
+package org.intech.vehiclerental.runners;
 
-import org.intech.vehiclerental.entities.AccountOwner;
-import org.intech.vehiclerental.entities.Company;
-import org.intech.vehiclerental.entities.User;
-import org.intech.vehiclerental.entities.Vehicle;
-import org.intech.vehiclerental.entities.enums.FuelType;
-import org.intech.vehiclerental.entities.enums.TransmissionType;
-import org.intech.vehiclerental.entities.enums.VehicleStatus;
-import org.intech.vehiclerental.entities.enums.VehicleType;
+import org.intech.vehiclerental.models.AccountOwner;
+import org.intech.vehiclerental.models.Company;
+import org.intech.vehiclerental.models.User;
+import org.intech.vehiclerental.models.Vehicle;
+import org.intech.vehiclerental.models.enums.FuelType;
+import org.intech.vehiclerental.models.enums.TransmissionType;
+import org.intech.vehiclerental.models.enums.VehicleStatus;
+import org.intech.vehiclerental.models.enums.VehicleType;
 import org.intech.vehiclerental.repositories.AccountOwnerRepository;
 import org.intech.vehiclerental.repositories.VehicleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
