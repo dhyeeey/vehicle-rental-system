@@ -1,27 +1,114 @@
 package org.intech.vehiclerental.controllers;
 
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
+import org.intech.vehiclerental.dto.requestbody.VehicleRegistrationDTO;
 import org.intech.vehiclerental.models.AccountOwner;
+import org.intech.vehiclerental.models.CustomUserDetails;
+import org.intech.vehiclerental.models.Vehicle;
+import org.intech.vehiclerental.services.AccountOwnerService;
 import org.intech.vehiclerental.services.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/vehicle")
+@Slf4j
 public class VehicleController {
+
     private final VehicleService vehicleService;
-    private final AccountOwner accountOwner;
+    private final AccountOwnerService accountOwnerService;
 
     @Autowired
-    public VehicleController(VehicleService vehicleService, AccountOwner accountOwner){
+    public VehicleController(VehicleService vehicleService, AccountOwnerService accountOwnerService){
         this.vehicleService = vehicleService;
-        this.accountOwner = accountOwner;
+        this.accountOwnerService = accountOwnerService;
     }
 
-    @PostMapping("/")
-    public ResponseEntity<?> registerNewVehicle(){
-        return null;
+
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Map<String, Object>> registerVehicle(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @ModelAttribute VehicleRegistrationDTO dto,
+            @RequestParam(value = "images", required = true) List<MultipartFile> images,
+            @RequestParam(value = "primaryImageIndex", defaultValue = "0") Integer primaryImageIndex
+    ) {
+        AccountOwner accountOwner = userDetails.getAccountOwner();
+
+        log.info("Received vehicle registration request");
+        log.info("DTO: {}", dto);
+        log.info("Number of images: {}", images.size());
+        log.info("Primary image index: {}", primaryImageIndex);
+
+        if (images.isEmpty()) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "At least one vehicle image is required");
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+
+        if (primaryImageIndex < 0 || primaryImageIndex >= images.size()) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "Invalid primary image index");
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+
+        for (MultipartFile image : images) {
+            if (image.isEmpty()) {
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("message", "Empty image file detected");
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
+
+            if (image.getSize() > 5 * 1024 * 1024) {
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("message", "Image size must not exceed 5MB: " + image.getOriginalFilename());
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
+
+            String contentType = image.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("message", "Invalid file type. Only images are allowed: " + image.getOriginalFilename());
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
+        }
+
+        Vehicle vehicle = vehicleService.registerVehicle(dto, images, primaryImageIndex, accountOwner);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "Vehicle registered successfully");
+        response.put("vehicleId", vehicle.getId());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+
+    @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Map<String, Object>> registerVehicleAlternative(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestPart("vehicleData") @Valid VehicleRegistrationDTO dto,
+            @RequestPart("images") List<MultipartFile> images,
+            @RequestParam(value = "primaryImageIndex", defaultValue = "0") Integer primaryImageIndex
+    ) {
+        AccountOwner accountOwner = userDetails.getAccountOwner();
+
+        log.info("Alternative endpoint - Received vehicle registration request");
+        return registerVehicle(userDetails, dto, images, primaryImageIndex);
+    }
+
 }
