@@ -1,10 +1,15 @@
 package org.intech.vehiclerental.services;
 
 import jakarta.validation.Valid;
+import org.intech.vehiclerental.dto.VehicleInfo;
+import org.intech.vehiclerental.dto.VehicleListView;
 import org.intech.vehiclerental.dto.requestbody.VehicleRegistrationDTO;
 import org.intech.vehiclerental.models.*;
+import org.intech.vehiclerental.models.enums.VehicleStatus;
 import org.intech.vehiclerental.repositories.VehicleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -38,6 +43,13 @@ public class VehicleService {
         return owner;
     }
 
+    public Page<VehicleInfo> getAvailableVehicles(Pageable pageable) {
+        return vehicleRepository.findByStatusAndIsAvailable(
+                VehicleStatus.ACTIVE,
+                pageable,
+                true
+        );
+    }
 
     public Vehicle registerVehicle(@Valid VehicleRegistrationDTO dto,
                                    List<MultipartFile> images,
@@ -58,7 +70,6 @@ public class VehicleService {
                 .seatingCapacity(dto.seatingCapacity())
                 .mileage(dto.mileage())
                 .pricePerDay(dto.pricePerDay())
-                .pricePerHour(dto.pricePerHour())
                 .description(dto.description())
                 .location(dto.location())
                 .build();

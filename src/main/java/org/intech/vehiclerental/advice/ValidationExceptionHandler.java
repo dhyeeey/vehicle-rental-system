@@ -1,9 +1,7 @@
 package org.intech.vehiclerental.advice;
 
 import org.intech.vehiclerental.dto.errorresponse.ErrorResponse;
-import org.intech.vehiclerental.exceptions.PasswordMismatchException;
-import org.intech.vehiclerental.exceptions.WrongLoginEmailCredentialException;
-import org.intech.vehiclerental.exceptions.WrongLoginPasswordCredentialException;
+import org.intech.vehiclerental.exceptions.*;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -82,6 +80,18 @@ public class ValidationExceptionHandler {
     public ResponseEntity<?> passwordAndConfirmPasswordMismatch(PasswordMismatchException ex){
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new ErrorResponse(ex, HttpStatus.UNAUTHORIZED));
+    }
+
+    @ExceptionHandler(NoImageFoundException.class)
+    public ResponseEntity<?> noImageFoundInForm(NoImageFoundException ex){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).
+                body(new ErrorResponse(ex, HttpStatus.BAD_REQUEST));
+    }
+
+    @ExceptionHandler(InvalidPrimaryIndexOfImage.class)
+    public ResponseEntity<?> invalidPrimaryIndexOfImage(InvalidPrimaryIndexOfImage ex){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).
+                body(new ErrorResponse(ex, HttpStatus.BAD_REQUEST));
     }
 
 //    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)

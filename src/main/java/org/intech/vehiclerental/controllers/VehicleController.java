@@ -2,13 +2,20 @@ package org.intech.vehiclerental.controllers;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.intech.vehiclerental.dto.VehicleInfo;
 import org.intech.vehiclerental.dto.requestbody.VehicleRegistrationDTO;
+import org.intech.vehiclerental.exceptions.InvalidPrimaryIndexOfImage;
+import org.intech.vehiclerental.exceptions.NoImageFoundException;
 import org.intech.vehiclerental.models.AccountOwner;
 import org.intech.vehiclerental.models.CustomUserDetails;
 import org.intech.vehiclerental.models.Vehicle;
 import org.intech.vehiclerental.services.AccountOwnerService;
 import org.intech.vehiclerental.services.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +41,32 @@ public class VehicleController {
         this.accountOwnerService = accountOwnerService;
     }
 
+    @GetMapping("/getall")
+    public ResponseEntity<?> getAllVehicles(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction
+    ) {
+
+        Sort sort = direction.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<VehicleInfo> vehiclePage = vehicleService.getAvailableVehicles(pageable);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("content", vehiclePage.getContent());
+        response.put("currentPage", vehiclePage.getNumber());
+        response.put("totalItems", vehiclePage.getTotalElements());
+        response.put("totalPages", vehiclePage.getTotalPages());
+        response.put("pageSize", vehiclePage.getSize());
+        response.put("isLast", vehiclePage.isLast());
+
+        return ResponseEntity.ok(response);
+    }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Map<String, Object>> registerVehicle(
@@ -50,17 +83,11 @@ public class VehicleController {
         log.info("Primary image index: {}", primaryImageIndex);
 
         if (images.isEmpty()) {
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("success", false);
-            errorResponse.put("message", "At least one vehicle image is required");
-            return ResponseEntity.badRequest().body(errorResponse);
+            throw new NoImageFoundException("At least one vehicle image is required");
         }
 
         if (primaryImageIndex < 0 || primaryImageIndex >= images.size()) {
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("success", false);
-            errorResponse.put("message", "Invalid primary image index");
-            return ResponseEntity.badRequest().body(errorResponse);
+            throw new InvalidPrimaryIndexOfImage("Invalid primary image index");
         }
 
         for (MultipartFile image : images) {
@@ -96,7 +123,6 @@ public class VehicleController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-
 
     @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Map<String, Object>> registerVehicleAlternative(

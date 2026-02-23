@@ -81,7 +81,7 @@ public class VehicleTestRunner implements CommandLineRunner {
                 .transmissionType(TransmissionType.AUTOMATIC)
                 .status(VehicleStatus.ACTIVE)
                 .seatingCapacity(5)
-                .mileage(9).pricePerDay(500L).pricePerHour(0L)
+                .mileage(9).pricePerDay(500L)
                 .accountOwner(accountOwner)
                 .location("Gandhinagar").build();
 

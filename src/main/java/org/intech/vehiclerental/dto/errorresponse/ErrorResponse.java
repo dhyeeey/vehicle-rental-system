@@ -3,9 +3,7 @@ package org.intech.vehiclerental.dto.errorresponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import org.intech.vehiclerental.exceptions.PasswordMismatchException;
-import org.intech.vehiclerental.exceptions.WrongLoginEmailCredentialException;
-import org.intech.vehiclerental.exceptions.WrongLoginPasswordCredentialException;
+import org.intech.vehiclerental.exceptions.*;
 import org.postgresql.util.PSQLException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -107,4 +105,18 @@ public class ErrorResponse {
             errors.put("password", "Invalid Password");
         }
     }
+
+    public ErrorResponse(NoImageFoundException ex, HttpStatus httpStatus) {
+        this(httpStatus);
+        message = ex.getMessage();
+        errors.put("images",ex.getMessage());
+    }
+
+    public ErrorResponse(InvalidPrimaryIndexOfImage ex, HttpStatus httpStatus) {
+        this(httpStatus);
+        message = ex.getMessage();
+        errors.put("primaryImageIndex","Invalid primary image index");
+    }
+
+
 }

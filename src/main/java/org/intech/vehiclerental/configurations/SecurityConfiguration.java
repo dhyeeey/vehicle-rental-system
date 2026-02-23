@@ -34,7 +34,7 @@ public class SecurityConfiguration {
                 .cors(cors -> {}) // enable CORS inside Spring Security
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/api/auth/createaccount").permitAll()
+                        .requestMatchers("/api/auth/login", "/api/auth/createaccount","/api/vehicle/getall").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // allow preflight
                         .anyRequest().authenticated() // Secure all other requests
                 ).sessionManagement(session ->
