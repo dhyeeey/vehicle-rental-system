@@ -20,6 +20,10 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 import java.util.List;
 
+
+/**
+ * Runner class for inserting dummy data for testing purposes
+ */
 @Component
 public class VehicleTestRunner implements CommandLineRunner {
 

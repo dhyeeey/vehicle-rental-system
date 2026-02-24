@@ -1,8 +1,7 @@
 package org.intech.vehiclerental.services;
 
 import jakarta.validation.Valid;
-import org.intech.vehiclerental.dto.VehicleInfo;
-import org.intech.vehiclerental.dto.VehicleListView;
+import org.intech.vehiclerental.dto.vehicledto.VehicleFleetDTO;
 import org.intech.vehiclerental.dto.requestbody.VehicleRegistrationDTO;
 import org.intech.vehiclerental.models.*;
 import org.intech.vehiclerental.models.enums.VehicleStatus;
@@ -43,11 +42,19 @@ public class VehicleService {
         return owner;
     }
 
-    public Page<VehicleInfo> getAvailableVehicles(Pageable pageable) {
-        return vehicleRepository.findByStatusAndIsAvailable(
-                VehicleStatus.ACTIVE,
-                pageable,
-                true
+    public Page<VehicleFleetDTO> getCurrentAccountFleetVehicles(
+            Pageable pageable,
+            CustomUserDetails userDetails,
+            VehicleStatus vehicleStatus,
+            Boolean isAvailable
+    ){
+        AccountOwner accountOwner = userDetails.getAccountOwner();
+
+        return vehicleRepository.findByAccountOwnerAndStatusAndIsAvailable(
+                accountOwner,
+                vehicleStatus,
+                isAvailable,
+                pageable
         );
     }
 
@@ -91,7 +98,7 @@ public class VehicleService {
             }
 
             VehicleImage vehicleImage = VehicleImage.builder()
-                    .vehicle(vehicle) // VERY IMPORTANT
+                    .vehicle(vehicle)
                     .imageUrl("/uploads/vehicles/" + fileName)
                     .displayOrder(i)
                     .isPrimary(i == primaryImageIndex)

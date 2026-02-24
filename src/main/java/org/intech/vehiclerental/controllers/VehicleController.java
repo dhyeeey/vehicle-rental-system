@@ -2,16 +2,19 @@ package org.intech.vehiclerental.controllers;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.intech.vehiclerental.dto.VehicleInfo;
+import org.intech.vehiclerental.dto.paginationdto.PageResponse;
+import org.intech.vehiclerental.dto.vehicledto.VehicleFleetDTO;
 import org.intech.vehiclerental.dto.requestbody.VehicleRegistrationDTO;
 import org.intech.vehiclerental.exceptions.InvalidPrimaryIndexOfImage;
 import org.intech.vehiclerental.exceptions.NoImageFoundException;
 import org.intech.vehiclerental.models.AccountOwner;
 import org.intech.vehiclerental.models.CustomUserDetails;
 import org.intech.vehiclerental.models.Vehicle;
+import org.intech.vehiclerental.models.enums.VehicleStatus;
 import org.intech.vehiclerental.services.AccountOwnerService;
 import org.intech.vehiclerental.services.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,14 +38,18 @@ public class VehicleController {
     private final VehicleService vehicleService;
     private final AccountOwnerService accountOwnerService;
 
+    @Value("${app.upload.dir}")
+    private String uploadDir;
+
     @Autowired
     public VehicleController(VehicleService vehicleService, AccountOwnerService accountOwnerService){
         this.vehicleService = vehicleService;
         this.accountOwnerService = accountOwnerService;
     }
 
-    @GetMapping("/getall")
-    public ResponseEntity<?> getAllVehicles(
+    @GetMapping("/getallfleetvehicles")
+    public ResponseEntity<?> getAllFleetVehicles(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
@@ -55,19 +62,23 @@ public class VehicleController {
 
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<VehicleInfo> vehiclePage = vehicleService.getAvailableVehicles(pageable);
+        Page<VehicleFleetDTO> vehiclePage = vehicleService.getCurrentAccountFleetVehicles(
+                pageable,
+                userDetails,
+                VehicleStatus.ACTIVE,
+                true
+        );
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("content", vehiclePage.getContent());
-        response.put("currentPage", vehiclePage.getNumber());
-        response.put("totalItems", vehiclePage.getTotalElements());
-        response.put("totalPages", vehiclePage.getTotalPages());
-        response.put("pageSize", vehiclePage.getSize());
-        response.put("isLast", vehiclePage.isLast());
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(new PageResponse<>(vehiclePage));
     }
 
+
+    /**
+     *
+     * Currently image uploads are stored in folder locally on temporary basis.
+     * Local storing of images will removed in future
+     *
+     */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Map<String, Object>> registerVehicle(
             @AuthenticationPrincipal CustomUserDetails userDetails,

@@ -1,15 +1,15 @@
-package org.intech.vehiclerental.dto;
+package org.intech.vehiclerental.dto.vehicledto;
 
-import org.intech.vehiclerental.models.VehicleImage;
 import org.intech.vehiclerental.models.enums.TransmissionType;
+import org.intech.vehiclerental.models.enums.VehicleStatus;
 
-import java.util.List;
+import java.time.Instant;
 import java.util.Set;
 
 /**
  * Projection for {@link org.intech.vehiclerental.models.Vehicle}
  */
-public interface VehicleInfo {
+public interface VehicleFleetDTO {
     Long getId();
 
     String getMake();
@@ -20,6 +20,10 @@ public interface VehicleInfo {
 
     Integer getYear();
 
+    VehicleStatus getStatus();
+
+    String getRegistrationNumber();
+
     TransmissionType getTransmissionType();
 
     Integer getSeatingCapacity();
@@ -27,7 +31,9 @@ public interface VehicleInfo {
     Long getPricePerDay();
 
     public interface ImageView {
+        String getId();
         String getImageUrl();
         Boolean getIsPrimary();
+        Instant getCreatedAt();
     }
 }
