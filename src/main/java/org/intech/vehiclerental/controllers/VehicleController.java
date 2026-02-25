@@ -1,8 +1,11 @@
 package org.intech.vehiclerental.controllers;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.intech.vehiclerental.dto.paginationdto.PageResponse;
+import org.intech.vehiclerental.dto.vehicledto.InterfaceVehicleInfo;
+import org.intech.vehiclerental.dto.vehicledto.VehicleDetailsRecord;
 import org.intech.vehiclerental.dto.vehicledto.VehicleFleetDTO;
 import org.intech.vehiclerental.dto.requestbody.VehicleRegistrationDTO;
 import org.intech.vehiclerental.exceptions.InvalidPrimaryIndexOfImage;
@@ -13,12 +16,14 @@ import org.intech.vehiclerental.models.Vehicle;
 import org.intech.vehiclerental.models.enums.VehicleStatus;
 import org.intech.vehiclerental.services.AccountOwnerService;
 import org.intech.vehiclerental.services.VehicleService;
+import org.intech.vehiclerental.views.VehicleViews;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -45,6 +50,15 @@ public class VehicleController {
     public VehicleController(VehicleService vehicleService, AccountOwnerService accountOwnerService){
         this.vehicleService = vehicleService;
         this.accountOwnerService = accountOwnerService;
+    }
+
+    @GetMapping("/{vehicleId}")
+    public ResponseEntity<?> getVehicleDetails(
+            @PathVariable(value = "vehicleId") Long vehicleId
+    ){
+        VehicleDetailsRecord vehicle = vehicleService.findVehicleById(vehicleId);
+
+        return ResponseEntity.ok(vehicle);
     }
 
     @GetMapping("/getallfleetvehicles")

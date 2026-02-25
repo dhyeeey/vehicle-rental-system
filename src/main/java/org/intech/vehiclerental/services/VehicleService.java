@@ -1,11 +1,16 @@
 package org.intech.vehiclerental.services;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
+import org.intech.vehiclerental.dto.vehicledto.InterfaceVehicleInfo;
+import org.intech.vehiclerental.dto.vehicledto.VehicleDetailsRecord;
 import org.intech.vehiclerental.dto.vehicledto.VehicleFleetDTO;
 import org.intech.vehiclerental.dto.requestbody.VehicleRegistrationDTO;
+import org.intech.vehiclerental.mappers.VehicleMapper;
 import org.intech.vehiclerental.models.*;
 import org.intech.vehiclerental.models.enums.VehicleStatus;
 import org.intech.vehiclerental.repositories.VehicleRepository;
+import org.intech.vehiclerental.views.VehicleViews;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,11 +27,13 @@ import java.util.List;
 @Service
 public class VehicleService {
 
-    private VehicleRepository vehicleRepository;
+    private final VehicleRepository vehicleRepository;
+    private final VehicleMapper vehicleMapper;
 
     @Autowired
-    public VehicleService(VehicleRepository vehicleRepository){
+    public VehicleService(VehicleRepository vehicleRepository, VehicleMapper vehicleMapper){
         this.vehicleRepository = vehicleRepository;
+        this.vehicleMapper = vehicleMapper;
     }
 
     public AccountOwner getVehicleOwnerByVehicleId(Long vehicleId){
@@ -56,6 +63,12 @@ public class VehicleService {
                 isAvailable,
                 pageable
         );
+    }
+
+    public VehicleDetailsRecord findVehicleById(Long vehicleId){
+        VehicleDetailsRecord vehicle = vehicleRepository.findVehicleRecordById(vehicleId).orElseThrow(()->new RuntimeException(""));
+
+        return vehicle;
     }
 
     public Vehicle registerVehicle(@Valid VehicleRegistrationDTO dto,

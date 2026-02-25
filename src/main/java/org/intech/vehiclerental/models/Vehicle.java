@@ -95,7 +95,7 @@ public class Vehicle {
     @Column(nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP")
     private Instant updatedAt;
 
-    @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     private Set<Rental> rentals = new HashSet<>();
 
@@ -103,7 +103,7 @@ public class Vehicle {
     @Builder.Default
     private Set<VehicleImage> images = new HashSet<>();
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
             name = "vehicle_features",
             joinColumns = @JoinColumn(name = "vehicle_id")

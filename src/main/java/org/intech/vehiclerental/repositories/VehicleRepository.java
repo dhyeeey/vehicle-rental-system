@@ -1,5 +1,7 @@
 package org.intech.vehiclerental.repositories;
 
+import org.intech.vehiclerental.dto.vehicledto.InterfaceVehicleInfo;
+import org.intech.vehiclerental.dto.vehicledto.VehicleDetailsRecord;
 import org.intech.vehiclerental.dto.vehicledto.VehicleFleetDTO;
 import org.intech.vehiclerental.models.AccountOwner;
 import org.intech.vehiclerental.models.Vehicle;
@@ -26,6 +28,23 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
                 Boolean isAvailable,
                 Pageable pageable
         );
+
+//    @Query("select v from Vehicle v JOIN FETCH v.images vi where v.id = ?1")
+    @EntityGraph(attributePaths = {"images", "features"})
+    Optional<InterfaceVehicleInfo> findProjectedById(Long id);
+
+    @Query("""
+        SELECT new org.intech.vehiclerental.dto.vehicledto.VehicleDetailsRecord(
+            v.id, v.registrationNumber, v.vin, v.make, v.model, v.year,
+            v.color, v.type, v.fuelType, v.transmissionType, v.seatingCapacity,
+            v.mileage, v.pricePerDay, v.status, v.description, v.location,
+            v.isAvailable, v.createdAt, v.updatedAt,
+            v.averageRating, v.reviewCount
+        )
+        FROM Vehicle v 
+        WHERE v.id = :id
+    """)
+    Optional<VehicleDetailsRecord> findVehicleRecordById(@Param("id") Long id);
 
     @Query("SELECT v FROM Vehicle v JOIN FETCH v.accountOwner ao")
     List<Vehicle> findAllWithOwner(Pageable pageable);
