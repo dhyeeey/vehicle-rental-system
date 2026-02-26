@@ -29,7 +29,8 @@ import java.util.Map;
 public class SecurityConfiguration {
 
     /**
-     * "/api/vehicle/getall","/uploads/vehicles/**" are permitted for temporary basis only for testing purposes
+     * "/api/vehicle/getall",
+     * "/uploads/vehicles/**" are permitted for temporary basis only for testing purposes
      * Above endpoints will be removed from permitAll in future
      *
      */
@@ -42,7 +43,6 @@ public class SecurityConfiguration {
                         .requestMatchers(
                                 "/api/auth/login",
                                 "/api/auth/createaccount",
-                                "/api/vehicle/**",
                                 "/uploads/vehicles/**"
                                 ).permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // allow preflight

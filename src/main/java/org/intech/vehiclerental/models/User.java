@@ -1,6 +1,7 @@
 package org.intech.vehiclerental.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.intech.vehiclerental.models.enums.Status;
@@ -36,6 +37,7 @@ public class User extends AccountOwner{
     private Boolean isVerified;
 
     @JsonIgnore
+    @JsonManagedReference
     @OneToMany(mappedBy = "renter", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
     private Set<Rental> rentals = new HashSet<>();

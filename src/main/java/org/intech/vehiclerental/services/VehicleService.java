@@ -1,16 +1,14 @@
 package org.intech.vehiclerental.services;
 
-import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
-import org.intech.vehiclerental.dto.vehicledto.InterfaceVehicleInfo;
-import org.intech.vehiclerental.dto.vehicledto.VehicleDetailsRecord;
-import org.intech.vehiclerental.dto.vehicledto.VehicleFleetDTO;
 import org.intech.vehiclerental.dto.requestbody.VehicleRegistrationDTO;
+import org.intech.vehiclerental.dto.vehicledto.InterfaceVehicleInfo;
+import org.intech.vehiclerental.dto.vehicledto.VehicleFleetDTO;
+import org.intech.vehiclerental.dto.vehicledto.VehicleSearchInfo;
 import org.intech.vehiclerental.mappers.VehicleMapper;
 import org.intech.vehiclerental.models.*;
 import org.intech.vehiclerental.models.enums.VehicleStatus;
 import org.intech.vehiclerental.repositories.VehicleRepository;
-import org.intech.vehiclerental.views.VehicleViews;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +21,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class VehicleService {
@@ -65,34 +64,32 @@ public class VehicleService {
         );
     }
 
-    public VehicleDetailsRecord findVehicleById(Long vehicleId){
-        VehicleDetailsRecord vehicle = vehicleRepository.findVehicleRecordById(vehicleId).orElseThrow(()->new RuntimeException(""));
+    public InterfaceVehicleInfo findVehicleById(Long vehicleId){
+        InterfaceVehicleInfo vehicle = vehicleRepository.findProjectedById(vehicleId).orElseThrow(()->new RuntimeException(""));
 
         return vehicle;
     }
 
+    public Set<VehicleSearchInfo> findByAccountOwnerNot(AccountOwner accountOwner){
+        Set<VehicleSearchInfo> vehicles = vehicleRepository.findByAccountOwnerNot(accountOwner);
+
+        return vehicles;
+    }
+
+    /**
+     *
+     * Currently image uploads are stored in folder locally on temporary basis.
+     * Local storing of images will removed in future
+     *
+     */
     public Vehicle registerVehicle(@Valid VehicleRegistrationDTO dto,
                                    List<MultipartFile> images,
                                    Integer primaryImageIndex,
                                    AccountOwner accountOwner) {
 
-        Vehicle vehicle = Vehicle.builder()
-                .accountOwner(accountOwner)
-                .registrationNumber(dto.registrationNumber())
-                .vin(dto.vin())
-                .make(dto.make())
-                .model(dto.model())
-                .year(dto.year())
-                .color(dto.color())
-                .type(dto.type())
-                .fuelType(dto.fuelType())
-                .transmissionType(dto.transmissionType())
-                .seatingCapacity(dto.seatingCapacity())
-                .mileage(dto.mileage())
-                .pricePerDay(dto.pricePerDay())
-                .description(dto.description())
-                .location(dto.location())
-                .build();
+        Vehicle vehicle = vehicleMapper.toVehicleFromVehicleRegistrationDTO(dto);
+
+        vehicle.setAccountOwner(accountOwner);
 
         for (int i = 0; i < images.size(); i++) {
 

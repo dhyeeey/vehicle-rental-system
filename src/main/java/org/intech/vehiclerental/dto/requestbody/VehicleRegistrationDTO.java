@@ -5,6 +5,8 @@ import org.intech.vehiclerental.models.enums.FuelType;
 import org.intech.vehiclerental.models.enums.TransmissionType;
 import org.intech.vehiclerental.models.enums.VehicleType;
 
+import java.util.Set;
+
 public record VehicleRegistrationDTO(
 
         @NotBlank(message = "Registration number is required")
@@ -62,6 +64,9 @@ public record VehicleRegistrationDTO(
 
         @NotBlank(message = "Location is required")
         @Size(min = 3, max = 255)
-        String location
+        String location,
+
+        @Size(max = 20, message = "Maximum 20 features allowed")
+        Set<String> features
 ) {
 }

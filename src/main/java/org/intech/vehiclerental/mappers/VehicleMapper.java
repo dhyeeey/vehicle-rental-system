@@ -1,5 +1,6 @@
 package org.intech.vehiclerental.mappers;
 
+import org.intech.vehiclerental.dto.requestbody.VehicleRegistrationDTO;
 import org.intech.vehiclerental.dto.vehicledto.InterfaceVehicleInfo;
 import org.intech.vehiclerental.dto.vehicledto.VehicleDetailsRecord;
 import org.intech.vehiclerental.dto.vehicledto.VehicleImageRecord;
@@ -17,19 +18,21 @@ public interface VehicleMapper {
     @Mapping(target = "fuelType", source = "fuelType")
     @Mapping(target = "transmissionType", source = "transmissionType")
     @Mapping(target = "status", source = "status")
-    VehicleDetailsRecord toVehicleDetails(Vehicle vehicle);
+    VehicleDetailsRecord toVehicleDetailsRecordFromVehicle(Vehicle vehicle);
 
-    VehicleImageRecord toVehicleImageRecord(VehicleImage image);
+    Vehicle toVehicleFromVehicleRegistrationDTO(VehicleRegistrationDTO vehicleRegistrationDTO);
 
-    Set<VehicleImageRecord> toVehicleImageRecordSet(Set<VehicleImage> images);
+    VehicleImageRecord toVehicleImageRecordFromVehicleImage(VehicleImage image);
 
-    VehicleDetailsRecord toRecord(InterfaceVehicleInfo projection);
+    Set<VehicleImageRecord> toVehicleImageRecordSetFromSetVehicleImage(Set<VehicleImage> images);
 
-    VehicleImageRecord toImageRecord(
+    VehicleDetailsRecord toVehicleDetailsRecordFromInterfaceVehicleInfo(InterfaceVehicleInfo projection);
+
+    VehicleImageRecord toVehicleImageRecordFromInterFaceVehicleImageInfo(
             InterfaceVehicleInfo.InterFaceVehicleImageInfo imageProjection
     );
 
-    Set<VehicleImageRecord> toImageRecordSet(
+    Set<VehicleImageRecord> toSetVehicleImageRecordFromSetInterFaceVehicleImageInfo(
             Set<InterfaceVehicleInfo.InterFaceVehicleImageInfo> images
     );
 }

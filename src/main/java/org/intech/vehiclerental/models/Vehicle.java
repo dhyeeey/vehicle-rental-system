@@ -1,5 +1,8 @@
 package org.intech.vehiclerental.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -70,6 +73,7 @@ public class Vehicle {
     @Column(nullable = false)
     private Long pricePerDay;
 
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_owner_id", nullable = false)
     private AccountOwner accountOwner;
@@ -95,10 +99,12 @@ public class Vehicle {
     @Column(nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP")
     private Instant updatedAt;
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     private Set<Rental> rentals = new HashSet<>();
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "vehicle", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private Set<VehicleImage> images = new HashSet<>();
@@ -111,6 +117,7 @@ public class Vehicle {
     @Column(name = "feature", length = 100)
     private Set<String> features = new HashSet<>();
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private Set<Review> reviews = new HashSet<>();

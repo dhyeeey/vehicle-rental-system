@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -92,9 +93,22 @@ public class VehicleTestRunner implements CommandLineRunner {
         vehicleRepository.save(vehicle);
     }
 
+    public void fetchallvehicles(){
+        AccountOwner accountOwner = accountOwnerRepository.findById(3L).orElseThrow(()->new RuntimeException("Account owner not found"));
+
+//        Set<Vehicle> vehicles = vehicleRepository.findByAccountOwnerNot(accountOwner);
+//
+//        for (Vehicle vh : vehicles){
+//            System.out.println(vh.getId()+", "+vh.getMake()+", "+vh.getModel());
+//        }
+    }
+
     @Override
     public void run(String... args) {
 
 //        insertvehicle();
+//        fetchallvehicles();
+
     }
+
 }
