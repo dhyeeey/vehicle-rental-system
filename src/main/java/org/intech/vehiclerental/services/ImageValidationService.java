@@ -3,8 +3,10 @@ package org.intech.vehiclerental.services;
 import lombok.RequiredArgsConstructor;
 import org.intech.vehiclerental.exceptions.InvalidImageException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.convert.DataSizeUnit;
 import org.springframework.stereotype.Service;
 import org.springframework.util.unit.DataSize;
+import org.springframework.util.unit.DataUnit;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -13,6 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ImageValidationService {
 
+    @DataSizeUnit(DataUnit.MEGABYTES)
     @Value("${app.vehicle.max-image-size-mb}")
     private DataSize maxImageSize;
 

@@ -4,9 +4,9 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.intech.vehiclerental.dto.paginationdto.PageResponse;
 import org.intech.vehiclerental.dto.requestbody.VehicleRegistrationDTO;
-import org.intech.vehiclerental.dto.vehicledto.InterfaceVehicleInfo;
+import org.intech.vehiclerental.dto.vehicledto.VehicleInfo;
 import org.intech.vehiclerental.dto.vehicledto.RegisterVehicleResponseDTO;
-import org.intech.vehiclerental.dto.vehicledto.VehicleFleetDTO;
+import org.intech.vehiclerental.dto.vehicledto.VehicleFleetDto;
 import org.intech.vehiclerental.dto.vehicledto.VehicleSearchInfo;
 import org.intech.vehiclerental.models.AccountOwner;
 import org.intech.vehiclerental.models.CustomUserDetails;
@@ -58,7 +58,7 @@ public class VehicleController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable(value = "vehicleId") Long vehicleId
     ){
-        InterfaceVehicleInfo vehicle = vehicleService.findVehicleById(vehicleId);
+        VehicleInfo vehicle = vehicleService.findVehicleById(vehicleId);
         return ResponseEntity.ok(vehicle);
     }
 
@@ -67,7 +67,9 @@ public class VehicleController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ){
 
-        Set<VehicleSearchInfo> vehicles = vehicleService.findByAccountOwnerNot(customUserDetails.getAccountOwner());
+        Set<VehicleSearchInfo> vehicles = vehicleService.findByAccountOwnerNot(
+                customUserDetails.getAccountOwner()
+        );
         return ResponseEntity.ok(vehicles);
 
     }
@@ -87,7 +89,7 @@ public class VehicleController {
 
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<VehicleFleetDTO> vehiclePage = vehicleService.getCurrentAccountFleetVehicles(
+        Page<VehicleFleetDto> vehiclePage = vehicleService.getCurrentAccountFleetVehicles(
                 pageable,
                 userDetails,
                 VehicleStatus.ACTIVE,

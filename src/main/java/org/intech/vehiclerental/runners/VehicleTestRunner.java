@@ -9,6 +9,7 @@ import org.intech.vehiclerental.models.enums.TransmissionType;
 import org.intech.vehiclerental.models.enums.VehicleStatus;
 import org.intech.vehiclerental.models.enums.VehicleType;
 import org.intech.vehiclerental.repositories.AccountOwnerRepository;
+import org.intech.vehiclerental.repositories.VehicleEntityViewRepository;
 import org.intech.vehiclerental.repositories.VehicleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -30,14 +31,17 @@ public class VehicleTestRunner implements CommandLineRunner {
 
     private final VehicleRepository vehicleRepository;
     private final AccountOwnerRepository accountOwnerRepository;
+    private final VehicleEntityViewRepository vehicleEntityViewRepository;
 
     @Autowired
     public VehicleTestRunner(
             VehicleRepository vehicleRepository,
-            AccountOwnerRepository accountOwnerRepository
+            AccountOwnerRepository accountOwnerRepository,
+            VehicleEntityViewRepository vehicleEntityViewRepository
     ) {
         this.vehicleRepository = vehicleRepository;
         this.accountOwnerRepository = accountOwnerRepository;
+        this.vehicleEntityViewRepository = vehicleEntityViewRepository;
     }
 
     public void getvehicles(){
@@ -102,6 +106,7 @@ public class VehicleTestRunner implements CommandLineRunner {
 //            System.out.println(vh.getId()+", "+vh.getMake()+", "+vh.getModel());
 //        }
     }
+
 
     @Override
     public void run(String... args) {

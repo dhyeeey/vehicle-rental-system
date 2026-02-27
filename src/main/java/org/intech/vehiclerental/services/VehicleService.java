@@ -2,8 +2,8 @@ package org.intech.vehiclerental.services;
 
 import jakarta.validation.Valid;
 import org.intech.vehiclerental.dto.requestbody.VehicleRegistrationDTO;
-import org.intech.vehiclerental.dto.vehicledto.InterfaceVehicleInfo;
-import org.intech.vehiclerental.dto.vehicledto.VehicleFleetDTO;
+import org.intech.vehiclerental.dto.vehicledto.VehicleInfo;
+import org.intech.vehiclerental.dto.vehicledto.VehicleFleetDto;
 import org.intech.vehiclerental.dto.vehicledto.VehicleSearchInfo;
 import org.intech.vehiclerental.mappers.VehicleMapper;
 import org.intech.vehiclerental.models.*;
@@ -48,7 +48,7 @@ public class VehicleService {
         return owner;
     }
 
-    public Page<VehicleFleetDTO> getCurrentAccountFleetVehicles(
+    public Page<VehicleFleetDto> getCurrentAccountFleetVehicles(
             Pageable pageable,
             CustomUserDetails userDetails,
             VehicleStatus vehicleStatus,
@@ -64,8 +64,8 @@ public class VehicleService {
         );
     }
 
-    public InterfaceVehicleInfo findVehicleById(Long vehicleId){
-        InterfaceVehicleInfo vehicle = vehicleRepository.findProjectedById(vehicleId).orElseThrow(()->new RuntimeException(""));
+    public VehicleInfo findVehicleById(Long vehicleId){
+        VehicleInfo vehicle = vehicleRepository.findProjectedById(vehicleId).orElseThrow(()->new RuntimeException(""));
 
         return vehicle;
     }

@@ -9,12 +9,12 @@ import java.util.Set;
 /**
  * Projection for {@link org.intech.vehiclerental.models.Vehicle}
  */
-public interface VehicleFleetDTO {
+public interface VehicleFleetDto {
     Long getId();
 
     String getMake();
 
-    Set<ImageView> getImages();
+    Set<VehicleImageView> getImages();
 
     String getModel();
 
@@ -29,13 +29,4 @@ public interface VehicleFleetDTO {
     Integer getSeatingCapacity();
 
     Long getPricePerDay();
-
-    public interface ImageView {
-        String getId();
-        String getImageUrl();
-        Boolean getIsPrimary();
-        Instant getCreatedAt();
-        String getCaption();
-        Integer getDisplayOrder();
-    }
 }

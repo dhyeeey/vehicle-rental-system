@@ -74,11 +74,12 @@ public class LoginAndRegistrationController {
     )
     public ResponseEntity<?> createAccount(
             HttpServletRequest httpServletRequest,
-            @Valid @RequestBody(required = true) CreateAccountPayloadBody createAccountPayloadBody){
+            @Valid @RequestBody(required = true) CreateAccountPayloadBody createAccountPayloadBody
+    ){
 
         User user = loginAndRegistrationService.saveUser(createAccountPayloadBody);
-
         return ResponseEntity.status(HttpStatus.OK).build();
+
     }
 
 }

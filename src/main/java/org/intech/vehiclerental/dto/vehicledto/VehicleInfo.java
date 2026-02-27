@@ -1,5 +1,8 @@
 package org.intech.vehiclerental.dto.vehicledto;
 
+import com.blazebit.persistence.view.EntityView;
+import com.blazebit.persistence.view.IdMapping;
+import org.intech.vehiclerental.models.Vehicle;
 import org.intech.vehiclerental.models.enums.FuelType;
 import org.intech.vehiclerental.models.enums.TransmissionType;
 import org.intech.vehiclerental.models.enums.VehicleStatus;
@@ -11,7 +14,10 @@ import java.util.Set;
 /**
  * Projection for {@link org.intech.vehiclerental.models.Vehicle}
  */
-public interface InterfaceVehicleInfo {
+@EntityView(Vehicle.class)
+public interface VehicleInfo {
+
+    @IdMapping
     Long getId();
 
     String getRegistrationNumber();
@@ -50,22 +56,5 @@ public interface InterfaceVehicleInfo {
 
     Set<String> getFeatures();
 
-    Set<InterFaceVehicleImageInfo> getImages();
-
-    /**
-     * Projection for {@link org.intech.vehiclerental.models.VehicleImage}
-     */
-    interface InterFaceVehicleImageInfo {
-        Long getId();
-
-        String getImageUrl();
-
-        Integer getDisplayOrder();
-
-        Boolean getIsPrimary();
-
-        String getCaption();
-
-        Instant getCreatedAt();
-    }
+    Set<VehicleImageView> getImages();
 }
