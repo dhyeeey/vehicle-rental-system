@@ -8,7 +8,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.intech.vehiclerental.models.enums.RentalStatus;
 
-import java.math.BigDecimal;
+import java.lang.Long;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
@@ -42,20 +42,20 @@ public class Rental {
     @Column(columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private Instant actualEndDateTime;
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal totalAmount;
+    @Column
+    private Double totalAmount;
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal baseAmount;
+    @Column
+    private Double baseAmount;
 
-    @Column(precision = 10, scale = 2)
-    private BigDecimal taxAmount;
+    @Column
+    private Double taxAmount;
 
-    @Column(precision = 10, scale = 2)
-    private BigDecimal discountAmount;
+    @Column
+    private Double discountAmount;
 
-    @Column(precision = 10, scale = 2)
-    private BigDecimal depositAmount;
+    @Column
+    private Double depositAmount;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)

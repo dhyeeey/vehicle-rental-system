@@ -7,8 +7,8 @@ import com.blazebit.persistence.spring.data.impl.repository.BlazePersistenceRepo
 
 @SpringBootApplication
 @EnableJpaRepositories(
-		basePackages = "org.intech.vehiclerental.repositories",
-		repositoryFactoryBeanClass = BlazePersistenceRepositoryFactoryBean.class
+		basePackages = "org.intech.vehiclerental.repositories"
+//		repositoryFactoryBeanClass = BlazePersistenceRepositoryFactoryBean.class
 )
 public class VehiclerentalApplication {
 

@@ -9,7 +9,7 @@ import java.time.Instant;
 @EntityView(VehicleImage.class)
 public interface VehicleImageView {
     @IdMapping
-    String getId();
+    Long getId();
 
     String getImageUrl();
     Boolean getIsPrimary();

@@ -4,19 +4,17 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.intech.vehiclerental.dto.paginationdto.PageResponse;
 import org.intech.vehiclerental.dto.requestbody.VehicleRegistrationDTO;
-import org.intech.vehiclerental.dto.vehicledto.VehicleInfo;
 import org.intech.vehiclerental.dto.vehicledto.RegisterVehicleResponseDTO;
 import org.intech.vehiclerental.dto.vehicledto.VehicleFleetDto;
+import org.intech.vehiclerental.dto.vehicledto.VehicleInfo;
 import org.intech.vehiclerental.dto.vehicledto.VehicleSearchInfo;
 import org.intech.vehiclerental.models.AccountOwner;
 import org.intech.vehiclerental.models.CustomUserDetails;
 import org.intech.vehiclerental.models.Vehicle;
 import org.intech.vehiclerental.models.enums.VehicleStatus;
-import org.intech.vehiclerental.services.AccountOwnerService;
 import org.intech.vehiclerental.services.ImageValidationService;
 import org.intech.vehiclerental.services.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -37,19 +35,12 @@ import java.util.Set;
 public class VehicleController {
 
     private final VehicleService vehicleService;
-    private final AccountOwnerService accountOwnerService;
     private final ImageValidationService imageValidationService;
-
-    @Value("${app.upload.dir}")
-    private String uploadDir;
-
 
     @Autowired
     public VehicleController(VehicleService vehicleService,
-                             AccountOwnerService accountOwnerService,
                              ImageValidationService imageValidationService){
         this.vehicleService = vehicleService;
-        this.accountOwnerService = accountOwnerService;
         this.imageValidationService = imageValidationService;
     }
 
@@ -58,7 +49,10 @@ public class VehicleController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable(value = "vehicleId") Long vehicleId
     ){
-        VehicleInfo vehicle = vehicleService.findVehicleById(vehicleId);
+        VehicleInfo vehicle = vehicleService.findVehicleInfoById(vehicleId).orElseThrow(
+                ()->new RuntimeException("Vehicle not found")
+        );
+
         return ResponseEntity.ok(vehicle);
     }
 
@@ -67,7 +61,7 @@ public class VehicleController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ){
 
-        Set<VehicleSearchInfo> vehicles = vehicleService.findByAccountOwnerNot(
+        Set<VehicleSearchInfo> vehicles = vehicleService.findVehicleSearchSetByDifferentOwner(
                 customUserDetails.getAccountOwner()
         );
         return ResponseEntity.ok(vehicles);
@@ -89,11 +83,11 @@ public class VehicleController {
 
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<VehicleFleetDto> vehiclePage = vehicleService.getCurrentAccountFleetVehicles(
-                pageable,
-                userDetails,
+        Page<VehicleFleetDto> vehiclePage = vehicleService.findVehicleFleetPageByOwner(
+               userDetails.getAccountOwner(),
                 VehicleStatus.ACTIVE,
-                true
+                true,
+                pageable
         );
 
         return ResponseEntity.ok(new PageResponse<>(vehiclePage));

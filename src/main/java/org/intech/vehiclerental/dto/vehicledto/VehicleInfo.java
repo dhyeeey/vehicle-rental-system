@@ -42,7 +42,7 @@ public interface VehicleInfo {
 
     Integer getMileage();
 
-    Long getPricePerDay();
+    Double getPricePerDay();
 
     VehicleStatus getStatus();
 

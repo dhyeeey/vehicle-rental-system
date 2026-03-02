@@ -53,7 +53,7 @@ public record VehicleRegistrationDTO(
 
         @NotNull(message = "Price per day is required")
         @DecimalMin(value = "1.00", message = "Price per day must be at least 1")
-        Long pricePerDay,
+        Double pricePerDay,
 
         @DecimalMin(value = "0.00", message = "Price per hour cannot be negative")
         Long pricePerHour,

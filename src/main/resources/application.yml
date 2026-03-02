@@ -1,0 +1,49 @@
+spring:
+  application:
+    name: vehiclerental
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/vehiclerental
+    username: postgres
+    password: root
+    driver-class-name: org.postgresql.Driver
+
+  servlet:
+    multipart:
+      max-request-size: 50MB
+      max-file-size: 10MB
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  security:
+    enabled: true
+
+  threads:
+    virtual:
+      enabled: true
+
+server:
+  servlet:
+    session:
+      cookie:
+        http-only: false
+        secure: false
+
+  tomcat:
+    max-part-count: 300
+    max-swallow-size: -1
+
+app:
+  upload:
+    dir: /uploads/vehicles
+
+  vehicle:
+    max-image-size-mb: 5

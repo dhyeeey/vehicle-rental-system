@@ -8,6 +8,11 @@ import com.blazebit.persistence.view.EntityViews;
 import com.blazebit.persistence.view.spi.EntityViewConfiguration;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceUnit;
+import org.intech.vehiclerental.dto.rentaldto.*;
+import org.intech.vehiclerental.dto.vehicledto.VehicleFleetDto;
+import org.intech.vehiclerental.dto.vehicledto.VehicleImageView;
+import org.intech.vehiclerental.dto.vehicledto.VehicleInfo;
+import org.intech.vehiclerental.dto.vehicledto.VehicleSearchInfo;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -20,9 +25,17 @@ public class BlazeConfig {
     @Bean
     EntityViewConfiguration entityViewConfiguration() {
         EntityViewConfiguration cfg = EntityViews.createDefaultConfiguration();
-//        cfg.addEntityView(TestVehicleView.class);
-//        cfg.addEntityView(TestVehicleView.TestVehicleImageView.class);
 
+         cfg.addEntityView(VehicleFleetDto.class);
+         cfg.addEntityView(VehicleImageView.class);
+         cfg.addEntityView(VehicleInfo.class);
+         cfg.addEntityView(VehicleSearchInfo.class);
+
+         cfg.addEntityView(RentalInfo.class);
+         cfg.addEntityView(RentalListDto.class);
+         cfg.addEntityView(RentalUserDetail.class);
+         cfg.addEntityView(RentalVehicleDetail.class);
+         cfg.addEntityView(RentalVehicleSummary.class);
 
         return cfg;
     }

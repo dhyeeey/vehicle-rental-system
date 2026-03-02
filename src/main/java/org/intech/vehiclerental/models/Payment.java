@@ -34,7 +34,7 @@ public class Payment {
     private Rental rental;
 
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal amount;
+    private Long amount;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)

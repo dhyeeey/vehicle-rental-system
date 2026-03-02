@@ -64,6 +64,9 @@ public class Vehicle {
     @Column(nullable = false, length = 20)
     private TransmissionType transmissionType;
 
+    @Column
+    private Byte quantity;
+
     @Column(nullable = false)
     private Integer seatingCapacity;
 
@@ -71,7 +74,7 @@ public class Vehicle {
     private Integer mileage;
 
     @Column(nullable = false)
-    private Long pricePerDay;
+    private Double pricePerDay;
 
     @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)

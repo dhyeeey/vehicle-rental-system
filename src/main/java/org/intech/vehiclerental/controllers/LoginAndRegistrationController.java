@@ -76,10 +76,8 @@ public class LoginAndRegistrationController {
             HttpServletRequest httpServletRequest,
             @Valid @RequestBody(required = true) CreateAccountPayloadBody createAccountPayloadBody
     ){
-
-        User user = loginAndRegistrationService.saveUser(createAccountPayloadBody);
+        User user = loginAndRegistrationService.registerUser(createAccountPayloadBody);
         return ResponseEntity.status(HttpStatus.OK).build();
-
     }
 
 }

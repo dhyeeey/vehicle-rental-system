@@ -1,19 +1,16 @@
 package org.intech.vehiclerental.repositories;
 
 import org.intech.vehiclerental.models.AccountOwner;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-@Repository
-public interface AccountOwnerRepository extends JpaRepository<AccountOwner, Long> {
+public interface AccountOwnerRepository {
 
-    @Query("select ao from AccountOwner ao where ao.id = ?1")
-    Optional<AccountOwner> findById(Long aLong);
+    Optional<AccountOwner> findById(Long id);
 
-    @Query("select ao from AccountOwner ao where ao.email = ?1")
     Optional<AccountOwner> findByEmail(String email);
 
+    boolean existsByEmail(String email);
+
+    AccountOwner save(AccountOwner accountOwner);
 }
