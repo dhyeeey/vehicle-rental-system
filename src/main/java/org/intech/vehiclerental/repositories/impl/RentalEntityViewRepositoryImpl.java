@@ -15,16 +15,12 @@ import org.intech.vehiclerental.models.Vehicle;
 import org.intech.vehiclerental.models.enums.RentalStatus;
 import org.intech.vehiclerental.repositories.RentalEntityViewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Repository
-@Transactional(readOnly = true)
 public class RentalEntityViewRepositoryImpl implements RentalEntityViewRepository {
 
     private final EntityManager em;
@@ -40,9 +36,7 @@ public class RentalEntityViewRepositoryImpl implements RentalEntityViewRepositor
         this.evm = evm;
     }
 
-    // ---------------------------------------------------------
-    // Rental Info
-    // ---------------------------------------------------------
+
     @Override
     public Optional<RentalInfo> findRentalInfoById(Long id) {
 
@@ -58,11 +52,9 @@ public class RentalEntityViewRepositoryImpl implements RentalEntityViewRepositor
         return Optional.ofNullable(result);
     }
 
-    // ---------------------------------------------------------
-    // Rental Page by Renter
-    // ---------------------------------------------------------
+
     @Override
-    public Page<RentalListDto> findRentalPageByRenter(
+    public PagedList<RentalListDto> findRentalPageByRenter(
             User renter,
             RentalStatus status,
             Pageable pageable
@@ -76,7 +68,7 @@ public class RentalEntityViewRepositoryImpl implements RentalEntityViewRepositor
             cb.where("status").eq(status);
         }
 
-        cb.orderByDesc("createdAt");
+        cb.orderByDesc("createdAt").orderByDesc("id");
 
         PaginatedCriteriaBuilder<RentalListDto> pageCb =
                 evm.applySetting(
@@ -86,18 +78,12 @@ public class RentalEntityViewRepositoryImpl implements RentalEntityViewRepositor
 
         PagedList<RentalListDto> pagedList = pageCb.getResultList();
 
-        return new PageImpl<>(
-                pagedList,
-                pageable,
-                pagedList.getTotalSize()
-        );
+        return pagedList;
     }
 
-    // ---------------------------------------------------------
-    // Rental Page by Vehicle
-    // ---------------------------------------------------------
+
     @Override
-    public Page<RentalListDto> findRentalPageByVehicle(
+    public PagedList<RentalListDto> findRentalPageByVehicle(
             Vehicle vehicle,
             RentalStatus status,
             Pageable pageable
@@ -111,7 +97,7 @@ public class RentalEntityViewRepositoryImpl implements RentalEntityViewRepositor
             cb.where("status").eq(status);
         }
 
-        cb.orderByDesc("createdAt");
+        cb.orderByDesc("createdAt").orderByDesc("id");
 
         PaginatedCriteriaBuilder<RentalListDto> pageCb =
                 evm.applySetting(
@@ -121,18 +107,11 @@ public class RentalEntityViewRepositoryImpl implements RentalEntityViewRepositor
 
         PagedList<RentalListDto> pagedList = pageCb.getResultList();
 
-        return new PageImpl<>(
-                pagedList,
-                pageable,
-                pagedList.getTotalSize()
-        );
+        return pagedList;
     }
 
-    // ---------------------------------------------------------
-    // Save / Delete
-    // ---------------------------------------------------------
+
     @Override
-    @Transactional
     public Rental saveRental(Rental rental) {
         if (rental.getId() == null) {
             em.persist(rental);
@@ -142,8 +121,8 @@ public class RentalEntityViewRepositoryImpl implements RentalEntityViewRepositor
         }
     }
 
+
     @Override
-    @Transactional
     public void deleteRentalById(Long id) {
         Rental rental = em.find(Rental.class, id);
         if (rental != null) {

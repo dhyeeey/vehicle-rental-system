@@ -1,5 +1,6 @@
 package org.intech.vehiclerental.repositories;
 
+import com.blazebit.persistence.PagedList;
 import org.intech.vehiclerental.dto.vehicledto.VehicleFleetDto;
 import org.intech.vehiclerental.dto.vehicledto.VehicleInfo;
 import org.intech.vehiclerental.dto.vehicledto.VehicleSearchInfo;
@@ -17,7 +18,7 @@ public interface VehicleEntityViewRepository {
 
     Optional<VehicleInfo> findVehicleInfoById(Long id);
 
-    Page<VehicleFleetDto> findVehicleFleetPageByOwner(
+    PagedList<VehicleFleetDto> findVehicleFleetPageByOwner(
             AccountOwner owner,
             VehicleStatus status,
             Boolean isAvailable,

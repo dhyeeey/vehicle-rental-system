@@ -1,5 +1,6 @@
 package org.intech.vehiclerental.services.impl;
 
+import com.blazebit.persistence.PagedList;
 import jakarta.validation.Valid;
 import org.intech.vehiclerental.dto.requestbody.VehicleRegistrationDTO;
 import org.intech.vehiclerental.dto.vehicledto.VehicleFleetDto;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -97,10 +99,10 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    public Page<VehicleFleetDto> findVehicleFleetPageByOwner(AccountOwner owner,
-                                                             org.intech.vehiclerental.models.enums.VehicleStatus status,
-                                                             Boolean isAvailable,
-                                                             Pageable pageable) {
+    public PagedList<VehicleFleetDto> findVehicleFleetPageByOwner(AccountOwner owner,
+                                                                  org.intech.vehiclerental.models.enums.VehicleStatus status,
+                                                                  Boolean isAvailable,
+                                                                  Pageable pageable) {
         return vehicleRepository.findVehicleFleetPageByOwner(owner, status, isAvailable, pageable);
     }
 
@@ -123,11 +125,13 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
+    @Transactional
     public Vehicle saveVehicle(Vehicle vehicle) {
         return vehicleRepository.saveVehicle(vehicle);
     }
 
     @Override
+    @Transactional
     public void deleteVehicleById(Long id) {
         vehicleRepository.deleteVehicleById(id);
     }

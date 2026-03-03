@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @Repository
-@Transactional(readOnly = true)
 public class AccountOwnerRepositoryImpl implements AccountOwnerRepository {
 
     private final EntityManager em;

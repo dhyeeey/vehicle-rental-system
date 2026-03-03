@@ -1,5 +1,6 @@
 package org.intech.vehiclerental.services.impl;
 
+import com.blazebit.persistence.PagedList;
 import org.intech.vehiclerental.dto.rentaldto.CreateRentalRequestDto;
 import org.intech.vehiclerental.dto.rentaldto.RentalInfo;
 import org.intech.vehiclerental.dto.rentaldto.RentalListDto;
@@ -12,6 +13,7 @@ import org.intech.vehiclerental.services.RentalService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.Optional;
@@ -26,9 +28,17 @@ public class RentalServiceImpl implements RentalService {
     }
 
     @Override
+    @Transactional
     public Rental createRental(User renter, Vehicle vehicle, CreateRentalRequestDto createRentalRequestDto) {
 
-        Duration duration = Duration.between(createRentalRequestDto.startDate(), createRentalRequestDto.endDate());
+        if(vehicle.getQuantity() <= 0){
+            throw new RuntimeException("");
+        }
+
+        Duration duration = Duration.between(
+                createRentalRequestDto.startDate(),
+                createRentalRequestDto.endDate()
+        );
         Double durationInDays = (double)duration.toDays();
 
         Double baseAmount = vehicle.getPricePerDay()*durationInDays;
@@ -67,15 +77,15 @@ public class RentalServiceImpl implements RentalService {
 
 
     @Override
-    public Page<RentalListDto> findRentalPageByRenter(User renter,
-                                                      RentalStatus status,
-                                                      Pageable pageable) {
+    public PagedList<RentalListDto> findRentalPageByRenter(User renter,
+                                                           RentalStatus status,
+                                                           Pageable pageable) {
         return rentalRepository.findRentalPageByRenter(renter, status, pageable);
     }
 
 
     @Override
-    public Page<RentalListDto> findRentalPageByVehicle(Vehicle vehicle,
+    public PagedList<RentalListDto> findRentalPageByVehicle(Vehicle vehicle,
                                                        RentalStatus status,
                                                        Pageable pageable) {
         return rentalRepository.findRentalPageByVehicle(vehicle, status, pageable);

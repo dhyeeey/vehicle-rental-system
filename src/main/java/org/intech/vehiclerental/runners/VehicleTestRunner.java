@@ -40,7 +40,9 @@ public class VehicleTestRunner implements CommandLineRunner {
     }
 
     public void fetchallvehicles(){
-        AccountOwner accountOwner = accountOwnerRepository.findById(3L).orElseThrow(()->new RuntimeException("Account owner not found"));
+        AccountOwner accountOwner = accountOwnerRepository
+                .findById(3L)
+                .orElseThrow(()->new RuntimeException("Account owner not found"));
 
 //        Set<Vehicle> vehicles = vehicleRepository.findByAccountOwnerNot(accountOwner);
 //

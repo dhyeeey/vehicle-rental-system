@@ -1,5 +1,6 @@
 package org.intech.vehiclerental.services;
 
+import com.blazebit.persistence.PagedList;
 import org.intech.vehiclerental.dto.rentaldto.CreateRentalRequestDto;
 import org.intech.vehiclerental.dto.rentaldto.RentalInfo;
 import org.intech.vehiclerental.dto.rentaldto.RentalListDto;
@@ -18,13 +19,13 @@ public interface RentalService {
 
     Optional<RentalInfo> findRentalInfoById(Long id);
 
-    Page<RentalListDto> findRentalPageByRenter(
+    PagedList<RentalListDto> findRentalPageByRenter(
             User renter,
             RentalStatus status,
             Pageable pageable
     );
 
-    Page<RentalListDto> findRentalPageByVehicle(
+    PagedList<RentalListDto> findRentalPageByVehicle(
             Vehicle vehicle,
             RentalStatus status,
             Pageable pageable

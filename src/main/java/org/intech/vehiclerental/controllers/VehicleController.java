@@ -1,5 +1,6 @@
 package org.intech.vehiclerental.controllers;
 
+import com.blazebit.persistence.PagedList;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.intech.vehiclerental.dto.paginationdto.PageResponse;
@@ -15,7 +16,6 @@ import org.intech.vehiclerental.models.enums.VehicleStatus;
 import org.intech.vehiclerental.services.ImageValidationService;
 import org.intech.vehiclerental.services.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -56,6 +56,15 @@ public class VehicleController {
         return ResponseEntity.ok(vehicle);
     }
 
+    @DeleteMapping("/{vehicleId}")
+    public ResponseEntity<?> deleteVehicleFromFleet(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable(value = "vehicleId") Long vehicleId
+    ){
+        vehicleService.deleteVehicleById(vehicleId);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/search")
     public ResponseEntity<?> getAllSearchVehicles(
             @AuthenticationPrincipal CustomUserDetails customUserDetails
@@ -83,7 +92,7 @@ public class VehicleController {
 
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<VehicleFleetDto> vehiclePage = vehicleService.findVehicleFleetPageByOwner(
+        PagedList<VehicleFleetDto> vehiclePage = vehicleService.findVehicleFleetPageByOwner(
                userDetails.getAccountOwner(),
                 VehicleStatus.ACTIVE,
                 true,

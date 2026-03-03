@@ -15,11 +15,8 @@ import org.intech.vehiclerental.models.Vehicle;
 import org.intech.vehiclerental.models.enums.VehicleStatus;
 import org.intech.vehiclerental.repositories.VehicleEntityViewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
@@ -27,7 +24,6 @@ import java.util.Optional;
 import java.util.Set;
 
 @Repository
-@Transactional(readOnly = true)
 public class VehicleEntityViewRepositoryImpl implements VehicleEntityViewRepository {
 
     private final EntityManager em;
@@ -43,9 +39,7 @@ public class VehicleEntityViewRepositoryImpl implements VehicleEntityViewReposit
         this.evm = evm;
     }
 
-    // =========================================================
-    // VehicleInfo DTO
-    // =========================================================
+
     @Override
     public Optional<VehicleInfo> findVehicleInfoById(Long id) {
 
@@ -73,9 +67,7 @@ public class VehicleEntityViewRepositoryImpl implements VehicleEntityViewReposit
         return Optional.ofNullable(owner);
     }
 
-    // =========================================================
-    // Vehicle Entity with fetch owner
-    // =========================================================
+
     @Override
     public Optional<Vehicle> findVehicleEntityWithOwnerById(Long id) {
 
@@ -87,11 +79,9 @@ public class VehicleEntityViewRepositoryImpl implements VehicleEntityViewReposit
         return Optional.ofNullable(vehicle);
     }
 
-    // =========================================================
-    // VehicleFleetDto Pagination
-    // =========================================================
+
     @Override
-    public Page<VehicleFleetDto> findVehicleFleetPageByOwner(
+    public PagedList<VehicleFleetDto> findVehicleFleetPageByOwner(
             AccountOwner owner,
             VehicleStatus status,
             Boolean isAvailable,
@@ -116,20 +106,14 @@ public class VehicleEntityViewRepositoryImpl implements VehicleEntityViewReposit
 
         PaginatedCriteriaBuilder<VehicleFleetDto> pageCb =
                 evm.applySetting(setting, cb)
-                        .page(pageable.getOffset(), pageable.getPageSize());
+                        .page((int)pageable.getOffset(), pageable.getPageSize());
 
         PagedList<VehicleFleetDto> pagedList = pageCb.getResultList();
 
-        return new PageImpl<>(
-                pagedList,
-                pageable,
-                pagedList.getTotalSize()
-        );
+        return pagedList;
     }
 
-    // =========================================================
-    // VehicleSearchInfo List (Public Search)
-    // =========================================================
+
     @Override
     public List<VehicleSearchInfo> findVehicleSearchList(
             String location,
@@ -170,9 +154,7 @@ public class VehicleEntityViewRepositoryImpl implements VehicleEntityViewReposit
         return viewCb.getResultList();
     }
 
-    // =========================================================
-    // VehicleSearchInfo Set (Exclude Owner)
-    // =========================================================
+
     @Override
     public Set<VehicleSearchInfo> findVehicleSearchSetByDifferentOwner(AccountOwner owner) {
 
@@ -192,11 +174,8 @@ public class VehicleEntityViewRepositoryImpl implements VehicleEntityViewReposit
         return new HashSet<>(list);
     }
 
-    // =========================================================
-    // Save / Delete
-    // =========================================================
+
     @Override
-    @Transactional
     public Vehicle saveVehicle(Vehicle vehicle) {
 
         if (vehicle.getId() == null) {
@@ -208,7 +187,6 @@ public class VehicleEntityViewRepositoryImpl implements VehicleEntityViewReposit
     }
 
     @Override
-    @Transactional
     public void deleteVehicleById(Long id) {
 
         Vehicle vehicle = em.find(Vehicle.class, id);

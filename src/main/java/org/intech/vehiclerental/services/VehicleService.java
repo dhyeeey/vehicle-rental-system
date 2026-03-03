@@ -1,5 +1,6 @@
 package org.intech.vehiclerental.services;
 
+import com.blazebit.persistence.PagedList;
 import jakarta.validation.Valid;
 import org.intech.vehiclerental.dto.requestbody.VehicleRegistrationDTO;
 import org.intech.vehiclerental.dto.vehicledto.VehicleFleetDto;
@@ -33,10 +34,10 @@ public interface VehicleService {
     Optional<VehicleInfo> findVehicleInfoById(Long id);
 
     // Vehicle Fleet Pagination
-    Page<VehicleFleetDto> findVehicleFleetPageByOwner(AccountOwner owner,
-                                                      VehicleStatus status,
-                                                      Boolean isAvailable,
-                                                      Pageable pageable);
+    PagedList<VehicleFleetDto> findVehicleFleetPageByOwner(AccountOwner owner,
+                                                           VehicleStatus status,
+                                                           Boolean isAvailable,
+                                                           Pageable pageable);
 
     // Vehicle Search
     List<VehicleSearchInfo> findVehicleSearchList(String location,
