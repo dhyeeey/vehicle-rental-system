@@ -3,6 +3,7 @@ package org.intech.vehiclerental.models;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.intech.vehiclerental.models.enums.FuelType;
 import org.intech.vehiclerental.models.enums.TransmissionType;
@@ -69,9 +70,6 @@ public class Vehicle {
     @Column(nullable = false)
     private Long pricePerDay;
 
-    @Column
-    private Long pricePerHour;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_owner_id", nullable = false)
     private AccountOwner accountOwner;
@@ -101,9 +99,27 @@ public class Vehicle {
     @Builder.Default
     private Set<Rental> rentals = new HashSet<>();
 
-    @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "vehicle", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private Set<VehicleImage> images = new HashSet<>();
+
+    @ElementCollection
+    @CollectionTable(
+            name = "vehicle_features",
+            joinColumns = @JoinColumn(name = "vehicle_id")
+    )
+    @Column(name = "feature", length = 100)
+    private Set<String> features = new HashSet<>();
+
+    @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private Set<Review> reviews = new HashSet<>();
+
+    @Formula("(select avg(r.rating) from reviews r where r.vehicle_id = id)")
+    private Double averageRating;
+
+    @Formula("(select count(r.id) from reviews r where r.vehicle_id = id)")
+    private Integer reviewCount;
 
     @PrePersist
     protected void onCreate() {

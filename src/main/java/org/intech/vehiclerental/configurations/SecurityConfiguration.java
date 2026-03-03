@@ -28,13 +28,22 @@ import java.util.Map;
 @EnableMethodSecurity
 public class SecurityConfiguration {
 
+    /**
+     * "/api/vehicle/getall","/uploads/vehicles/**" are permitted for temporary basis only for testing purposes
+     * Above endpoints will be removed from permitAll in future
+     *
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> {}) // enable CORS inside Spring Security
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/api/auth/createaccount").permitAll()
+                        .requestMatchers("/api/auth/login",
+                                "/api/auth/createaccount",
+                                "/api/vehicle/getall",
+                                "/uploads/vehicles/**"
+                                ).permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // allow preflight
                         .anyRequest().authenticated() // Secure all other requests
                 ).sessionManagement(session ->
