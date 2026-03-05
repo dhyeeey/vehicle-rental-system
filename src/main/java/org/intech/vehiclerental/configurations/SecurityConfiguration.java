@@ -20,8 +20,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Configuration
@@ -37,12 +39,24 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> {}) // enable CORS inside Spring Security
+                .cors(cors -> cors.configurationSource(request -> {
+
+                    CorsConfiguration config = new CorsConfiguration();
+
+                    config.setAllowCredentials(true);
+                    config.setAllowedOrigins(List.of("http://localhost:5173"));
+                    config.setAllowedHeaders(List.of("*"));
+                    config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","PATCH","OPTIONS"));
+                    config.setExposedHeaders(List.of("X-Auth-Token"));
+
+                    return config;
+                })) // enable CORS inside Spring Security
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/auth/login",
                                 "/api/auth/createaccount",
+                                "/api/vehicle/detail/**",
                                 "/uploads/vehicles/**"
                                 ).permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // allow preflight

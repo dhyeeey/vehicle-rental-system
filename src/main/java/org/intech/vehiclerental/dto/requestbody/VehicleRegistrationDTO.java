@@ -30,6 +30,9 @@ public record VehicleRegistrationDTO(
         @Max(value = 2100, message = "Year must be valid")
         Integer year,
 
+        @NotNull(message = "Primary index for image is required")
+        Integer primaryImageIndex,
+
         @NotBlank(message = "Color is required")
         @Size(max = 50)
         String color,

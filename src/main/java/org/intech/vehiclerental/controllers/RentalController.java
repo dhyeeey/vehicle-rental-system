@@ -55,6 +55,15 @@ public class RentalController {
         return ResponseEntity.ok(rentalMapper.toCreateRentalResponseDtoFromRental(rental));
     }
 
+    @GetMapping("/vehicle/{vehicleId}/requests")
+    public ResponseEntity<?> findRentalRequestsByVehicleId(
+            @PathVariable(value = "vehicleId") Long vehicleId
+    ){
+        return ResponseEntity.ok(rentalService.findRentalRequestsByVehicleId(vehicleId));
+    }
+
+
+
     @GetMapping("/all")
     public ResponseEntity<?> fetchAllRentals(
             @AuthenticationPrincipal CustomUserDetails customUserDetails

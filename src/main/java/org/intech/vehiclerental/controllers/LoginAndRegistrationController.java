@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.intech.vehiclerental.dto.requestbody.CreateAccountPayloadBody;
 import org.intech.vehiclerental.dto.requestbody.LoginPayloadBody;
+import org.intech.vehiclerental.models.CustomUserDetails;
 import org.intech.vehiclerental.models.User;
 import org.intech.vehiclerental.services.LoginAndRegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +17,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 
 @RestController
@@ -36,6 +36,22 @@ public class LoginAndRegistrationController {
     ){
         this.loginAndRegistrationService = loginAndRegistrationService;
         this.authenticationManager = authenticationManager;
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> checkSession(Authentication authentication) {
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+
+        return ResponseEntity.ok(Map.of(
+                "id", user.getAccountOwner().getId(),
+                "email", user.getUsername(),
+                "role", user.getAccountOwner().getRole()
+        ));
     }
 
     @PostMapping(value="/login")

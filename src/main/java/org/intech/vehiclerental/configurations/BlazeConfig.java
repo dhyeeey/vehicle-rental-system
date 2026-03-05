@@ -36,6 +36,8 @@ public class BlazeConfig {
          cfg.addEntityView(RentalUserDetail.class);
          cfg.addEntityView(RentalVehicleDetail.class);
          cfg.addEntityView(RentalVehicleSummary.class);
+         cfg.addEntityView(RentalViewForRequests.class);
+         cfg.addEntityView(UserViewForRentalRequest.class);
 
         return cfg;
     }

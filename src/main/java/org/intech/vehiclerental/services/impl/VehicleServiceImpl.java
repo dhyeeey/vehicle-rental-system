@@ -6,8 +6,10 @@ import org.intech.vehiclerental.dto.requestbody.VehicleRegistrationDTO;
 import org.intech.vehiclerental.dto.vehicledto.VehicleFleetDto;
 import org.intech.vehiclerental.dto.vehicledto.VehicleInfo;
 import org.intech.vehiclerental.dto.vehicledto.VehicleSearchInfo;
+import org.intech.vehiclerental.exceptions.VehicleAccessDeniedException;
 import org.intech.vehiclerental.mappers.VehicleMapper;
 import org.intech.vehiclerental.models.*;
+import org.intech.vehiclerental.models.enums.VehicleStatus;
 import org.intech.vehiclerental.repositories.VehicleEntityViewRepository;
 import org.intech.vehiclerental.services.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,8 +69,9 @@ public class VehicleServiceImpl implements VehicleService {
             VehicleImage vehicleImage = VehicleImage.builder()
                     .vehicle(vehicle)
                     .imageUrl("/uploads/vehicles/" + fileName)
-                    .displayOrder(i) .isPrimary(i == primaryImageIndex)
-                    .caption(null) .build(); vehicle.getImages().add(vehicleImage);
+                    .displayOrder(i).isPrimary(i == primaryImageIndex)
+                    .caption(null).build();
+            vehicle.getImages().add(vehicleImage);
         }
 
         return vehicleRepository.saveVehicle(vehicle);
@@ -114,6 +117,16 @@ public class VehicleServiceImpl implements VehicleService {
         return vehicleRepository.findVehicleSearchList(location, minPrice, maxPrice, minSeats);
     }
 
+    @Transactional
+    public void changeVehicleStatus(Long vehicleId, VehicleStatus status, AccountOwner accountOwner) {
+
+        int updated = vehicleRepository.updateVehicleStatus(vehicleId, status, accountOwner);
+
+        if (updated == 0) {
+            throw new VehicleAccessDeniedException("Vehicle not found or you do not own vehicle");
+        }
+    }
+
     @Override
     public Set<VehicleSearchInfo> findVehicleSearchSetByDifferentOwner(AccountOwner owner) {
         return vehicleRepository.findVehicleSearchSetByDifferentOwner(owner);
@@ -132,7 +145,15 @@ public class VehicleServiceImpl implements VehicleService {
 
     @Override
     @Transactional
-    public void deleteVehicleById(Long id) {
-        vehicleRepository.deleteVehicleById(id);
+    public int deleteVehicleById(Long id, AccountOwner owner) {
+        int deleted = vehicleRepository.deleteVehicleById(id, owner);
+
+        if (deleted == 0) {
+            throw new VehicleAccessDeniedException("Vehicle not found or not owned by you");
+        }
+
+        return deleted;
     }
+
+
 }

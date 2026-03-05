@@ -25,6 +25,8 @@ public interface VehicleEntityViewRepository {
             Pageable pageable
     );
 
+    int updateVehicleStatus(Long vehicleId, VehicleStatus status, AccountOwner accountOwner);
+
     List<VehicleSearchInfo> findVehicleSearchList(
             String location,
             Long minPrice,
@@ -40,5 +42,5 @@ public interface VehicleEntityViewRepository {
 
     Vehicle saveVehicle(Vehicle vehicle);
 
-    void deleteVehicleById(Long id);
+    int deleteVehicleById(Long id, AccountOwner owner);
 }
