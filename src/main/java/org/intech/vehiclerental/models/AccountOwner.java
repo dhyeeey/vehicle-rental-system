@@ -33,8 +33,13 @@ public abstract class AccountOwner{
     @Column(nullable = false, unique = true, length = 150)
     private String email;
 
+    @JsonIgnore
     @Column(nullable = false)
     private String password;
+
+    @Lob
+    @Column(nullable = true)
+    private String profileImageUrl;
 
 //    @JsonIgnore
     @Enumerated(EnumType.STRING)
@@ -48,7 +53,7 @@ public abstract class AccountOwner{
 
     @JsonIgnore
     @JsonManagedReference
-    @OneToMany(mappedBy = "accountOwner", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "accountOwner", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Vehicle> vehicles = new ArrayList<>();
 
     @CreationTimestamp

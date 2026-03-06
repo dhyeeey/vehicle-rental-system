@@ -54,7 +54,6 @@ public class VehicleServiceImpl implements VehicleService {
         Vehicle vehicle = vehicleMapper.toVehicleFromVehicleRegistrationDTO(dto);
         vehicle.setAccountOwner(accountOwner);
 
-
         for (int i = 0; i < images.size(); i++) {
             MultipartFile file = images.get(i);
             String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
