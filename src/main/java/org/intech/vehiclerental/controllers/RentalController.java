@@ -63,7 +63,6 @@ public class RentalController {
     }
 
 
-
     @GetMapping("/all")
     public ResponseEntity<?> fetchAllRentals(
             @AuthenticationPrincipal CustomUserDetails customUserDetails

@@ -1,6 +1,6 @@
 package org.intech.vehiclerental.models.enums;
 
-public enum Status {
+public enum AccountStatus {
     ACTIVE,
     SUSPENDED,
     INACTIVE,

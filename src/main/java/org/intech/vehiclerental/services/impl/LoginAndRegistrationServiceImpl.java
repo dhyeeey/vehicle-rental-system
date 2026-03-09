@@ -2,7 +2,9 @@ package org.intech.vehiclerental.services.impl;
 
 import org.intech.vehiclerental.dto.requestbody.CreateAccountPayloadBody;
 import org.intech.vehiclerental.exceptions.PasswordMismatchException;
+import org.intech.vehiclerental.models.AccountOwner;
 import org.intech.vehiclerental.models.User;
+import org.intech.vehiclerental.models.enums.AccountStatus;
 import org.intech.vehiclerental.models.enums.Role;
 import org.intech.vehiclerental.repositories.AccountOwnerRepository;
 import org.intech.vehiclerental.services.LoginAndRegistrationService;
@@ -36,17 +38,19 @@ public class LoginAndRegistrationServiceImpl
             throw new IllegalArgumentException("Email already registered");
         }
 
-        User user = User.builder()
+        AccountOwner accountOwner = (AccountOwner) User.builder()
                 .firstName(payload.firstName())
                 .lastName(payload.lastName())
-                .phoneNumber(payload.phoneNumber())
                 .licenseNumber(payload.licenseNumber())
                 .build();
 
-        user.setEmail(payload.email());
-        user.setPassword(passwordEncoder.encode(payload.password()));
-        user.setRole(Role.ROLE_INDIVIDUAL);
 
-        return (User) repository.save(user);
+        accountOwner.setAccountStatus(AccountStatus.ACTIVE);
+        accountOwner.setPhoneNumber(payload.phoneNumber());
+        accountOwner.setEmail(payload.email());
+        accountOwner.setPassword(passwordEncoder.encode(payload.password()));
+        accountOwner.setRole(Role.ROLE_INDIVIDUAL);
+
+        return (User) repository.save(accountOwner);
     }
 }

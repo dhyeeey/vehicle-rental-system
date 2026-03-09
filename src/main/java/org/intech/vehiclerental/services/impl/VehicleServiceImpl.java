@@ -52,6 +52,7 @@ public class VehicleServiceImpl implements VehicleService {
                                    AccountOwner accountOwner) {
 
         Vehicle vehicle = vehicleMapper.toVehicleFromVehicleRegistrationDTO(dto);
+        vehicle.setStatus(VehicleStatus.PENDING_APPROVAL);
         vehicle.setAccountOwner(accountOwner);
 
         for (int i = 0; i < images.size(); i++) {

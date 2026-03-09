@@ -1,7 +1,7 @@
 package org.intech.vehiclerental.models;
 
 import org.intech.vehiclerental.models.enums.Role;
-import org.intech.vehiclerental.models.enums.Status;
+import org.intech.vehiclerental.models.enums.AccountStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -51,7 +51,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return accountOwner.getStatus() == Status.ACTIVE;
+        return accountOwner.getAccountStatus() == AccountStatus.ACTIVE;
     }
 
 }

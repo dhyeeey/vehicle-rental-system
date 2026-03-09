@@ -4,14 +4,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
-import org.intech.vehiclerental.models.enums.Status;
+import org.intech.vehiclerental.models.enums.AccountStatus;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "users", indexes = {
-        @Index(name = "idx_user_phone", columnList = "phoneNumber"),
         @Index(name = "idx_user_license_number", columnList = "licenseNumber")
 })
 @Getter
@@ -27,8 +26,6 @@ public class User extends AccountOwner{
     @Column(nullable = false, length = 100)
     private String lastName;
 
-    @Column(nullable = false, unique = true, length = 20)
-    private String phoneNumber;
 
     @Column(unique = true, length = 50)
     private String licenseNumber;
@@ -47,8 +44,8 @@ public class User extends AccountOwner{
         if (isVerified == null) {
             isVerified = false;
         }
-        if (status == null) {
-            status = Status.ACTIVE;
+        if (accountStatus == null) {
+            accountStatus = AccountStatus.ACTIVE;
         }
     }
 }

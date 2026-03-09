@@ -7,7 +7,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.intech.vehiclerental.models.enums.Role;
-import org.intech.vehiclerental.models.enums.Status;
+import org.intech.vehiclerental.models.enums.AccountStatus;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -15,7 +15,9 @@ import java.util.List;
 
 @Entity
 @Table(name = "account_owners",indexes = {
-        @Index(name = "idx_account_owner_email",columnList = "email")
+        @Index(name = "idx_account_owner_id",columnList = "id"),
+        @Index(name = "idx_account_owner_email",columnList = "email"),
+        @Index(name = "idx_account_owner_phone_number", columnList = "phoneNumber")
 })
 @Inheritance(strategy = InheritanceType.JOINED)
 @Getter
@@ -37,14 +39,32 @@ public abstract class AccountOwner{
     @Column(nullable = false)
     private String password;
 
-    @Lob
-    @Column(nullable = true)
+//    @Lob
+    @Column(nullable = true, columnDefinition = "TEXT")
     private String profileImageUrl;
 
 //    @JsonIgnore
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    protected Status status;
+    @Column(nullable = true, length = 20)
+    protected AccountStatus accountStatus;
+
+    @Column(nullable = true, unique = true, length = 20)
+    private String phoneNumber;
+
+    @Column(length = 255)
+    private String address;
+
+    @Column(length = 100)
+    private String city;
+
+    @Column(length = 100)
+    private String state;
+
+    @Column(length = 20)
+    private String zipCode;
+
+    @Column(length = 50)
+    private String country;
 
     @JsonIgnore
     @JsonManagedReference
