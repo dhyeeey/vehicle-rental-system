@@ -10,6 +10,7 @@ import org.intech.vehiclerental.repositories.AccountOwnerRepository;
 import org.intech.vehiclerental.services.LoginAndRegistrationService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class LoginAndRegistrationServiceImpl
@@ -27,6 +28,7 @@ public class LoginAndRegistrationServiceImpl
     }
 
     @Override
+    @Transactional
     public User registerUser(CreateAccountPayloadBody payload) {
 
         if (!payload.password().equals(payload.confirmPassword())) {

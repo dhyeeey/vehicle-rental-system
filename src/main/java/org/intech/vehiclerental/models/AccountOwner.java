@@ -43,7 +43,7 @@ public abstract class AccountOwner{
     @Column(nullable = true, columnDefinition = "TEXT")
     private String profileImageUrl;
 
-//    @JsonIgnore
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = true, length = 20)
     protected AccountStatus accountStatus;
@@ -60,8 +60,8 @@ public abstract class AccountOwner{
     @Column(length = 100)
     private String state;
 
-    @Column(length = 20)
-    private String zipCode;
+    @Column
+    private Long zipCode;
 
     @Column(length = 50)
     private String country;

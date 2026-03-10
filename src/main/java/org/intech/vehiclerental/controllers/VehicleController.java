@@ -61,7 +61,6 @@ public class VehicleController {
 
     @GetMapping("/detail/edit-form/{vehicleId}")
     public ResponseEntity<?> getVehicleDetails(
-            @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable(value = "vehicleId") Long vehicleId
     ){
         VehicleInfo vehicle = vehicleService.findVehicleInfoById(vehicleId).orElseThrow(
@@ -136,8 +135,6 @@ public class VehicleController {
             @Valid @ModelAttribute VehicleRegistrationDTO dto,
             @RequestParam(value = "images", required = true) List<MultipartFile> images
     ) {
-        AccountOwner accountOwner = userDetails.getAccountOwner();
-
         log.info("Alternative endpoint - Received vehicle registration request");
         return registerVehicle(userDetails, dto, images);
     }
@@ -166,7 +163,7 @@ public class VehicleController {
             @RequestParam Long vehicleId
     ){
         int val = vehicleService.deleteVehicleById(vehicleId, customUserDetails.getAccountOwner());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(val);
     }
 
 

@@ -57,7 +57,7 @@ public class SecurityConfiguration {
                                 "/api/auth/login",
                                 "/api/auth/createaccount",
                                 "/api/vehicle/detail/**",
-                                "/uploads/vehicles/**"
+                                "/uploads/**"
                                 ).permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // allow preflight
                         .anyRequest().authenticated() // Secure all other requests
