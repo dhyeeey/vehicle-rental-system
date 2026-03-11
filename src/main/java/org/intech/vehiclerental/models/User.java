@@ -26,7 +26,6 @@ public class User extends AccountOwner{
     @Column(nullable = false, length = 100)
     private String lastName;
 
-
     @Column(unique = true, length = 50)
     private String licenseNumber;
 

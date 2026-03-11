@@ -155,5 +155,10 @@ public class VehicleServiceImpl implements VehicleService {
         return deleted;
     }
 
+    @Override
+    public void approveUserVehicles(Long vehicleId) {
+        Vehicle vehicle = vehicleRepository.findVehicleById(vehicleId);
+    }
+
 
 }

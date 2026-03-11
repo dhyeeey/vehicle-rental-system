@@ -55,4 +55,6 @@ public interface VehicleService {
     Vehicle saveVehicle(Vehicle vehicle);
 
     int deleteVehicleById(Long id, AccountOwner owner);
+
+    void approveUserVehicles(Long vehicleId);
 }

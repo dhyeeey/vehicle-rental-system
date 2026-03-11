@@ -8,10 +8,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.intech.vehiclerental.models.enums.FuelType;
-import org.intech.vehiclerental.models.enums.TransmissionType;
-import org.intech.vehiclerental.models.enums.VehicleStatus;
-import org.intech.vehiclerental.models.enums.VehicleType;
+import org.intech.vehiclerental.models.enums.*;
 
 import java.time.Instant;
 import java.util.HashSet;
@@ -94,6 +91,18 @@ public class Vehicle {
     @Column(nullable = false)
     private Boolean isAvailable;
 
+    @JsonBackReference
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "approved_by")
+    private Company approvedBy;
+
+    @Column(columnDefinition = "TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP")
+    private Instant approvedAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = true, length = 20)
+    private VehicleApprovalStatus approvalStatus;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP")
     private Instant createdAt;
@@ -135,6 +144,9 @@ public class Vehicle {
     protected void onCreate() {
         if (isAvailable == null) {
             isAvailable = true;
+        }
+        if(approvalStatus == null){
+            approvalStatus = VehicleApprovalStatus.PENDING;
         }
         if (status == null) {
             status = VehicleStatus.ACTIVE;

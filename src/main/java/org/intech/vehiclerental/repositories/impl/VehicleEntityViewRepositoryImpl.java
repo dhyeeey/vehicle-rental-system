@@ -211,4 +211,10 @@ public class VehicleEntityViewRepositoryImpl implements VehicleEntityViewReposit
                 .executeUpdate();
 
     }
+
+    @Override
+    public Vehicle findVehicleById(Long vehicleId) {
+        CriteriaBuilder<Vehicle> cb =  cbf.create(em,Vehicle.class).where("id").eq(vehicleId);
+        return cb.getSingleResult();
+    }
 }

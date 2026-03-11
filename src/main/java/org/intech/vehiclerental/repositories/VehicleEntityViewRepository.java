@@ -43,4 +43,7 @@ public interface VehicleEntityViewRepository {
     Vehicle saveVehicle(Vehicle vehicle);
 
     int deleteVehicleById(Long id, AccountOwner owner);
+
+
+    Vehicle findVehicleById(Long vehicleId);
 }

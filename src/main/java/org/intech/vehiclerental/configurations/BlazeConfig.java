@@ -3,18 +3,19 @@ package org.intech.vehiclerental.configurations;
 import com.blazebit.persistence.Criteria;
 import com.blazebit.persistence.CriteriaBuilderFactory;
 import com.blazebit.persistence.spi.CriteriaBuilderConfiguration;
+import com.blazebit.persistence.view.EntityView;
 import com.blazebit.persistence.view.EntityViewManager;
 import com.blazebit.persistence.view.EntityViews;
 import com.blazebit.persistence.view.spi.EntityViewConfiguration;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceUnit;
-import org.intech.vehiclerental.dto.rentaldto.*;
-import org.intech.vehiclerental.dto.vehicledto.VehicleFleetDto;
-import org.intech.vehiclerental.dto.vehicledto.VehicleImageView;
-import org.intech.vehiclerental.dto.vehicledto.VehicleInfo;
-import org.intech.vehiclerental.dto.vehicledto.VehicleSearchInfo;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.type.filter.AnnotationTypeFilter;
+
+import java.util.Set;
 
 @Configuration
 public class BlazeConfig {
@@ -26,18 +27,23 @@ public class BlazeConfig {
     EntityViewConfiguration entityViewConfiguration() {
         EntityViewConfiguration cfg = EntityViews.createDefaultConfiguration();
 
-         cfg.addEntityView(VehicleFleetDto.class);
-         cfg.addEntityView(VehicleImageView.class);
-         cfg.addEntityView(VehicleInfo.class);
-         cfg.addEntityView(VehicleSearchInfo.class);
+        ClassPathScanningCandidateComponentProvider scanner =
+                new ClassPathScanningCandidateComponentProvider(false);
 
-         cfg.addEntityView(RentalInfo.class);
-         cfg.addEntityView(RentalListDto.class);
-         cfg.addEntityView(RentalUserDetail.class);
-         cfg.addEntityView(RentalVehicleDetail.class);
-         cfg.addEntityView(RentalVehicleSummary.class);
-         cfg.addEntityView(RentalViewForRequests.class);
-         cfg.addEntityView(UserViewForRentalRequest.class);
+        scanner.addIncludeFilter(new AnnotationTypeFilter(EntityView.class));
+
+        Set<BeanDefinition> components =
+                scanner.findCandidateComponents("org.intech.vehiclerental.dto");
+
+        for (BeanDefinition component : components) {
+            try {
+                Class<?> clazz = Class.forName(component.getBeanClassName());
+                System.out.println(clazz.getName());
+                cfg.addEntityView(clazz);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException("Failed to load entity view", e);
+            }
+        }
 
         return cfg;
     }
