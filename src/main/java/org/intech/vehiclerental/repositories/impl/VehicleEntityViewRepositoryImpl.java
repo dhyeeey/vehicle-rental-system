@@ -1,27 +1,25 @@
 package org.intech.vehiclerental.repositories.impl;
 
-import com.blazebit.persistence.CriteriaBuilder;
-import com.blazebit.persistence.CriteriaBuilderFactory;
-import com.blazebit.persistence.PagedList;
-import com.blazebit.persistence.PaginatedCriteriaBuilder;
+import com.blazebit.persistence.*;
 import com.blazebit.persistence.view.EntityViewManager;
 import com.blazebit.persistence.view.EntityViewSetting;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.Tuple;
 import org.intech.vehiclerental.dto.vehicledto.VehicleFleetDto;
 import org.intech.vehiclerental.dto.vehicledto.VehicleInfo;
 import org.intech.vehiclerental.dto.vehicledto.VehicleSearchInfo;
 import org.intech.vehiclerental.models.AccountOwner;
+import org.intech.vehiclerental.models.Company;
 import org.intech.vehiclerental.models.Vehicle;
+import org.intech.vehiclerental.models.enums.VehicleApprovalStatus;
 import org.intech.vehiclerental.models.enums.VehicleStatus;
 import org.intech.vehiclerental.repositories.VehicleEntityViewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Consumer;
 
 @Repository
 public class VehicleEntityViewRepositoryImpl implements VehicleEntityViewRepository {
@@ -164,12 +162,23 @@ public class VehicleEntityViewRepositoryImpl implements VehicleEntityViewReposit
     }
 
 
+    public CriteriaBuilder<Vehicle> findSearchVehicleCB(
+            boolean isAvailable,VehicleStatus vehicleStatus, VehicleApprovalStatus vehicleApprovalStatus
+    ){
+        CriteriaBuilder<Vehicle> cb =
+                cbf.create(em, Vehicle.class)
+                        .where("isAvailable").eq(isAvailable)
+                        .where("status").eq(vehicleStatus)
+                        .where("approvalStatus").eq(vehicleApprovalStatus);
+
+        return cb;
+    }
+
+
     @Override
     public Set<VehicleSearchInfo> findVehicleSearchSetByDifferentOwner(AccountOwner owner) {
 
-        CriteriaBuilder<Vehicle> cb =
-                cbf.create(em, Vehicle.class)
-                        .where("isAvailable").eq(true);
+        CriteriaBuilder<Vehicle> cb = findSearchVehicleCB(true, VehicleStatus.ACTIVE, VehicleApprovalStatus.APPROVED);
 
         if(owner != null){
             cb.where("accountOwner").notEq(owner);
@@ -220,4 +229,57 @@ public class VehicleEntityViewRepositoryImpl implements VehicleEntityViewReposit
         CriteriaBuilder<Vehicle> cb =  cbf.create(em,Vehicle.class).where("id").eq(vehicleId);
         return cb.getSingleResult();
     }
+
+    private <T> boolean setIfChanged(T current,
+                                     T updated,
+                                     Consumer<T> setter) {
+
+        if (!Objects.equals(current, updated)) {
+            setter.accept(updated);
+            return true;
+        }
+
+        return false;
+    }
+
+
+    @Override
+    public int changeVehicleApprovalStatus(Long vehicleId,
+                                   VehicleStatus vehicleStatus,
+                                   VehicleApprovalStatus vehicleApprovalStatus,
+                                   AccountOwner accountOwner){
+
+        Tuple tuple = cbf.create(em, Tuple.class)
+                .from(Vehicle.class, "v")
+                .select("v.status")
+                .select("v.approvalStatus")
+                .select("v.approvedBy.id")
+                .where("v.id").eq(vehicleId)
+                .getSingleResult();
+
+        VehicleStatus currentStatus = tuple.get(0, VehicleStatus.class);
+        VehicleApprovalStatus currentApprovalStatus = tuple.get(1, VehicleApprovalStatus.class);
+        Long currentApprovedById = tuple.get(2, Long.class);
+
+        UpdateCriteriaBuilder<Vehicle> update = cbf.update(em, Vehicle.class)
+                .where("id").eq(vehicleId);
+
+        boolean changed = false;
+
+        changed |= setIfChanged(currentStatus, vehicleStatus, v -> update.set("status", v));
+        changed |= setIfChanged(currentApprovalStatus, vehicleApprovalStatus, v -> update.set("approvalStatus", v));
+
+        Long newApprovedById = accountOwner != null ? accountOwner.getId() : null;
+
+        changed |= setIfChanged(currentApprovedById, newApprovedById,
+                v -> update.set("approvedBy.id", v));
+
+        if (!changed) {
+            return 0;
+        }
+
+        return update.executeUpdate();
+
+    }
+
 }

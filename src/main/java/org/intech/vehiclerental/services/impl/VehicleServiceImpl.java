@@ -9,6 +9,7 @@ import org.intech.vehiclerental.dto.vehicledto.VehicleSearchInfo;
 import org.intech.vehiclerental.exceptions.VehicleAccessDeniedException;
 import org.intech.vehiclerental.mappers.VehicleMapper;
 import org.intech.vehiclerental.models.*;
+import org.intech.vehiclerental.models.enums.VehicleApprovalStatus;
 import org.intech.vehiclerental.models.enums.VehicleStatus;
 import org.intech.vehiclerental.repositories.VehicleEntityViewRepository;
 import org.intech.vehiclerental.services.VehicleService;
@@ -24,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -52,7 +54,8 @@ public class VehicleServiceImpl implements VehicleService {
                                    AccountOwner accountOwner) {
 
         Vehicle vehicle = vehicleMapper.toVehicleFromVehicleRegistrationDTO(dto);
-        vehicle.setStatus(VehicleStatus.PENDING_APPROVAL);
+        vehicle.setStatus(VehicleStatus.INACTIVE);
+        vehicle.setApprovalStatus(VehicleApprovalStatus.PENDING);
         vehicle.setAccountOwner(accountOwner);
 
         for (int i = 0; i < images.size(); i++) {
@@ -156,8 +159,14 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    public void approveUserVehicles(Long vehicleId) {
-        Vehicle vehicle = vehicleRepository.findVehicleById(vehicleId);
+    @Transactional
+    public int changeVehicleApprovalStatus(Long vehicleId,
+                                    VehicleStatus vehicleStatus,
+                                    VehicleApprovalStatus vehicleApprovalStatus,
+                                    AccountOwner accountOwner) {
+
+        int val = vehicleRepository.changeVehicleApprovalStatus(vehicleId, vehicleStatus, vehicleApprovalStatus, accountOwner);
+        return val;
     }
 
 

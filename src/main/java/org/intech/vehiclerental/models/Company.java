@@ -40,4 +40,21 @@ public class Company extends AccountOwner {
         this.registrationNumber = registrationNumber;
         this.taxId = taxId;
     }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+
+        Company other = (Company) obj;
+
+        return getId() != null && getId().equals(other.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

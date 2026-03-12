@@ -8,6 +8,7 @@ import org.intech.vehiclerental.dto.vehicledto.VehicleInfo;
 import org.intech.vehiclerental.dto.vehicledto.VehicleSearchInfo;
 import org.intech.vehiclerental.models.AccountOwner;
 import org.intech.vehiclerental.models.Vehicle;
+import org.intech.vehiclerental.models.enums.VehicleApprovalStatus;
 import org.intech.vehiclerental.models.enums.VehicleStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -56,5 +57,6 @@ public interface VehicleService {
 
     int deleteVehicleById(Long id, AccountOwner owner);
 
-    void approveUserVehicles(Long vehicleId);
+    int changeVehicleApprovalStatus(Long vehicleId, VehicleStatus vehicleStatus,
+                             VehicleApprovalStatus vehicleApprovalStatus, AccountOwner accountOwner);
 }

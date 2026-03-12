@@ -4,6 +4,7 @@ import com.blazebit.persistence.PagedList;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.intech.vehiclerental.dto.paginationdto.PageResponse;
+import org.intech.vehiclerental.dto.requestbody.ChangeVehicleApprovalStatusDto;
 import org.intech.vehiclerental.dto.requestbody.VehicleRegistrationDTO;
 import org.intech.vehiclerental.dto.requestbody.VehicleStatusUpdateRequest;
 import org.intech.vehiclerental.dto.vehicledto.RegisterVehicleResponseDTO;
@@ -13,6 +14,8 @@ import org.intech.vehiclerental.dto.vehicledto.VehicleSearchInfo;
 import org.intech.vehiclerental.models.AccountOwner;
 import org.intech.vehiclerental.models.CustomUserDetails;
 import org.intech.vehiclerental.models.Vehicle;
+import org.intech.vehiclerental.models.enums.VehicleApprovalStatus;
+import org.intech.vehiclerental.models.enums.VehicleStatus;
 import org.intech.vehiclerental.services.ImageValidationService;
 import org.intech.vehiclerental.services.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -123,9 +126,18 @@ public class VehicleController {
 
     @PreAuthorize("hasAnyRole('ADMIN','COMPANY')")
     @PostMapping("/admin/approve-vehicle")
-    public ResponseEntity<?> approveUserVehicles(@RequestParam Long vehicleId){
-        vehicleService.approveUserVehicles(vehicleId);
-        return null;
+    public ResponseEntity<?> changeVehicleApprovalStatus(Authentication authentication,
+                                                 @AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                                 @RequestBody ChangeVehicleApprovalStatusDto dto){
+
+        int val = vehicleService.changeVehicleApprovalStatus(
+                dto.vehicleId(),
+                dto.vehicleStatus(),
+                dto.vehicleApprovalStatus(),
+                customUserDetails.getAccountOwner()
+        );
+
+        return ResponseEntity.ok(val);
     }
 
 
