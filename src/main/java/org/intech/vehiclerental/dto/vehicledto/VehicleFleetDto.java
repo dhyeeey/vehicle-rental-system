@@ -1,5 +1,8 @@
 package org.intech.vehiclerental.dto.vehicledto;
 
+import com.blazebit.persistence.view.EntityView;
+import com.blazebit.persistence.view.IdMapping;
+import org.intech.vehiclerental.models.Vehicle;
 import org.intech.vehiclerental.models.enums.TransmissionType;
 import org.intech.vehiclerental.models.enums.VehicleStatus;
 
@@ -9,12 +12,15 @@ import java.util.Set;
 /**
  * Projection for {@link org.intech.vehiclerental.models.Vehicle}
  */
-public interface VehicleFleetDTO {
+
+@EntityView(Vehicle.class)
+public interface VehicleFleetDto {
+    @IdMapping
     Long getId();
 
     String getMake();
 
-    Set<ImageView> getImages();
+    Set<VehicleImageView> getImages();
 
     String getModel();
 
@@ -28,12 +34,5 @@ public interface VehicleFleetDTO {
 
     Integer getSeatingCapacity();
 
-    Long getPricePerDay();
-
-    public interface ImageView {
-        String getId();
-        String getImageUrl();
-        Boolean getIsPrimary();
-        Instant getCreatedAt();
-    }
+    Double getPricePerDay();
 }

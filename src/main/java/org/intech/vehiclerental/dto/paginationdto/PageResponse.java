@@ -1,5 +1,6 @@
 package org.intech.vehiclerental.dto.paginationdto;
 
+import com.blazebit.persistence.PagedList;
 import lombok.Data;
 import org.springframework.data.domain.Page;
 
@@ -23,4 +24,16 @@ public class PageResponse<T> {
         this.pageSize = page.getSize();
         this.isLast = page.isLast();
     }
+
+    // Constructor for Blaze PagedList
+    public PageResponse(PagedList<T> pagedList) {
+        this.content = pagedList;
+        this.currentPage = pagedList.getPage();
+        this.totalItems = (long) pagedList.getTotalSize();
+        this.totalPages = pagedList.getTotalPages();
+        this.pageSize = pagedList.getMaxResults();
+        this.isLast = pagedList.getTotalPages() == 0
+                || pagedList.getPage() == pagedList.getTotalPages() - 1;
+    }
+
 }

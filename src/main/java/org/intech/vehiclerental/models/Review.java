@@ -1,7 +1,9 @@
 package org.intech.vehiclerental.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
 
@@ -24,6 +26,7 @@ public class Review {
     @Column(length = 1000)
     private String comment;
 
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vehicle_id", nullable = false)
     private Vehicle vehicle;
@@ -36,5 +39,7 @@ public class Review {
     @JoinColumn(name = "reviewer_id", nullable = false)
     private AccountOwner reviewer;
 
-    private Instant createdAt = Instant.now();
+    @CreationTimestamp
+    @Column(columnDefinition = "TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP")
+    private Instant createdAt;
 }

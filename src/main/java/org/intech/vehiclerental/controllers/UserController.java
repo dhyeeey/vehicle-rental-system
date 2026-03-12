@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/user")
 public class UserController {
 
-    private AccountOwnerService accountOwnerService;
+    private final AccountOwnerService accountOwnerService;
 
     @Autowired
     public UserController(AccountOwnerService accountOwnerService){

@@ -106,17 +106,9 @@ public class ErrorResponse {
         }
     }
 
-    public ErrorResponse(NoImageFoundException ex, HttpStatus httpStatus) {
+    public ErrorResponse(InvalidImageException ex, HttpStatus httpStatus) {
         this(httpStatus);
         message = ex.getMessage();
         errors.put("images",ex.getMessage());
     }
-
-    public ErrorResponse(InvalidPrimaryIndexOfImage ex, HttpStatus httpStatus) {
-        this(httpStatus);
-        message = ex.getMessage();
-        errors.put("primaryImageIndex","Invalid primary image index");
-    }
-
-
 }

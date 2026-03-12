@@ -5,6 +5,5 @@ public enum FuelType {
     DIESEL,
     ELECTRIC,
     HYBRID,
-    CNG,
-    LPG
+    CNG
 }

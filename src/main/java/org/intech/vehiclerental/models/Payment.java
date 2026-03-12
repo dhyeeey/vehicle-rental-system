@@ -1,5 +1,6 @@
 package org.intech.vehiclerental.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -27,12 +28,13 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID transactionId;
 
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rental_id", nullable = false)
     private Rental rental;
 
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal amount;
+    private Long amount;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)

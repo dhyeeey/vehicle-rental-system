@@ -82,14 +82,8 @@ public class ValidationExceptionHandler {
                 .body(new ErrorResponse(ex, HttpStatus.UNAUTHORIZED));
     }
 
-    @ExceptionHandler(NoImageFoundException.class)
-    public ResponseEntity<?> noImageFoundInForm(NoImageFoundException ex){
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).
-                body(new ErrorResponse(ex, HttpStatus.BAD_REQUEST));
-    }
-
-    @ExceptionHandler(InvalidPrimaryIndexOfImage.class)
-    public ResponseEntity<?> invalidPrimaryIndexOfImage(InvalidPrimaryIndexOfImage ex){
+    @ExceptionHandler(InvalidImageException.class)
+    public ResponseEntity<?> noImageFoundInForm(InvalidImageException ex){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).
                 body(new ErrorResponse(ex, HttpStatus.BAD_REQUEST));
     }

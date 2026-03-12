@@ -5,6 +5,8 @@ import org.intech.vehiclerental.models.enums.FuelType;
 import org.intech.vehiclerental.models.enums.TransmissionType;
 import org.intech.vehiclerental.models.enums.VehicleType;
 
+import java.util.Set;
+
 public record VehicleRegistrationDTO(
 
         @NotBlank(message = "Registration number is required")
@@ -51,7 +53,7 @@ public record VehicleRegistrationDTO(
 
         @NotNull(message = "Price per day is required")
         @DecimalMin(value = "1.00", message = "Price per day must be at least 1")
-        Long pricePerDay,
+        Double pricePerDay,
 
         @DecimalMin(value = "0.00", message = "Price per hour cannot be negative")
         Long pricePerHour,
@@ -62,6 +64,9 @@ public record VehicleRegistrationDTO(
 
         @NotBlank(message = "Location is required")
         @Size(min = 3, max = 255)
-        String location
+        String location,
+
+        @Size(max = 20, message = "Maximum 20 features allowed")
+        Set<String> features
 ) {
 }

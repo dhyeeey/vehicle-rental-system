@@ -1,6 +1,7 @@
 package org.intech.vehiclerental.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -35,16 +36,18 @@ public abstract class AccountOwner{
     @Column(nullable = false)
     private String password;
 
-    @JsonIgnore
+//    @JsonIgnore
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     protected Status status;
 
     @JsonIgnore
+    @JsonManagedReference
     @OneToMany(mappedBy = "accountOwner",fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BankAccount> bankAccounts = new ArrayList<>();
 
     @JsonIgnore
+    @JsonManagedReference
     @OneToMany(mappedBy = "accountOwner", fetch = FetchType.LAZY)
     private List<Vehicle> vehicles = new ArrayList<>();
 

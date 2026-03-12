@@ -29,7 +29,8 @@ import java.util.Map;
 public class SecurityConfiguration {
 
     /**
-     * "/api/vehicle/getall","/uploads/vehicles/**" are permitted for temporary basis only for testing purposes
+     * "/api/vehicle/getall",
+     * "/uploads/vehicles/**" are permitted for temporary basis only for testing purposes
      * Above endpoints will be removed from permitAll in future
      *
      */
@@ -39,9 +40,9 @@ public class SecurityConfiguration {
                 .cors(cors -> {}) // enable CORS inside Spring Security
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login",
+                        .requestMatchers(
+                                "/api/auth/login",
                                 "/api/auth/createaccount",
-                                "/api/vehicle/getall",
                                 "/uploads/vehicles/**"
                                 ).permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // allow preflight

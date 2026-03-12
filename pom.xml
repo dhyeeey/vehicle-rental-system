@@ -28,6 +28,8 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
+		<org.mapstruct.version>1.6.3</org.mapstruct.version>
+		<blaze-persistence.version>1.6.18</blaze-persistence.version>
 	</properties>
 	<dependencies>
 		<!-- Source: https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web -->
@@ -58,7 +60,59 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
-<!--		<dependency>-->
+
+		<!-- Blaze Persistence Core -->
+		<dependency>
+			<groupId>com.blazebit</groupId>
+			<artifactId>blaze-persistence-core-api-jakarta</artifactId>
+			<version>${blaze-persistence.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.blazebit</groupId>
+			<artifactId>blaze-persistence-core-impl-jakarta</artifactId>
+			<version>${blaze-persistence.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<!-- Source: https://mvnrepository.com/artifact/com.blazebit/blaze-persistence-integration-hibernate-6.0 -->
+		<!-- Source: https://mvnrepository.com/artifact/com.blazebit/blaze-persistence-integration-hibernate-7.1 -->
+		<dependency>
+			<groupId>com.blazebit</groupId>
+			<artifactId>blaze-persistence-integration-hibernate-7.2</artifactId>
+			<version>1.6.18</version>
+			<scope>runtime</scope>
+		</dependency>
+		<!-- Source: https://mvnrepository.com/artifact/com.blazebit/blaze-persistence-integration-spring-data-3.1 -->
+		<!-- Source: https://mvnrepository.com/artifact/com.blazebit/blaze-persistence-integration-spring-data-4.0 -->
+		<dependency>
+			<groupId>com.blazebit</groupId>
+			<artifactId>blaze-persistence-integration-spring-data-4.0</artifactId>
+			<version>1.6.18</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<!-- Blaze Persistence Entity Views -->
+		<dependency>
+			<groupId>com.blazebit</groupId>
+			<artifactId>blaze-persistence-entity-view-api-jakarta</artifactId>
+			<version>${blaze-persistence.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.blazebit</groupId>
+			<artifactId>blaze-persistence-entity-view-impl-jakarta</artifactId>
+			<version>${blaze-persistence.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.blazebit</groupId>
+			<artifactId>blaze-persistence-entity-view-processor</artifactId>
+			<version>${blaze-persistence.version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+
+		<!--		<dependency>-->
 <!--			<groupId>org.springframework.boot</groupId>-->
 <!--			<artifactId>spring-boot-starter-webflux</artifactId>-->
 <!--		</dependency>-->
@@ -81,6 +135,22 @@
 			<version>3.2.4</version>
 		</dependency>
 
+		<!-- Source: https://mvnrepository.com/artifact/org.mapstruct/mapstruct -->
+		<dependency>
+			<groupId>org.mapstruct</groupId>
+			<artifactId>mapstruct</artifactId>
+			<version>${org.mapstruct.version}</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<!-- Source: https://mvnrepository.com/artifact/org.mapstruct/mapstruct-processor -->
+		<dependency>
+			<groupId>org.mapstruct</groupId>
+			<artifactId>mapstruct-processor</artifactId>
+			<version>${org.mapstruct.version}</version>
+			<scope>compile</scope>
+		</dependency>
+
 		<!-- Source: https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator -->
 		<dependency>
 			<groupId>org.hibernate.validator</groupId>
@@ -96,6 +166,7 @@
 			<version>6.0.1</version>
 			<scope>compile</scope>
 		</dependency>
+
 
 		<!-- Source: https://mvnrepository.com/artifact/org.postgresql/postgresql -->
 		<dependency>
@@ -163,6 +234,7 @@
 
 	<build>
 		<plugins>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -171,6 +243,11 @@
 						<path>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
+						</path>
+						<path>
+							<groupId>org.mapstruct</groupId>
+							<artifactId>mapstruct-processor</artifactId>
+							<version>${org.mapstruct.version}</version>
 						</path>
 					</annotationProcessorPaths>
 				</configuration>
