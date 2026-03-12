@@ -65,11 +65,20 @@ public class RentalController {
 
     @GetMapping("/all")
     public ResponseEntity<?> fetchAllRentals(
-            @AuthenticationPrincipal CustomUserDetails customUserDetails
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction
     ){
+
         Pageable pageable = PageRequest.of(0,
-                10,
-                Sort.by("createdAt").descending()
+                size,
+                 switch(direction){
+                    case "desc" -> Sort.by(sortBy).descending();
+                    case "asc" -> Sort.by(sortBy).ascending();
+                    default  -> Sort.by(sortBy).ascending();
+                }
         );
 
         AccountOwner accountOwner = customUserDetails.getAccountOwner();

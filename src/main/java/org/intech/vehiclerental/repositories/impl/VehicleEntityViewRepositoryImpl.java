@@ -169,8 +169,11 @@ public class VehicleEntityViewRepositoryImpl implements VehicleEntityViewReposit
 
         CriteriaBuilder<Vehicle> cb =
                 cbf.create(em, Vehicle.class)
-                        .where("accountOwner").notEq(owner)
                         .where("isAvailable").eq(true);
+
+        if(owner != null){
+            cb.where("accountOwner").notEq(owner);
+        }
 
         CriteriaBuilder<VehicleSearchInfo> viewCb =
                 evm.applySetting(

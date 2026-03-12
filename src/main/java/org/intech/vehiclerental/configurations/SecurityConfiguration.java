@@ -2,6 +2,7 @@ package org.intech.vehiclerental.configurations;
 
 import jakarta.servlet.http.HttpServletResponse;
 import org.intech.vehiclerental.services.CustomAccountDetailsService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
@@ -30,6 +31,9 @@ import java.util.Map;
 @EnableMethodSecurity
 public class SecurityConfiguration {
 
+    @Value("#{'${app.security.public-paths}'.split(',')}")
+    private List<String> publicPaths;
+
     /**
      * "/api/vehicle/getall",
      * "/uploads/vehicles/**" are permitted for temporary basis only for testing purposes
@@ -53,12 +57,7 @@ public class SecurityConfiguration {
                 })) // enable CORS inside Spring Security
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/api/auth/login",
-                                "/api/auth/createaccount",
-                                "/api/vehicle/detail/**",
-                                "/uploads/**"
-                                ).permitAll()
+                        .requestMatchers(publicPaths.toArray(new String[0])).permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // allow preflight
                         .anyRequest().authenticated() // Secure all other requests
                 ).sessionManagement(session ->

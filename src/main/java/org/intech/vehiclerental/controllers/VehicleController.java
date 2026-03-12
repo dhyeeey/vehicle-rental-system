@@ -23,6 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,6 +38,7 @@ public class VehicleController {
 
     private final VehicleService vehicleService;
     private final ImageValidationService imageValidationService;
+
 
     @Autowired
     public VehicleController(VehicleService vehicleService,
@@ -73,12 +75,20 @@ public class VehicleController {
 
     @GetMapping("/explore/search")
     public ResponseEntity<?> getAllSearchVehicles(
+            Authentication authentication,
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ){
+        Set<VehicleSearchInfo> vehicles;
 
-        Set<VehicleSearchInfo> vehicles = vehicleService.findVehicleSearchSetByDifferentOwner(
-                customUserDetails.getAccountOwner()
-        );
+        if(authentication != null && authentication.isAuthenticated()){
+             vehicles = vehicleService.findVehicleSearchSetByDifferentOwner(
+                    customUserDetails.getAccountOwner()
+            );
+        }else{
+            vehicles = vehicleService.findVehicleSearchSetByDifferentOwner(
+                    null
+            );
+        }
 
         return ResponseEntity.ok(vehicles);
     }

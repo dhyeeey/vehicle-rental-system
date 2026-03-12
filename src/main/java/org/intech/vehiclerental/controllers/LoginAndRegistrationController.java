@@ -38,48 +38,41 @@ public class LoginAndRegistrationController {
         this.authenticationManager = authenticationManager;
     }
 
-    @GetMapping("/me")
-    public ResponseEntity<?> checkSession(Authentication authentication) {
+    @PostMapping(value="/login")
+    public ResponseEntity<?> login(
+            HttpServletRequest request,
+            @RequestBody(required = false) LoginPayloadBody body,
+            Authentication authentication
+    ){
+        // CASE 1: Check existing session
+        if (body == null || (body.email() == null && body.password() == null)) {
 
-        if (authentication == null || !authentication.isAuthenticated()) {
+            if (authentication != null && authentication.isAuthenticated()) {
+                return ResponseEntity.ok().build();
+            }
+
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
-
-        return ResponseEntity.ok(Map.of(
-                "id", user.getAccountOwner().getId(),
-                "email", user.getUsername(),
-                "role", user.getAccountOwner().getRole()
-        ));
-    }
-
-    @PostMapping(value="/login")
-    public ResponseEntity<?> login(
-            HttpServletRequest httpServletRequest,
-            @Valid @RequestBody(required = true) LoginPayloadBody loginPayloadBody
-    ){
-        Authentication authentication =
+        // CASE 2: Normal login
+        Authentication auth =
                 authenticationManager.authenticate(
                         new UsernamePasswordAuthenticationToken(
-                                loginPayloadBody.email(),
-                                loginPayloadBody.password()
+                                body.email(),
+                                body.password()
                         )
                 );
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
-        // Create or get session
-        HttpSession session = httpServletRequest.getSession(true);
+        HttpSession session = request.getSession(true);
 
-        // Store security context in session
         session.setAttribute(
                 HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
                 SecurityContextHolder.getContext()
         );
 
-        // regenerate session ID for security
-        httpServletRequest.changeSessionId();
+        request.changeSessionId();
 
         return ResponseEntity.ok().build();
     }
