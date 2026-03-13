@@ -7,6 +7,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
 import org.intech.vehiclerental.dto.vehicledto.VehicleFleetDto;
 import org.intech.vehiclerental.dto.vehicledto.VehicleInfo;
+import org.intech.vehiclerental.dto.vehicledto.VehicleListViewAdmin;
 import org.intech.vehiclerental.dto.vehicledto.VehicleSearchInfo;
 import org.intech.vehiclerental.models.AccountOwner;
 import org.intech.vehiclerental.models.Company;
@@ -280,6 +281,25 @@ public class VehicleEntityViewRepositoryImpl implements VehicleEntityViewReposit
 
         return update.executeUpdate();
 
+    }
+
+    @Override
+    public List<VehicleListViewAdmin> getVehicleListForAdminAndCompanyByStatus(
+            VehicleStatus vehicleStatus,
+            VehicleApprovalStatus vehicleApprovalStatus) {
+        var cb = cbf.create(em, Vehicle.class);
+
+        if(vehicleStatus != null){
+            cb.where("status").eq(vehicleStatus);
+        }
+
+        if(vehicleApprovalStatus != null){
+            cb.where("approvalStatus").eq(vehicleApprovalStatus);
+        }
+
+        CriteriaBuilder<VehicleListViewAdmin> viewCb = evm.applySetting(EntityViewSetting.create(VehicleListViewAdmin.class),cb);
+
+        return viewCb.getResultList();
     }
 
 }

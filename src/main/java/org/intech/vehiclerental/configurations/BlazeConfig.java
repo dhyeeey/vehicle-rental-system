@@ -98,7 +98,8 @@ public class BlazeConfig {
     }
 
     @Bean
-    public EntityViewManager createEntityViewManager(CriteriaBuilderFactory cbf, EntityViewConfiguration entityViewConfiguration) {
+    public EntityViewManager createEntityViewManager(CriteriaBuilderFactory cbf,
+                                                     EntityViewConfiguration entityViewConfiguration) {
         return entityViewConfiguration.createEntityViewManager(cbf);
     }
 }

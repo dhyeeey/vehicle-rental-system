@@ -5,12 +5,12 @@ import jakarta.validation.Valid;
 import org.intech.vehiclerental.dto.requestbody.VehicleRegistrationDTO;
 import org.intech.vehiclerental.dto.vehicledto.VehicleFleetDto;
 import org.intech.vehiclerental.dto.vehicledto.VehicleInfo;
+import org.intech.vehiclerental.dto.vehicledto.VehicleListViewAdmin;
 import org.intech.vehiclerental.dto.vehicledto.VehicleSearchInfo;
 import org.intech.vehiclerental.models.AccountOwner;
 import org.intech.vehiclerental.models.Vehicle;
 import org.intech.vehiclerental.models.enums.VehicleApprovalStatus;
 import org.intech.vehiclerental.models.enums.VehicleStatus;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -59,4 +59,7 @@ public interface VehicleService {
 
     int changeVehicleApprovalStatus(Long vehicleId, VehicleStatus vehicleStatus,
                              VehicleApprovalStatus vehicleApprovalStatus, AccountOwner accountOwner);
+
+    List<VehicleListViewAdmin> getVehicleListForAdminAndCompanyByStatus(VehicleStatus vehicleStatus,
+                                                                         VehicleApprovalStatus vehicleApprovalStatus);
 }

@@ -14,8 +14,6 @@ import org.intech.vehiclerental.dto.vehicledto.VehicleSearchInfo;
 import org.intech.vehiclerental.models.AccountOwner;
 import org.intech.vehiclerental.models.CustomUserDetails;
 import org.intech.vehiclerental.models.Vehicle;
-import org.intech.vehiclerental.models.enums.VehicleApprovalStatus;
-import org.intech.vehiclerental.models.enums.VehicleStatus;
 import org.intech.vehiclerental.services.ImageValidationService;
 import org.intech.vehiclerental.services.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -122,24 +120,6 @@ public class VehicleController {
     }
 
     /*--------------------------------------------POST--------------------------------------------------- */
-
-
-    @PreAuthorize("hasAnyRole('ADMIN','COMPANY')")
-    @PostMapping("/admin/approve-vehicle")
-    public ResponseEntity<?> changeVehicleApprovalStatus(Authentication authentication,
-                                                 @AuthenticationPrincipal CustomUserDetails customUserDetails,
-                                                 @RequestBody ChangeVehicleApprovalStatusDto dto){
-
-        int val = vehicleService.changeVehicleApprovalStatus(
-                dto.vehicleId(),
-                dto.vehicleStatus(),
-                dto.vehicleApprovalStatus(),
-                customUserDetails.getAccountOwner()
-        );
-
-        return ResponseEntity.ok(val);
-    }
-
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<RegisterVehicleResponseDTO> registerVehicle(

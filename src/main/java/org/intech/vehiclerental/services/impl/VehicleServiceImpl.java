@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import org.intech.vehiclerental.dto.requestbody.VehicleRegistrationDTO;
 import org.intech.vehiclerental.dto.vehicledto.VehicleFleetDto;
 import org.intech.vehiclerental.dto.vehicledto.VehicleInfo;
+import org.intech.vehiclerental.dto.vehicledto.VehicleListViewAdmin;
 import org.intech.vehiclerental.dto.vehicledto.VehicleSearchInfo;
 import org.intech.vehiclerental.exceptions.VehicleAccessDeniedException;
 import org.intech.vehiclerental.mappers.VehicleMapper;
@@ -167,6 +168,14 @@ public class VehicleServiceImpl implements VehicleService {
 
         int val = vehicleRepository.changeVehicleApprovalStatus(vehicleId, vehicleStatus, vehicleApprovalStatus, accountOwner);
         return val;
+    }
+
+
+    @Override
+    public List<VehicleListViewAdmin> getVehicleListForAdminAndCompanyByStatus(VehicleStatus vehicleStatus,
+                                                                        VehicleApprovalStatus vehicleApprovalStatus){
+
+        return vehicleRepository.getVehicleListForAdminAndCompanyByStatus(vehicleStatus,vehicleApprovalStatus);
     }
 
 

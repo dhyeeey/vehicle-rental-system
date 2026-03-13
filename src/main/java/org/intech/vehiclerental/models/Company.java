@@ -1,5 +1,6 @@
 package org.intech.vehiclerental.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -29,6 +30,7 @@ public class Company extends AccountOwner {
     @Column(unique = true, length = 50)
     private String taxId;
 
+    @JsonIgnore
     @JsonManagedReference
     @OneToMany(mappedBy = "approvedBy")
     private Set<Vehicle> approvedVehicles = new HashSet<>();

@@ -3,6 +3,7 @@ package org.intech.vehiclerental.repositories;
 import com.blazebit.persistence.PagedList;
 import org.intech.vehiclerental.dto.vehicledto.VehicleFleetDto;
 import org.intech.vehiclerental.dto.vehicledto.VehicleInfo;
+import org.intech.vehiclerental.dto.vehicledto.VehicleListViewAdmin;
 import org.intech.vehiclerental.dto.vehicledto.VehicleSearchInfo;
 import org.intech.vehiclerental.models.AccountOwner;
 import org.intech.vehiclerental.models.Vehicle;
@@ -51,4 +52,7 @@ public interface VehicleEntityViewRepository {
                             VehicleStatus vehicleStatus,
                             VehicleApprovalStatus vehicleApprovalStatus,
                             AccountOwner accountOwner);
+
+    List<VehicleListViewAdmin> getVehicleListForAdminAndCompanyByStatus(VehicleStatus vehicleStatus,
+                                                                        VehicleApprovalStatus vehicleApprovalStatus);
 }
