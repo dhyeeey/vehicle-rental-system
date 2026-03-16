@@ -3,6 +3,7 @@ package org.intech.vehiclerental.repositories.impl;
 import com.blazebit.persistence.CriteriaBuilderFactory;
 import com.blazebit.persistence.UpdateCriteriaBuilder;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.Tuple;
 import org.intech.vehiclerental.dto.requestbody.EditAccountProfileDto;
 import org.intech.vehiclerental.models.AccountOwner;
 import org.intech.vehiclerental.models.Company;
@@ -169,14 +170,45 @@ public class AccountOwnerRepositoryImpl implements AccountOwnerRepository {
 
     @Override
     public int editProfileImage(AccountOwner accountOwner, String imageUrl) {
-        if (imageUrl == null || imageUrl.isBlank()) {
-            return 0;
-        }
-
         UpdateCriteriaBuilder<AccountOwner> update = cbf.update(em, AccountOwner.class)
-                .set("profileImageUrl", imageUrl)
                 .where("id").eq(accountOwner.getId());
+
+        if (imageUrl == null) {
+            update.setExpression("profileImageUrl", "NULL");
+        } else {
+            update.set("profileImageUrl", imageUrl);
+        }
 
         return update.executeUpdate();
     }
+
+    @Override
+    public String getCurrentProfileImageUrl(
+            Long accountOwnerId
+    ){
+        Tuple tuple = cbf.create(em, Tuple.class)
+                .from(AccountOwner.class,"ao")
+                .select("ao.profileImageUrl")
+                .where("ao.id").eq(accountOwnerId)
+                .getSingleResult();
+
+        return tuple.get(0, String.class);
+    }
+
+    @Override
+    public int editProfileImage(Long accountOwnerId, String imageUrl) {
+
+        UpdateCriteriaBuilder<AccountOwner> update = cbf.update(em, AccountOwner.class)
+                .where("id").eq(accountOwnerId);
+
+        if (imageUrl == null) {
+            update.setExpression("profileImageUrl", "NULL");
+        } else {
+            update.set("profileImageUrl", imageUrl);
+        }
+
+        return update.executeUpdate();
+    }
+
+
 }

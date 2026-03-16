@@ -27,6 +27,8 @@ public interface RentalService {
             Pageable pageable
     );
 
+    Boolean isCarOwnerAndLoggedUserSame(Long loggedUserId, Long rentalId);
+
     List<RentalViewForRequests> findRentalRequestsByVehicleId(Long vehicleId);
 
     PagedList<RentalListDto> findRentalPageByVehicle(

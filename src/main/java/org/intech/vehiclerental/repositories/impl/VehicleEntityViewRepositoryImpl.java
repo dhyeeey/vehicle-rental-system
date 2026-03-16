@@ -3,12 +3,10 @@ package org.intech.vehiclerental.repositories.impl;
 import com.blazebit.persistence.*;
 import com.blazebit.persistence.view.EntityViewManager;
 import com.blazebit.persistence.view.EntityViewSetting;
+import com.blazebit.persistence.view.spi.type.DirtyStateTrackable;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
-import org.intech.vehiclerental.dto.vehicledto.VehicleFleetDto;
-import org.intech.vehiclerental.dto.vehicledto.VehicleInfo;
-import org.intech.vehiclerental.dto.vehicledto.VehicleListViewAdmin;
-import org.intech.vehiclerental.dto.vehicledto.VehicleSearchInfo;
+import org.intech.vehiclerental.dto.vehicledto.*;
 import org.intech.vehiclerental.models.AccountOwner;
 import org.intech.vehiclerental.models.Company;
 import org.intech.vehiclerental.models.Vehicle;
@@ -250,36 +248,27 @@ public class VehicleEntityViewRepositoryImpl implements VehicleEntityViewReposit
                                    VehicleApprovalStatus vehicleApprovalStatus,
                                    AccountOwner accountOwner){
 
-        Tuple tuple = cbf.create(em, Tuple.class)
-                .from(Vehicle.class, "v")
-                .select("v.status")
-                .select("v.approvalStatus")
-                .select("v.approvedBy.id")
-                .where("v.id").eq(vehicleId)
-                .getSingleResult();
+        VehicleStatusUpdateView vehicleView =
+                evm.find(em, VehicleStatusUpdateView.class, vehicleId);
 
-        VehicleStatus currentStatus = tuple.get(0, VehicleStatus.class);
-        VehicleApprovalStatus currentApprovalStatus = tuple.get(1, VehicleApprovalStatus.class);
-        Long currentApprovedById = tuple.get(2, Long.class);
-
-        UpdateCriteriaBuilder<Vehicle> update = cbf.update(em, Vehicle.class)
-                .where("id").eq(vehicleId);
-
-        boolean changed = false;
-
-        changed |= setIfChanged(currentStatus, vehicleStatus, v -> update.set("status", v));
-        changed |= setIfChanged(currentApprovalStatus, vehicleApprovalStatus, v -> update.set("approvalStatus", v));
-
-        Long newApprovedById = accountOwner != null ? accountOwner.getId() : null;
-
-        changed |= setIfChanged(currentApprovedById, newApprovedById,
-                v -> update.set("approvedBy.id", v));
-
-        if (!changed) {
+        if (vehicleView == null) {
             return 0;
         }
 
-        return update.executeUpdate();
+        vehicleView.setStatus(vehicleStatus);
+        vehicleView.setApprovalStatus(vehicleApprovalStatus);
+
+        if (accountOwner != null) {
+            VehicleStatusUpdateView.AccountOwnerIdView ownerRef =
+                    evm.getReference(VehicleStatusUpdateView.AccountOwnerIdView.class, accountOwner.getId());
+            vehicleView.setApprovedBy(ownerRef);
+        } else {
+            vehicleView.setApprovedBy(null);
+        }
+
+        evm.save(em, vehicleView);
+
+        return 1;
 
     }
 

@@ -4,6 +4,7 @@ import org.intech.vehiclerental.dto.requestbody.EditAccountProfileDto;
 import org.intech.vehiclerental.models.AccountOwner;
 import org.intech.vehiclerental.repositories.AccountOwnerRepository;
 import org.intech.vehiclerental.services.AccountOwnerService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,6 +21,9 @@ import java.util.UUID;
 public class AccountOwnerServiceImpl implements AccountOwnerService {
 
     private final AccountOwnerRepository repository;
+
+    @Value("${app.upload.profile.image.dir}")
+    private String profileImagesDir;
 
     public AccountOwnerServiceImpl(AccountOwnerRepository repository) {
         this.repository = repository;
@@ -52,18 +56,35 @@ public class AccountOwnerServiceImpl implements AccountOwnerService {
 
     @Override
     @Transactional
+    public void removeProfileImage(Long accountOwnerId){
+        String oldProfileImageUrl = repository.getCurrentProfileImageUrl(accountOwnerId);
+
+        repository.editProfileImage(accountOwnerId, null);
+
+        if (oldProfileImageUrl != null && !oldProfileImageUrl.isBlank()) {
+
+            Path oldImagePath = Paths.get(oldProfileImageUrl.replace("/uploads/", "uploads/"));
+
+            try {
+                Files.deleteIfExists(oldImagePath);
+            } catch (IOException ioException) {
+                System.err.println("Failed to delete old image: " + oldImagePath);
+            }
+        }
+    }
+
+    @Override
+    @Transactional
     public void editProfileImage(Long accountOwnerId, MultipartFile file) {
 
         AccountOwner accountOwner = repository.findById(accountOwnerId)
                 .orElseThrow(()->new RuntimeException("Account with provided id not found"));
 
-        String uploadDir = "uploads/profile-images";
-
         String oldImageUrl = accountOwner.getProfileImageUrl();
 
         try {
 
-            Path uploadPath = Paths.get(uploadDir);
+            Path uploadPath = Paths.get(profileImagesDir);
 
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
@@ -84,7 +105,7 @@ public class AccountOwnerServiceImpl implements AccountOwnerService {
 
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-            String imageUrl = "/uploads/profile-images/" + fileName;
+            String imageUrl = "/"+profileImagesDir + fileName;
 
             repository.editProfileImage(accountOwner, imageUrl);
 

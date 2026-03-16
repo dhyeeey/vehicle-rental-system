@@ -19,4 +19,9 @@ public interface AccountOwnerRepository {
     int editProfileDetails(Long accountOwnerId, EditAccountProfileDto editAccountProfileDto);
 
     int editProfileImage(AccountOwner accountOwner, String imageUrl);
+    int editProfileImage(Long accountOwnerId, String imageUrl);
+
+
+    String getCurrentProfileImageUrl(Long accountOwnerId);
+
 }

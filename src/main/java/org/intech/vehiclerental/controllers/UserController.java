@@ -26,13 +26,21 @@ public class UserController {
     public ResponseEntity<?> getProfile(
             Authentication authentication
     ) {
-
         String email = authentication.getName();
 
         AccountOwner accountOwner =
                 accountOwnerService.findAccountByEmail(email);
 
         return ResponseEntity.ok(accountOwner);
+    }
+
+    @PatchMapping("/profile/remove-profile-image")
+    public ResponseEntity<?> removeProfileImage(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ){
+        accountOwnerService.removeProfileImage(customUserDetails.getId());
+
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/profile/edit-profile")

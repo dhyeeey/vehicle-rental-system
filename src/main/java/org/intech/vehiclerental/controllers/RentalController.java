@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -60,6 +61,20 @@ public class RentalController {
             @PathVariable(value = "vehicleId") Long vehicleId
     ){
         return ResponseEntity.ok(rentalService.findRentalRequestsByVehicleId(vehicleId));
+    }
+
+    @PostMapping("/{rentalId}/approve")
+    public ResponseEntity<?> approveRental(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long rentalId
+    ){
+        Long loggedUserId = customUserDetails.getId();
+
+        if(!rentalService.isCarOwnerAndLoggedUserSame(customUserDetails.getId(),rentalId)){
+            throw new AccessDeniedException("You are not allowed to modify this rental");
+        }
+
+        return null;
     }
 
 

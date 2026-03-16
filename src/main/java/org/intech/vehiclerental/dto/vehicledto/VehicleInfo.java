@@ -3,10 +3,7 @@ package org.intech.vehiclerental.dto.vehicledto;
 import com.blazebit.persistence.view.EntityView;
 import com.blazebit.persistence.view.IdMapping;
 import org.intech.vehiclerental.models.Vehicle;
-import org.intech.vehiclerental.models.enums.FuelType;
-import org.intech.vehiclerental.models.enums.TransmissionType;
-import org.intech.vehiclerental.models.enums.VehicleStatus;
-import org.intech.vehiclerental.models.enums.VehicleType;
+import org.intech.vehiclerental.models.enums.*;
 
 import java.time.Instant;
 import java.util.Set;
@@ -45,6 +42,8 @@ public interface VehicleInfo {
     Double getPricePerDay();
 
     VehicleStatus getStatus();
+
+    VehicleApprovalStatus getApprovalStatus();
 
     String getDescription();
 

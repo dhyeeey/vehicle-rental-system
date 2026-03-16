@@ -77,6 +77,11 @@ public class RentalServiceImpl implements RentalService {
         return rentalRepository.findRentalInfoById(id);
     }
 
+    @Override
+    public Boolean isCarOwnerAndLoggedUserSame(Long loggedUserId, Long rentalId){
+        return rentalRepository.isCarOwnerAndLoggedUserSame(loggedUserId, rentalId);
+    }
+
 
     @Override
     public PagedList<RentalListDto> findRentalPageByRenter(User renter,

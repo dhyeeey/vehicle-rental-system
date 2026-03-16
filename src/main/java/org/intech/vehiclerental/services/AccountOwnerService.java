@@ -15,4 +15,6 @@ public interface AccountOwnerService {
     int editProfileDetails(Long accountOwnerId, EditAccountProfileDto editAccountProfileDto);
 
     void editProfileImage(Long accountOwnerId, MultipartFile file);
+
+    void removeProfileImage(Long accountOwnerId);
 }

@@ -15,6 +15,7 @@ import org.intech.vehiclerental.models.enums.VehicleStatus;
 import org.intech.vehiclerental.repositories.VehicleEntityViewRepository;
 import org.intech.vehiclerental.services.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,9 @@ public class VehicleServiceImpl implements VehicleService {
     private final VehicleEntityViewRepository vehicleRepository;
     private final VehicleMapper vehicleMapper;
 
+    @Value("${app.upload.vehicles.image.dir}")
+    private String vehicleImagesDir;
+
     @Autowired
     public VehicleServiceImpl(VehicleEntityViewRepository vehicleRepository,
                               VehicleMapper vehicleMapper) {
@@ -49,6 +53,7 @@ public class VehicleServiceImpl implements VehicleService {
      * due to need of index for image
      */
     @Override
+    @Transactional
     public Vehicle registerVehicle(@Valid VehicleRegistrationDTO dto,
                                    List<MultipartFile> images,
                                    Integer primaryImageIndex,
@@ -63,7 +68,7 @@ public class VehicleServiceImpl implements VehicleService {
             MultipartFile file = images.get(i);
             String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
             try {
-                Path uploadPath = Paths.get("uploads/vehicles/");
+                Path uploadPath = Paths.get(vehicleImagesDir);
                 Files.createDirectories(uploadPath);
                 Path filePath = uploadPath.resolve(fileName);
                 Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
@@ -72,7 +77,7 @@ public class VehicleServiceImpl implements VehicleService {
             }
             VehicleImage vehicleImage = VehicleImage.builder()
                     .vehicle(vehicle)
-                    .imageUrl("/uploads/vehicles/" + fileName)
+                    .imageUrl(vehicleImagesDir + fileName)
                     .displayOrder(i).isPrimary(i == primaryImageIndex)
                     .caption(null).build();
             vehicle.getImages().add(vehicleImage);

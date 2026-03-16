@@ -126,6 +126,20 @@ public class RentalEntityViewRepositoryImpl implements RentalEntityViewRepositor
         return pagedList;
     }
 
+    @Override
+    public Boolean isCarOwnerAndLoggedUserSame(Long loggedUserId, Long rentalId){
+        Long result = cbf.create(em, Long.class)
+                .from(Rental.class, "r")
+                .innerJoin("r.vehicle", "v")
+                .select("1")
+                .where("r.id").eq(rentalId)
+                .where("v.accountOwner.id").eq(loggedUserId)
+                .setMaxResults(1)
+                .getSingleResultOrNull();
+
+        return result != null;
+    }
+
 
     @Override
     public Rental saveRental(Rental rental) {
