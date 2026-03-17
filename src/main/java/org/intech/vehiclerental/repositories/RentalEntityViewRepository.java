@@ -32,6 +32,8 @@ public interface RentalEntityViewRepository {
             Pageable pageable
     );
 
+    int changeRentalStatus(Long rentalId, RentalStatus rentalStatus);
+
     Boolean isCarOwnerAndLoggedUserSame(Long loggedUserId, Long rentalId);
 
     Rental saveRental(Rental rental);

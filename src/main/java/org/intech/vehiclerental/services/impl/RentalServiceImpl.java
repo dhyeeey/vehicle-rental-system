@@ -78,6 +78,12 @@ public class RentalServiceImpl implements RentalService {
     }
 
     @Override
+    @Transactional
+    public int changeRentalStatus(Long rentalId, RentalStatus rentalStatus){
+        return rentalRepository.changeRentalStatus(rentalId, rentalStatus);
+    }
+
+    @Override
     public Boolean isCarOwnerAndLoggedUserSame(Long loggedUserId, Long rentalId){
         return rentalRepository.isCarOwnerAndLoggedUserSame(loggedUserId, rentalId);
     }

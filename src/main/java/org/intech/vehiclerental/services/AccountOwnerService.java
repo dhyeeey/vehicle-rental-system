@@ -17,4 +17,6 @@ public interface AccountOwnerService {
     void editProfileImage(Long accountOwnerId, MultipartFile file);
 
     void removeProfileImage(Long accountOwnerId);
+
+    void deleteUser(Long userId);
 }

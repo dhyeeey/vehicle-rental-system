@@ -44,6 +44,12 @@ public class AccountOwnerServiceImpl implements AccountOwnerService {
     }
 
     @Override
+    @Transactional
+    public void deleteUser(Long userId){
+        repository.deleteUser(userId);
+    }
+
+    @Override
     public boolean emailExists(String email) {
         return repository.existsByEmail(email);
     }

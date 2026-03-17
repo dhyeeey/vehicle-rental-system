@@ -10,10 +10,26 @@ import java.util.List;
 public class PageResponse<T> {
 
     private List<T> content;
+
+    // Current page number (0-based if coming from Spring Page)
+    // Example: 0 = first page, 1 = second page
     private Integer currentPage;
+
+    // Total number of items available in the database (across all pages)
+    // Example: 500 items total
     private Long totalItems;
+
+    // Total number of pages based on totalItems and pageSize
+    // Formula: totalPages = ceil(totalItems / pageSize)
     private Integer totalPages;
+
+    // Number of items per page (page size / limit)
+    // Example: pageSize = 10 → each page contains 10 items
     private Integer pageSize;
+
+    // Indicates whether the current page is the last page
+    // true → no more pages after this
+    // false → more pages exist
     private Boolean isLast;
 
     public PageResponse(Page<T> page) {

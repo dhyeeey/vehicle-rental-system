@@ -60,6 +60,6 @@ public interface VehicleService {
     int changeVehicleApprovalStatus(Long vehicleId, VehicleStatus vehicleStatus,
                              VehicleApprovalStatus vehicleApprovalStatus, AccountOwner accountOwner);
 
-    List<VehicleListViewAdmin> getVehicleListForAdminAndCompanyByStatus(VehicleStatus vehicleStatus,
-                                                                         VehicleApprovalStatus vehicleApprovalStatus);
+    PagedList<VehicleListViewAdmin> getVehicleListForAdminAndCompanyByStatus(VehicleStatus vehicleStatus,
+                                                                             VehicleApprovalStatus vehicleApprovalStatus, int page, int size);
 }

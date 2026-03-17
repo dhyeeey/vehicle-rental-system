@@ -24,4 +24,6 @@ public interface AccountOwnerRepository {
 
     String getCurrentProfileImageUrl(Long accountOwnerId);
 
+    void deleteUser(Long userId);
+
 }

@@ -128,18 +128,24 @@ public class RentalEntityViewRepositoryImpl implements RentalEntityViewRepositor
 
     @Override
     public Boolean isCarOwnerAndLoggedUserSame(Long loggedUserId, Long rentalId){
-        Long result = cbf.create(em, Long.class)
+        return !cbf.create(em, Long.class)
                 .from(Rental.class, "r")
                 .innerJoin("r.vehicle", "v")
-                .select("1")
+                .select("1L")
                 .where("r.id").eq(rentalId)
                 .where("v.accountOwner.id").eq(loggedUserId)
                 .setMaxResults(1)
-                .getSingleResultOrNull();
+                .getResultList().isEmpty();
 
-        return result != null;
     }
 
+    @Override
+    public int changeRentalStatus(Long rentalId, RentalStatus rentalStatus){
+        return cbf.update(em, Rental.class)
+                .set("status",rentalStatus)
+                .where("id").eq(rentalId)
+                .executeUpdate();
+    }
 
     @Override
     public Rental saveRental(Rental rental) {

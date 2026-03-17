@@ -169,6 +169,18 @@ public class AccountOwnerRepositoryImpl implements AccountOwnerRepository {
     }
 
     @Override
+    public void deleteUser(Long userId){
+        User user = em.find(User.class, userId);
+
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+
+        em.remove(user);
+    }
+
+
+    @Override
     public int editProfileImage(AccountOwner accountOwner, String imageUrl) {
         UpdateCriteriaBuilder<AccountOwner> update = cbf.update(em, AccountOwner.class)
                 .where("id").eq(accountOwner.getId());

@@ -208,19 +208,18 @@ public class VehicleEntityViewRepositoryImpl implements VehicleEntityViewReposit
 
     @Override
     public int deleteVehicleById(Long id, AccountOwner owner) {
-
-//        Vehicle vehicle = cbf.create(em, Vehicle.class).where("id").eq(id)
-//                .where("accountOwner").eq(owner).getSingleResultOrNull();
-//
-//        if (vehicle != null) {
-//            em.remove(vehicle);
-//        }
-
-        return cbf.delete(em, Vehicle.class)
+        Vehicle vehicle = cbf.create(em, Vehicle.class)
                 .where("id").eq(id)
                 .where("accountOwner").eq(owner)
-                .executeUpdate();
+                .getSingleResultOrNull();
 
+        if (vehicle == null) {
+            return 0;
+        }
+
+        em.remove(vehicle);
+
+        return 1;
     }
 
     @Override
@@ -273,22 +272,32 @@ public class VehicleEntityViewRepositoryImpl implements VehicleEntityViewReposit
     }
 
     @Override
-    public List<VehicleListViewAdmin> getVehicleListForAdminAndCompanyByStatus(
+    public PagedList<VehicleListViewAdmin> getVehicleListForAdminAndCompanyByStatus(
             VehicleStatus vehicleStatus,
-            VehicleApprovalStatus vehicleApprovalStatus) {
-        var cb = cbf.create(em, Vehicle.class);
+            VehicleApprovalStatus vehicleApprovalStatus,int page,
+            int size
+    ) {
+        CriteriaBuilder<Vehicle> cb = cbf.create(em, Vehicle.class);
 
-        if(vehicleStatus != null){
+        if (vehicleStatus != null) {
             cb.where("status").eq(vehicleStatus);
         }
 
-        if(vehicleApprovalStatus != null){
+        if (vehicleApprovalStatus != null) {
             cb.where("approvalStatus").eq(vehicleApprovalStatus);
         }
 
-        CriteriaBuilder<VehicleListViewAdmin> viewCb = evm.applySetting(EntityViewSetting.create(VehicleListViewAdmin.class),cb);
+        cb.orderByDesc("createdAt")
+                .orderByAsc("id");
 
-        return viewCb.getResultList();
+        EntityViewSetting<VehicleListViewAdmin, ?> setting =
+                EntityViewSetting.create(VehicleListViewAdmin.class);
+
+        PaginatedCriteriaBuilder<VehicleListViewAdmin> pageCb =
+                evm.applySetting(setting, cb)
+                        .page(page * size, size); // offset = page * size
+
+        return pageCb.getResultList();
     }
 
 }

@@ -4,6 +4,7 @@ import com.blazebit.persistence.PagedList;
 import org.intech.vehiclerental.dto.paginationdto.PageResponse;
 import org.intech.vehiclerental.dto.rentaldto.CreateRentalRequestDto;
 import org.intech.vehiclerental.dto.rentaldto.RentalListDto;
+import org.intech.vehiclerental.dto.requestbody.ChangeRentalStatus;
 import org.intech.vehiclerental.mappers.RentalMapper;
 import org.intech.vehiclerental.models.*;
 import org.intech.vehiclerental.models.enums.RentalStatus;
@@ -60,25 +61,24 @@ public class RentalController {
     public ResponseEntity<?> findRentalRequestsByVehicleId(
             @PathVariable(value = "vehicleId") Long vehicleId
     ){
-        return ResponseEntity.ok(rentalService.findRentalRequestsByVehicleId(vehicleId));
+        return ResponseEntity
+                .ok(rentalService.findRentalRequestsByVehicleId(vehicleId));
     }
 
-    @PostMapping("/{rentalId}/approve")
-    public ResponseEntity<?> approveRental(
+    @PostMapping("/change-status")
+    public ResponseEntity<?> changeRentalStatus(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable Long rentalId
+            @RequestBody ChangeRentalStatus dto
     ){
-        Long loggedUserId = customUserDetails.getId();
-
-        if(!rentalService.isCarOwnerAndLoggedUserSame(customUserDetails.getId(),rentalId)){
+        if(!rentalService.isCarOwnerAndLoggedUserSame(customUserDetails.getId(),dto.rentalId())){
             throw new AccessDeniedException("You are not allowed to modify this rental");
         }
 
-        return null;
+        return ResponseEntity.ok(rentalService.changeRentalStatus(dto.rentalId(),dto.status()));
     }
 
 
-    @GetMapping("/all")
+    @GetMapping("/list-all")
     public ResponseEntity<?> fetchAllRentals(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestParam(defaultValue = "0") int page,
@@ -87,7 +87,8 @@ public class RentalController {
             @RequestParam(defaultValue = "desc") String direction
     ){
 
-        Pageable pageable = PageRequest.of(0,
+        Pageable pageable = PageRequest.of(
+                0,
                 size,
                  switch(direction){
                     case "desc" -> Sort.by(sortBy).descending();

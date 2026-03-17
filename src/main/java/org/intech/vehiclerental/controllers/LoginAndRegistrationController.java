@@ -65,7 +65,13 @@ public class LoginAndRegistrationController {
 
         SecurityContextHolder.getContext().setAuthentication(auth);
 
+        int ONE_WEEK = 7 /* Days*/
+                * 24  /* Hours */
+                * 60  /* Minute */
+                * 60  /*Second */;
+
         HttpSession session = request.getSession(true);
+        session.setMaxInactiveInterval(ONE_WEEK);
 
         session.setAttribute(
                 HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,

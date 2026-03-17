@@ -177,10 +177,10 @@ public class VehicleServiceImpl implements VehicleService {
 
 
     @Override
-    public List<VehicleListViewAdmin> getVehicleListForAdminAndCompanyByStatus(VehicleStatus vehicleStatus,
-                                                                        VehicleApprovalStatus vehicleApprovalStatus){
+    public PagedList<VehicleListViewAdmin> getVehicleListForAdminAndCompanyByStatus(VehicleStatus vehicleStatus,
+                                                                        VehicleApprovalStatus vehicleApprovalStatus, int page, int size){
 
-        return vehicleRepository.getVehicleListForAdminAndCompanyByStatus(vehicleStatus,vehicleApprovalStatus);
+        return vehicleRepository.getVehicleListForAdminAndCompanyByStatus(vehicleStatus,vehicleApprovalStatus, page, size);
     }
 
 
