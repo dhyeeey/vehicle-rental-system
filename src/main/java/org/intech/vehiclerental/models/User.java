@@ -23,7 +23,7 @@ public class User extends AccountOwner{
     @Column(nullable = false, length = 100)
     private String firstName;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = true, length = 100)
     private String lastName;
 
     @Column(unique = true, length = 50)

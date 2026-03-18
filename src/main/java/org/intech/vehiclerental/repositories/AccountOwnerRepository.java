@@ -1,5 +1,6 @@
 package org.intech.vehiclerental.repositories;
 
+import org.intech.vehiclerental.dto.auth.AuthUserProjection;
 import org.intech.vehiclerental.dto.requestbody.EditAccountProfileDto;
 import org.intech.vehiclerental.models.AccountOwner;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,5 +26,7 @@ public interface AccountOwnerRepository {
     String getCurrentProfileImageUrl(Long accountOwnerId);
 
     void deleteUser(Long userId);
+
+    Optional<AuthUserProjection> findAuthDetailsByEmail(String email);
 
 }

@@ -1,5 +1,6 @@
 package org.intech.vehiclerental.services.impl;
 
+import org.intech.vehiclerental.dto.auth.AuthUserProjection;
 import org.intech.vehiclerental.exceptions.WrongLoginEmailCredentialException;
 import org.intech.vehiclerental.models.AccountOwner;
 import org.intech.vehiclerental.models.CustomUserDetails;
@@ -21,10 +22,16 @@ public class CustomAccountDetailsServiceImpl implements CustomAccountDetailsServ
 
     @Override
     public UserDetails loadUserByUsername(String email)throws UsernameNotFoundException {
-        AccountOwner accountOwner =
-                accountOwnerRepository.findByEmail(email)
+        AuthUserProjection user =
+                accountOwnerRepository.findAuthDetailsByEmail(email)
                         .orElseThrow(() -> new WrongLoginEmailCredentialException("Failed to find account"));
 
-        return new CustomUserDetails(accountOwner);
+        return new CustomUserDetails(
+                user.id(),
+                user.email(),
+                user.password(),
+                user.role(),
+                user.accountStatus()
+        );
     }
 }

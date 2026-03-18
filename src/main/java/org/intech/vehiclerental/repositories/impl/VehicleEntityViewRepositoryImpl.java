@@ -7,6 +7,7 @@ import com.blazebit.persistence.view.spi.type.DirtyStateTrackable;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
 import org.intech.vehiclerental.dto.vehicledto.*;
+import org.intech.vehiclerental.mappers.VehicleMapper;
 import org.intech.vehiclerental.models.AccountOwner;
 import org.intech.vehiclerental.models.Company;
 import org.intech.vehiclerental.models.Vehicle;
@@ -26,14 +27,16 @@ public class VehicleEntityViewRepositoryImpl implements VehicleEntityViewReposit
     private final EntityManager em;
     private final CriteriaBuilderFactory cbf;
     private final EntityViewManager evm;
+    private final VehicleMapper vehicleMapper;
 
     @Autowired
     public VehicleEntityViewRepositoryImpl(EntityManager em,
                                            CriteriaBuilderFactory cbf,
-                                           EntityViewManager evm) {
+                                           EntityViewManager evm, VehicleMapper vehicleMapper) {
         this.em = em;
         this.cbf = cbf;
         this.evm = evm;
+        this.vehicleMapper = vehicleMapper;
     }
 
 
@@ -79,13 +82,13 @@ public class VehicleEntityViewRepositoryImpl implements VehicleEntityViewReposit
 
     @Override
     public PagedList<VehicleFleetDto> findVehicleFleetPageByOwner(
-            AccountOwner owner,
+            Long accountOwnerId,
             VehicleStatus status,
             Boolean isAvailable,
             Pageable pageable
     ) {
         CriteriaBuilder<Vehicle> cb = cbf.create(em, Vehicle.class)
-                .where("accountOwner").eq(owner);
+                .where("accountOwner.id").eq(accountOwnerId);
 
         if (status != null) {
             cb.where("status").eq(status);
@@ -111,12 +114,12 @@ public class VehicleEntityViewRepositoryImpl implements VehicleEntityViewReposit
     }
 
     @Override
-    public int updateVehicleStatus(Long vehicleId, VehicleStatus status, AccountOwner accountOwner) {
+    public int updateVehicleStatus(Long vehicleId, VehicleStatus status, Long accountOwnerId) {
 
         return cbf.update(em, Vehicle.class)
                 .set("status", status)
                 .where("id").eq(vehicleId)
-                .where("accountOwner").eq(accountOwner)
+                .where("accountOwner.id").eq(accountOwnerId)
                 .executeUpdate();
     }
 
@@ -173,14 +176,14 @@ public class VehicleEntityViewRepositoryImpl implements VehicleEntityViewReposit
         return cb;
     }
 
-
     @Override
-    public Set<VehicleSearchInfo> findVehicleSearchSetByDifferentOwner(AccountOwner owner) {
+    public List<VehicleSearchInfo> findVehicleSearchSetByDifferentOwner(Long accountOwnerId) {
 
-        CriteriaBuilder<Vehicle> cb = findSearchVehicleCB(true, VehicleStatus.ACTIVE, VehicleApprovalStatus.APPROVED);
+        CriteriaBuilder<Vehicle> cb = findSearchVehicleCB(true,
+                VehicleStatus.ACTIVE, VehicleApprovalStatus.APPROVED);
 
-        if(owner != null){
-            cb.where("accountOwner").notEq(owner);
+        if(accountOwnerId != null){
+            cb.where("accountOwner.id").notEq(accountOwnerId);
         }
 
         CriteriaBuilder<VehicleSearchInfo> viewCb =
@@ -189,9 +192,7 @@ public class VehicleEntityViewRepositoryImpl implements VehicleEntityViewReposit
                         cb
                 );
 
-        List<VehicleSearchInfo> list = viewCb.getResultList();
-
-        return new HashSet<>(list);
+        return viewCb.getResultList();
     }
 
 
@@ -207,10 +208,10 @@ public class VehicleEntityViewRepositoryImpl implements VehicleEntityViewReposit
     }
 
     @Override
-    public int deleteVehicleById(Long id, AccountOwner owner) {
+    public int deleteVehicleById(Long id, Long accountOwnerId) {
         Vehicle vehicle = cbf.create(em, Vehicle.class)
                 .where("id").eq(id)
-                .where("accountOwner").eq(owner)
+                .where("accountOwner.id").eq(accountOwnerId)
                 .getSingleResultOrNull();
 
         if (vehicle == null) {
@@ -240,12 +241,29 @@ public class VehicleEntityViewRepositoryImpl implements VehicleEntityViewReposit
         return false;
     }
 
+    @Override
+    public int updateVehiclePartial(Long vehicleId, VehicleUpdateFormData dto) {
+
+        VehicleFleetUpdateView view =
+                evm.find(em, VehicleFleetUpdateView.class, vehicleId);
+
+        if (view == null) {
+            return 0;
+        }
+
+        vehicleMapper.updateVehicleFromDto(dto, view);
+
+        evm.save(em, view);
+
+        return 1;
+    }
+
 
     @Override
     public int changeVehicleApprovalStatus(Long vehicleId,
                                    VehicleStatus vehicleStatus,
                                    VehicleApprovalStatus vehicleApprovalStatus,
-                                   AccountOwner accountOwner){
+                                   Long accountOwnerId){
 
         VehicleStatusUpdateView vehicleView =
                 evm.find(em, VehicleStatusUpdateView.class, vehicleId);
@@ -257,9 +275,9 @@ public class VehicleEntityViewRepositoryImpl implements VehicleEntityViewReposit
         vehicleView.setStatus(vehicleStatus);
         vehicleView.setApprovalStatus(vehicleApprovalStatus);
 
-        if (accountOwner != null) {
+        if (accountOwnerId != null) {
             VehicleStatusUpdateView.AccountOwnerIdView ownerRef =
-                    evm.getReference(VehicleStatusUpdateView.AccountOwnerIdView.class, accountOwner.getId());
+                    evm.getReference(VehicleStatusUpdateView.AccountOwnerIdView.class, accountOwnerId);
             vehicleView.setApprovedBy(ownerRef);
         } else {
             vehicleView.setApprovedBy(null);

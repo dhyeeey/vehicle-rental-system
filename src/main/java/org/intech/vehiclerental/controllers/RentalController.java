@@ -8,6 +8,7 @@ import org.intech.vehiclerental.dto.requestbody.ChangeRentalStatus;
 import org.intech.vehiclerental.mappers.RentalMapper;
 import org.intech.vehiclerental.models.*;
 import org.intech.vehiclerental.models.enums.RentalStatus;
+import org.intech.vehiclerental.services.AccountOwnerService;
 import org.intech.vehiclerental.services.RentalService;
 import org.intech.vehiclerental.services.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,25 +25,28 @@ import org.springframework.web.bind.annotation.*;
 public class RentalController {
 
     private VehicleService vehicleService;
+    private AccountOwnerService accountOwnerService;
     private RentalService rentalService;
     private RentalMapper rentalMapper;
 
     @Autowired
     public RentalController(VehicleService vehicleService,
                             RentalService rentalService,
+                            AccountOwnerService accountOwnerService,
                             RentalMapper rentalMapper){
         this.vehicleService = vehicleService;
         this.rentalService = rentalService;
         this.rentalMapper = rentalMapper;
+        this.accountOwnerService = accountOwnerService;
     }
 
     @PostMapping("/create")
     public ResponseEntity<?> createRental(
-            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody CreateRentalRequestDto createRentalRequestDto
     ){
 
-        AccountOwner owner = customUserDetails.getAccountOwner();
+        AccountOwner owner = accountOwnerService.findByIdOrThrow(userDetails.getId());
 
         if (!(owner instanceof User user)) {
             throw new RuntimeException("Only users can rent vehicles");
@@ -80,7 +84,7 @@ public class RentalController {
 
     @GetMapping("/list-all")
     public ResponseEntity<?> fetchAllRentals(
-            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
@@ -97,7 +101,7 @@ public class RentalController {
                 }
         );
 
-        AccountOwner accountOwner = customUserDetails.getAccountOwner();
+        AccountOwner accountOwner = accountOwnerService.findByIdOrThrow(userDetails.getId());
 
         if (!(accountOwner instanceof User user)) {
             throw new RuntimeException("Only users can rent vehicles");

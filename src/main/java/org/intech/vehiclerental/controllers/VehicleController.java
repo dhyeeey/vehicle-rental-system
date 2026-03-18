@@ -6,11 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.intech.vehiclerental.dto.paginationdto.PageResponse;
 import org.intech.vehiclerental.dto.requestbody.VehicleRegistrationDTO;
 import org.intech.vehiclerental.dto.requestbody.VehicleStatusUpdateRequest;
-import org.intech.vehiclerental.dto.vehicledto.RegisterVehicleResponseDTO;
-import org.intech.vehiclerental.dto.vehicledto.VehicleFleetDto;
-import org.intech.vehiclerental.dto.vehicledto.VehicleInfo;
-import org.intech.vehiclerental.dto.vehicledto.VehicleSearchInfo;
-import org.intech.vehiclerental.models.AccountOwner;
+import org.intech.vehiclerental.dto.vehicledto.*;
 import org.intech.vehiclerental.models.CustomUserDetails;
 import org.intech.vehiclerental.models.Vehicle;
 import org.intech.vehiclerental.services.ImageValidationService;
@@ -28,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/api/vehicle")
@@ -77,11 +72,11 @@ public class VehicleController {
             Authentication authentication,
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ){
-        Set<VehicleSearchInfo> vehicles;
+        List<VehicleSearchInfo> vehicles;
 
         if(authentication != null && authentication.isAuthenticated()){
              vehicles = vehicleService.findVehicleSearchSetByDifferentOwner(
-                    customUserDetails.getAccountOwner()
+                    customUserDetails.getId()
             );
         }else{
             vehicles = vehicleService.findVehicleSearchSetByDifferentOwner(
@@ -108,7 +103,7 @@ public class VehicleController {
         Pageable pageable = PageRequest.of(page, size, sort);
 
         PagedList<VehicleFleetDto> vehiclePage = vehicleService.findVehicleFleetPageByOwner(
-                userDetails.getAccountOwner(),
+                userDetails.getId(),
                 null,
                 true,
                 pageable
@@ -125,10 +120,9 @@ public class VehicleController {
             @Valid @ModelAttribute VehicleRegistrationDTO dto,
             @RequestParam(value = "images", required = true) List<MultipartFile> images
     ) {
-        AccountOwner accountOwner = userDetails.getAccountOwner();
 
         imageValidationService.validateImages(images, dto.primaryImageIndex());
-        Vehicle vehicle = vehicleService.registerVehicle(dto, images, dto.primaryImageIndex(), accountOwner);
+        Vehicle vehicle = vehicleService.registerVehicle(dto, images, dto.primaryImageIndex(), userDetails.getId());
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -159,10 +153,21 @@ public class VehicleController {
     ){
         vehicleService.changeVehicleStatus(
                 vehicleStatusUpdateRequest.vehicleId(),
-                vehicleStatusUpdateRequest.status(), customUserDetails.getAccountOwner()
+                vehicleStatusUpdateRequest.status(), customUserDetails.getId()
         );
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PatchMapping(
+            value = "/edit-vehicle-details/{vehicleId}"
+    )
+    public ResponseEntity<?> updateVehicle(
+            @PathVariable Long vehicleId,
+            @RequestBody VehicleUpdateFormData dto,
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        return ResponseEntity.ok(vehicleService.updateVehiclePartial(vehicleId, dto));
     }
 
     /*--------------------------------------------DELETE--------------------------------------------------- */
@@ -172,7 +177,7 @@ public class VehicleController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestParam Long vehicleId
     ){
-        int val = vehicleService.deleteVehicleById(vehicleId, customUserDetails.getAccountOwner());
+        int val = vehicleService.deleteVehicleById(vehicleId, customUserDetails.getId());
         return ResponseEntity.ok(val);
     }
 

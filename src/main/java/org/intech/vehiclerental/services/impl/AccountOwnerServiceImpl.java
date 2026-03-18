@@ -20,25 +20,25 @@ import java.util.UUID;
 @Service
 public class AccountOwnerServiceImpl implements AccountOwnerService {
 
-    private final AccountOwnerRepository repository;
+    private final AccountOwnerRepository accountOwnerRepository;
 
     @Value("${app.upload.profile.image.dir}")
     private String profileImagesDir;
 
-    public AccountOwnerServiceImpl(AccountOwnerRepository repository) {
-        this.repository = repository;
+    public AccountOwnerServiceImpl(AccountOwnerRepository accountOwnerRepository) {
+        this.accountOwnerRepository = accountOwnerRepository;
     }
 
     @Override
     public AccountOwner findAccountByEmail(String email) {
-        return repository.findByEmail(email)
+        return accountOwnerRepository.findByEmail(email)
                 .orElseThrow(() ->
                         new IllegalArgumentException("Invalid email id"));
     }
 
     @Override
     public AccountOwner findByIdOrThrow(Long id) {
-        return repository.findById(id)
+        return accountOwnerRepository.findById(id)
                 .orElseThrow(() ->
                         new IllegalArgumentException("Account not found"));
     }
@@ -46,26 +46,26 @@ public class AccountOwnerServiceImpl implements AccountOwnerService {
     @Override
     @Transactional
     public void deleteUser(Long userId){
-        repository.deleteUser(userId);
+        accountOwnerRepository.deleteUser(userId);
     }
 
     @Override
     public boolean emailExists(String email) {
-        return repository.existsByEmail(email);
+        return accountOwnerRepository.existsByEmail(email);
     }
 
     @Override
     @Transactional
     public int editProfileDetails(Long accountOwnerId, EditAccountProfileDto editAccountProfileDto) {
-        return repository.editProfileDetails(accountOwnerId, editAccountProfileDto);
+        return accountOwnerRepository.editProfileDetails(accountOwnerId, editAccountProfileDto);
     }
 
     @Override
     @Transactional
     public void removeProfileImage(Long accountOwnerId){
-        String oldProfileImageUrl = repository.getCurrentProfileImageUrl(accountOwnerId);
+        String oldProfileImageUrl = accountOwnerRepository.getCurrentProfileImageUrl(accountOwnerId);
 
-        repository.editProfileImage(accountOwnerId, null);
+        accountOwnerRepository.editProfileImage(accountOwnerId, null);
 
         if (oldProfileImageUrl != null && !oldProfileImageUrl.isBlank()) {
 
@@ -83,7 +83,7 @@ public class AccountOwnerServiceImpl implements AccountOwnerService {
     @Transactional
     public void editProfileImage(Long accountOwnerId, MultipartFile file) {
 
-        AccountOwner accountOwner = repository.findById(accountOwnerId)
+        AccountOwner accountOwner = accountOwnerRepository.findById(accountOwnerId)
                 .orElseThrow(()->new RuntimeException("Account with provided id not found"));
 
         String oldImageUrl = accountOwner.getProfileImageUrl();
@@ -113,7 +113,7 @@ public class AccountOwnerServiceImpl implements AccountOwnerService {
 
             String imageUrl = "/"+profileImagesDir + fileName;
 
-            repository.editProfileImage(accountOwner, imageUrl);
+            accountOwnerRepository.editProfileImage(accountOwner, imageUrl);
 
             if (oldImageUrl != null && !oldImageUrl.isBlank()) {
 

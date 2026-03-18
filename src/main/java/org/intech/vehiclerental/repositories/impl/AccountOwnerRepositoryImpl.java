@@ -4,10 +4,13 @@ import com.blazebit.persistence.CriteriaBuilderFactory;
 import com.blazebit.persistence.UpdateCriteriaBuilder;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
+import org.intech.vehiclerental.dto.auth.AuthUserProjection;
 import org.intech.vehiclerental.dto.requestbody.EditAccountProfileDto;
 import org.intech.vehiclerental.models.AccountOwner;
 import org.intech.vehiclerental.models.Company;
 import org.intech.vehiclerental.models.User;
+import org.intech.vehiclerental.models.enums.AccountStatus;
+import org.intech.vehiclerental.models.enums.Role;
 import org.intech.vehiclerental.repositories.AccountOwnerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -49,6 +52,30 @@ public class AccountOwnerRepositoryImpl implements AccountOwnerRepository {
                 .getSingleResultOrNull();
 
         return Optional.ofNullable(owner);
+    }
+
+    @Override
+    public Optional<AuthUserProjection> findAuthDetailsByEmail(String email) {
+
+        Tuple tuple = cbf.create(em, Tuple.class)
+                .from(AccountOwner.class, "ao")
+                .select("ao.id")
+                .select("ao.email")
+                .select("ao.password")
+                .select("ao.role")
+                .select("ao.accountStatus")
+                .where("ao.email").eq(email)
+                .getSingleResultOrNull();
+
+        if (tuple == null) return Optional.empty();
+
+        return Optional.of(new AuthUserProjection(
+                tuple.get(0, Long.class),
+                tuple.get(1, String.class),
+                tuple.get(2, String.class),
+                tuple.get(3, Role.class),
+                tuple.get(4, AccountStatus.class)
+        ));
     }
 
     @Override

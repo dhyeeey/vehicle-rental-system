@@ -45,23 +45,20 @@ public class UserController {
 
     @PutMapping("/profile/edit-profile")
     public ResponseEntity<?> editProfileDetails(
-            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody EditAccountProfileDto editAccountProfileDto
     ){
-        Long accountOwnerId = customUserDetails.getAccountOwner().getId();
-        int val = accountOwnerService.editProfileDetails(accountOwnerId, editAccountProfileDto);
+        int val = accountOwnerService.editProfileDetails(userDetails.getId(), editAccountProfileDto);
 
         return ResponseEntity.ok(val);
     }
 
     @PutMapping("/profile/edit-profile-image")
     public ResponseEntity<?> editProfileImage(
-            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(value = "file", required = true) MultipartFile file
     ){
-        Long accountOwnerId = customUserDetails.getAccountOwner().getId();
-        accountOwnerService.editProfileImage(accountOwnerId, file);
-
+        accountOwnerService.editProfileImage(userDetails.getId(), file);
         return ResponseEntity.ok().build();
     }
 

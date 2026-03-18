@@ -1,10 +1,7 @@
 package org.intech.vehiclerental.repositories;
 
 import com.blazebit.persistence.PagedList;
-import org.intech.vehiclerental.dto.vehicledto.VehicleFleetDto;
-import org.intech.vehiclerental.dto.vehicledto.VehicleInfo;
-import org.intech.vehiclerental.dto.vehicledto.VehicleListViewAdmin;
-import org.intech.vehiclerental.dto.vehicledto.VehicleSearchInfo;
+import org.intech.vehiclerental.dto.vehicledto.*;
 import org.intech.vehiclerental.models.AccountOwner;
 import org.intech.vehiclerental.models.Vehicle;
 import org.intech.vehiclerental.models.enums.VehicleApprovalStatus;
@@ -21,13 +18,13 @@ public interface VehicleEntityViewRepository {
     Optional<VehicleInfo> findVehicleInfoById(Long id);
 
     PagedList<VehicleFleetDto> findVehicleFleetPageByOwner(
-            AccountOwner owner,
+            Long accountOwnerId,
             VehicleStatus status,
             Boolean isAvailable,
             Pageable pageable
     );
 
-    int updateVehicleStatus(Long vehicleId, VehicleStatus status, AccountOwner accountOwner);
+    int updateVehicleStatus(Long vehicleId, VehicleStatus status, Long accountOwnerId);
 
     List<VehicleSearchInfo> findVehicleSearchList(
             String location,
@@ -38,24 +35,26 @@ public interface VehicleEntityViewRepository {
 
     Optional<AccountOwner> findVehicleOwnerByVehicleId(Long vehicleId);
 
-    Set<VehicleSearchInfo> findVehicleSearchSetByDifferentOwner(AccountOwner owner);
+    List<VehicleSearchInfo> findVehicleSearchSetByDifferentOwner(Long accountOwnerId);
 
     Optional<Vehicle> findVehicleEntityWithOwnerById(Long id);
 
     Vehicle saveVehicle(Vehicle vehicle);
 
-    int deleteVehicleById(Long id, AccountOwner owner);
+    int deleteVehicleById(Long id, Long accountOwnerId);
 
     Vehicle findVehicleById(Long vehicleId);
 
     int changeVehicleApprovalStatus(Long vehicleId,
                             VehicleStatus vehicleStatus,
                             VehicleApprovalStatus vehicleApprovalStatus,
-                            AccountOwner accountOwner);
+                            Long accountOwnerId);
 
     PagedList<VehicleListViewAdmin> getVehicleListForAdminAndCompanyByStatus(
             VehicleStatus vehicleStatus,
             VehicleApprovalStatus vehicleApprovalStatus,int page,
             int size
     );
+
+    int updateVehiclePartial(Long vehicleId, VehicleUpdateFormData dto);
 }

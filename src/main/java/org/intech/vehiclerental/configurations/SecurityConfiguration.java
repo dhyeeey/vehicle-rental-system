@@ -34,12 +34,7 @@ public class SecurityConfiguration {
     @Value("#{'${app.security.public-paths}'.split(',')}")
     private List<String> publicPaths;
 
-    /**
-     * "/api/vehicle/getall",
-     * "/uploads/vehicles/**" are permitted for temporary basis only for testing purposes
-     * Above endpoints will be removed from permitAll in future
-     *
-     */
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http

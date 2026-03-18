@@ -3,15 +3,13 @@ package org.intech.vehiclerental.services.impl;
 import com.blazebit.persistence.PagedList;
 import jakarta.validation.Valid;
 import org.intech.vehiclerental.dto.requestbody.VehicleRegistrationDTO;
-import org.intech.vehiclerental.dto.vehicledto.VehicleFleetDto;
-import org.intech.vehiclerental.dto.vehicledto.VehicleInfo;
-import org.intech.vehiclerental.dto.vehicledto.VehicleListViewAdmin;
-import org.intech.vehiclerental.dto.vehicledto.VehicleSearchInfo;
+import org.intech.vehiclerental.dto.vehicledto.*;
 import org.intech.vehiclerental.exceptions.VehicleAccessDeniedException;
 import org.intech.vehiclerental.mappers.VehicleMapper;
 import org.intech.vehiclerental.models.*;
 import org.intech.vehiclerental.models.enums.VehicleApprovalStatus;
 import org.intech.vehiclerental.models.enums.VehicleStatus;
+import org.intech.vehiclerental.repositories.AccountOwnerRepository;
 import org.intech.vehiclerental.repositories.VehicleEntityViewRepository;
 import org.intech.vehiclerental.services.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +34,7 @@ import java.util.Set;
 public class VehicleServiceImpl implements VehicleService {
 
     private final VehicleEntityViewRepository vehicleRepository;
+    private final AccountOwnerRepository accountOwnerRepository;
     private final VehicleMapper vehicleMapper;
 
     @Value("${app.upload.vehicles.image.dir}")
@@ -43,9 +42,10 @@ public class VehicleServiceImpl implements VehicleService {
 
     @Autowired
     public VehicleServiceImpl(VehicleEntityViewRepository vehicleRepository,
-                              VehicleMapper vehicleMapper) {
+                              VehicleMapper vehicleMapper, AccountOwnerRepository accountOwnerRepository) {
         this.vehicleRepository = vehicleRepository;
         this.vehicleMapper = vehicleMapper;
+        this.accountOwnerRepository = accountOwnerRepository;
     }
 
     /**
@@ -57,11 +57,13 @@ public class VehicleServiceImpl implements VehicleService {
     public Vehicle registerVehicle(@Valid VehicleRegistrationDTO dto,
                                    List<MultipartFile> images,
                                    Integer primaryImageIndex,
-                                   AccountOwner accountOwner) {
+                                   Long accountOwnerId) {
 
         Vehicle vehicle = vehicleMapper.toVehicleFromVehicleRegistrationDTO(dto);
         vehicle.setStatus(VehicleStatus.INACTIVE);
         vehicle.setApprovalStatus(VehicleApprovalStatus.PENDING);
+
+        AccountOwner accountOwner = accountOwnerRepository.findById(accountOwnerId).orElseThrow(()->new RuntimeException("User with provided id not found"));
         vehicle.setAccountOwner(accountOwner);
 
         for (int i = 0; i < images.size(); i++) {
@@ -111,11 +113,11 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    public PagedList<VehicleFleetDto> findVehicleFleetPageByOwner(AccountOwner owner,
+    public PagedList<VehicleFleetDto> findVehicleFleetPageByOwner(Long accountOwnerId,
                                                                   org.intech.vehiclerental.models.enums.VehicleStatus status,
                                                                   Boolean isAvailable,
                                                                   Pageable pageable) {
-        return vehicleRepository.findVehicleFleetPageByOwner(owner, status, isAvailable, pageable);
+        return vehicleRepository.findVehicleFleetPageByOwner(accountOwnerId, status, isAvailable, pageable);
     }
 
     @Override
@@ -127,9 +129,9 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Transactional
-    public void changeVehicleStatus(Long vehicleId, VehicleStatus status, AccountOwner accountOwner) {
+    public void changeVehicleStatus(Long vehicleId, VehicleStatus status, Long accountOwnerId) {
 
-        int updated = vehicleRepository.updateVehicleStatus(vehicleId, status, accountOwner);
+        int updated = vehicleRepository.updateVehicleStatus(vehicleId, status, accountOwnerId);
 
         if (updated == 0) {
             throw new VehicleAccessDeniedException("Vehicle not found or you do not own vehicle");
@@ -137,8 +139,8 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    public Set<VehicleSearchInfo> findVehicleSearchSetByDifferentOwner(AccountOwner owner) {
-        return vehicleRepository.findVehicleSearchSetByDifferentOwner(owner);
+    public List<VehicleSearchInfo> findVehicleSearchSetByDifferentOwner(Long accountOwnerId) {
+        return vehicleRepository.findVehicleSearchSetByDifferentOwner(accountOwnerId);
     }
 
     @Override
@@ -154,8 +156,14 @@ public class VehicleServiceImpl implements VehicleService {
 
     @Override
     @Transactional
-    public int deleteVehicleById(Long id, AccountOwner owner) {
-        int deleted = vehicleRepository.deleteVehicleById(id, owner);
+    public int updateVehiclePartial(Long vehicleId, VehicleUpdateFormData dto){
+        return vehicleRepository.updateVehiclePartial(vehicleId,dto);
+    }
+
+    @Override
+    @Transactional
+    public int deleteVehicleById(Long id, Long accountOwnerId) {
+        int deleted = vehicleRepository.deleteVehicleById(id, accountOwnerId);
 
         if (deleted == 0) {
             throw new VehicleAccessDeniedException("Vehicle not found or not owned by you");
@@ -169,9 +177,10 @@ public class VehicleServiceImpl implements VehicleService {
     public int changeVehicleApprovalStatus(Long vehicleId,
                                     VehicleStatus vehicleStatus,
                                     VehicleApprovalStatus vehicleApprovalStatus,
-                                    AccountOwner accountOwner) {
+                                    Long accountOwnerId) {
 
-        int val = vehicleRepository.changeVehicleApprovalStatus(vehicleId, vehicleStatus, vehicleApprovalStatus, accountOwner);
+        int val = vehicleRepository.changeVehicleApprovalStatus(vehicleId,
+                vehicleStatus, vehicleApprovalStatus, accountOwnerId);
         return val;
     }
 

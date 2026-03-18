@@ -55,7 +55,7 @@ public class AdminController {
 
     @PatchMapping("/change-vehicle-status")
     public ResponseEntity<?> changeVehicleApprovalStatus(
-            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody ChangeVehicleStatusDto dto
     ){
 
@@ -63,7 +63,7 @@ public class AdminController {
                 dto.vehicleId(),
                 dto.vehicleStatus(),
                 dto.vehicleApprovalStatus(),
-                customUserDetails.getAccountOwner()
+                userDetails.getId()
         );
 
         return ResponseEntity.ok(val);
