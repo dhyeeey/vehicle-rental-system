@@ -255,6 +255,27 @@ public class VehicleEntityViewRepositoryImpl implements VehicleEntityViewReposit
 
         evm.save(em, view);
 
+        em.flush();
+        em.clear();
+
+        if (dto.features() != null) {
+
+            em.createNativeQuery("DELETE FROM vehicle_features WHERE vehicle_id = :id")
+                    .setParameter("id", vehicleId)
+                    .executeUpdate();
+
+            for (String feature : dto.features()) {
+                em.createNativeQuery("""
+                    INSERT INTO vehicle_features(vehicle_id, feature)
+                    VALUES (:vId, :f)
+                """)
+                        .setParameter("vId", vehicleId)
+                        .setParameter("f", feature)
+                        .executeUpdate();
+            }
+
+        }
+
         return 1;
     }
 

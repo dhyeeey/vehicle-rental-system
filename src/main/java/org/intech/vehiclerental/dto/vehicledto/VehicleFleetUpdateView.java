@@ -3,6 +3,7 @@ package org.intech.vehiclerental.dto.vehicledto;
 import com.blazebit.persistence.view.EntityView;
 import com.blazebit.persistence.view.IdMapping;
 import com.blazebit.persistence.view.UpdatableEntityView;
+import com.blazebit.persistence.view.UpdatableMapping;
 import org.intech.vehiclerental.models.Vehicle;
 import org.intech.vehiclerental.models.enums.FuelType;
 import org.intech.vehiclerental.models.enums.TransmissionType;
@@ -57,8 +58,5 @@ public interface VehicleFleetUpdateView {
 
     void setDescription(String description);
     String getDescription();
-
-    void setFeatures(Set<String> features);
-    Set<String> getFeatures();
 
 }
