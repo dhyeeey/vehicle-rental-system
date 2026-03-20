@@ -5,7 +5,9 @@ import org.intech.vehiclerental.dto.paginationdto.PageResponse;
 import org.intech.vehiclerental.dto.rentaldto.CreateRentalRequestDto;
 import org.intech.vehiclerental.dto.rentaldto.RentalListDto;
 import org.intech.vehiclerental.dto.requestbody.ChangeRentalStatus;
+import org.intech.vehiclerental.dto.vehicledto.VehicleWithAccountOwnerView;
 import org.intech.vehiclerental.mappers.RentalMapper;
+import org.intech.vehiclerental.mappers.VehicleMapper;
 import org.intech.vehiclerental.models.*;
 import org.intech.vehiclerental.models.enums.RentalStatus;
 import org.intech.vehiclerental.services.AccountOwnerService;
@@ -24,17 +26,16 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/rental")
 public class RentalController {
 
-    private VehicleService vehicleService;
     private AccountOwnerService accountOwnerService;
     private RentalService rentalService;
+
     private RentalMapper rentalMapper;
 
     @Autowired
-    public RentalController(VehicleService vehicleService,
+    public RentalController(
                             RentalService rentalService,
                             AccountOwnerService accountOwnerService,
                             RentalMapper rentalMapper){
-        this.vehicleService = vehicleService;
         this.rentalService = rentalService;
         this.rentalMapper = rentalMapper;
         this.accountOwnerService = accountOwnerService;
@@ -52,11 +53,7 @@ public class RentalController {
             throw new RuntimeException("Only users can rent vehicles");
         }
 
-        Vehicle vehicle = vehicleService
-                .findVehicleEntityWithOwnerById(createRentalRequestDto.vehicleId())
-                .orElseThrow(() -> new RuntimeException("Vehicle not found"));
-
-        Rental rental = rentalService.createRental(user, vehicle, createRentalRequestDto);
+        Rental rental = rentalService.createRental(user, createRentalRequestDto);
 
         return ResponseEntity.ok(rentalMapper.toCreateRentalResponseDtoFromRental(rental));
     }
@@ -92,7 +89,7 @@ public class RentalController {
     ){
 
         Pageable pageable = PageRequest.of(
-                0,
+                page,
                 size,
                  switch(direction){
                     case "desc" -> Sort.by(sortBy).descending();

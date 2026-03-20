@@ -1,4 +1,4 @@
-package org.intech.vehiclerental.dto.auth;
+package org.intech.vehiclerental.dto.authdto;
 
 import org.intech.vehiclerental.models.enums.AccountStatus;
 import org.intech.vehiclerental.models.enums.Role;

@@ -1,19 +1,16 @@
-package org.intech.vehiclerental.repositories.impl;
+package org.intech.vehiclerental.repositories.custom.impl;
 
 import com.blazebit.persistence.*;
 import com.blazebit.persistence.view.EntityViewManager;
 import com.blazebit.persistence.view.EntityViewSetting;
-import com.blazebit.persistence.view.spi.type.DirtyStateTrackable;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.Tuple;
 import org.intech.vehiclerental.dto.vehicledto.*;
 import org.intech.vehiclerental.mappers.VehicleMapper;
 import org.intech.vehiclerental.models.AccountOwner;
-import org.intech.vehiclerental.models.Company;
 import org.intech.vehiclerental.models.Vehicle;
 import org.intech.vehiclerental.models.enums.VehicleApprovalStatus;
 import org.intech.vehiclerental.models.enums.VehicleStatus;
-import org.intech.vehiclerental.repositories.VehicleEntityViewRepository;
+import org.intech.vehiclerental.repositories.custom.VehicleQueryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
@@ -22,7 +19,7 @@ import java.util.*;
 import java.util.function.Consumer;
 
 @Repository
-public class VehicleEntityViewRepositoryImpl implements VehicleEntityViewRepository {
+public class VehicleQueryRepositoryImpl implements VehicleQueryRepository {
 
     private final EntityManager em;
     private final CriteriaBuilderFactory cbf;
@@ -30,55 +27,14 @@ public class VehicleEntityViewRepositoryImpl implements VehicleEntityViewReposit
     private final VehicleMapper vehicleMapper;
 
     @Autowired
-    public VehicleEntityViewRepositoryImpl(EntityManager em,
-                                           CriteriaBuilderFactory cbf,
-                                           EntityViewManager evm, VehicleMapper vehicleMapper) {
+    public VehicleQueryRepositoryImpl(EntityManager em,
+                                      CriteriaBuilderFactory cbf,
+                                      EntityViewManager evm, VehicleMapper vehicleMapper) {
         this.em = em;
         this.cbf = cbf;
         this.evm = evm;
         this.vehicleMapper = vehicleMapper;
     }
-
-
-    @Override
-    public Optional<VehicleInfo> findVehicleInfoById(Long id) {
-
-        CriteriaBuilder<Vehicle> cb =
-                cbf.create(em, Vehicle.class)
-                        .where("id").eq(id);
-
-        VehicleInfo result = evm.applySetting(
-                EntityViewSetting.create(VehicleInfo.class),
-                cb
-        ).getSingleResultOrNull();
-
-        return Optional.ofNullable(result);
-    }
-
-    @Override
-    public Optional<AccountOwner> findVehicleOwnerByVehicleId(Long vehicleId) {
-
-        AccountOwner owner = cbf.create(em, AccountOwner.class)
-                .from(Vehicle.class)
-                .select("accountOwner")
-                .where("id").eq(vehicleId)
-                .getSingleResultOrNull();
-
-        return Optional.ofNullable(owner);
-    }
-
-
-    @Override
-    public Optional<Vehicle> findVehicleEntityWithOwnerById(Long id) {
-
-        Vehicle vehicle = cbf.create(em, Vehicle.class)
-                .fetch("accountOwner")
-                .where("id").eq(id)
-                .getSingleResultOrNull();
-
-        return Optional.ofNullable(vehicle);
-    }
-
 
     @Override
     public PagedList<VehicleFleetDto> findVehicleFleetPageByOwner(
@@ -165,7 +121,9 @@ public class VehicleEntityViewRepositoryImpl implements VehicleEntityViewReposit
 
 
     public CriteriaBuilder<Vehicle> findSearchVehicleCB(
-            boolean isAvailable,VehicleStatus vehicleStatus, VehicleApprovalStatus vehicleApprovalStatus
+            boolean isAvailable,
+            VehicleStatus vehicleStatus,
+            VehicleApprovalStatus vehicleApprovalStatus
     ){
         CriteriaBuilder<Vehicle> cb =
                 cbf.create(em, Vehicle.class)
@@ -221,12 +179,6 @@ public class VehicleEntityViewRepositoryImpl implements VehicleEntityViewReposit
         em.remove(vehicle);
 
         return 1;
-    }
-
-    @Override
-    public Vehicle findVehicleById(Long vehicleId) {
-        CriteriaBuilder<Vehicle> cb =  cbf.create(em,Vehicle.class).where("id").eq(vehicleId);
-        return cb.getSingleResult();
     }
 
     private <T> boolean setIfChanged(T current,

@@ -1,8 +1,9 @@
 package org.intech.vehiclerental.services.impl;
 
+import org.intech.vehiclerental.dto.admin.ListUserAccountAdminView;
 import org.intech.vehiclerental.dto.requestbody.EditAccountProfileDto;
 import org.intech.vehiclerental.models.AccountOwner;
-import org.intech.vehiclerental.repositories.AccountOwnerRepository;
+import org.intech.vehiclerental.repositories.custom.AccountOwnerQueryRepository;
 import org.intech.vehiclerental.services.AccountOwnerService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -14,31 +15,32 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 @Service
 public class AccountOwnerServiceImpl implements AccountOwnerService {
 
-    private final AccountOwnerRepository accountOwnerRepository;
+    private final AccountOwnerQueryRepository accountOwnerQueryRepository;
 
     @Value("${app.upload.profile.image.dir}")
     private String profileImagesDir;
 
-    public AccountOwnerServiceImpl(AccountOwnerRepository accountOwnerRepository) {
-        this.accountOwnerRepository = accountOwnerRepository;
+    public AccountOwnerServiceImpl(AccountOwnerQueryRepository accountOwnerQueryRepository) {
+        this.accountOwnerQueryRepository = accountOwnerQueryRepository;
     }
 
     @Override
     public AccountOwner findAccountByEmail(String email) {
-        return accountOwnerRepository.findByEmail(email)
+        return accountOwnerQueryRepository.findByEmail(email)
                 .orElseThrow(() ->
                         new IllegalArgumentException("Invalid email id"));
     }
 
     @Override
     public AccountOwner findByIdOrThrow(Long id) {
-        return accountOwnerRepository.findById(id)
+        return accountOwnerQueryRepository.findById(id)
                 .orElseThrow(() ->
                         new IllegalArgumentException("Account not found"));
     }
@@ -46,26 +48,26 @@ public class AccountOwnerServiceImpl implements AccountOwnerService {
     @Override
     @Transactional
     public void deleteUser(Long userId){
-        accountOwnerRepository.deleteUser(userId);
+        accountOwnerQueryRepository.deleteUser(userId);
     }
 
     @Override
     public boolean emailExists(String email) {
-        return accountOwnerRepository.existsByEmail(email);
+        return accountOwnerQueryRepository.existsByEmail(email);
     }
 
     @Override
     @Transactional
     public int editProfileDetails(Long accountOwnerId, EditAccountProfileDto editAccountProfileDto) {
-        return accountOwnerRepository.editProfileDetails(accountOwnerId, editAccountProfileDto);
+        return accountOwnerQueryRepository.editProfileDetails(accountOwnerId, editAccountProfileDto);
     }
 
     @Override
     @Transactional
     public void removeProfileImage(Long accountOwnerId){
-        String oldProfileImageUrl = accountOwnerRepository.getCurrentProfileImageUrl(accountOwnerId);
+        String oldProfileImageUrl = accountOwnerQueryRepository.getCurrentProfileImageUrl(accountOwnerId);
 
-        accountOwnerRepository.editProfileImage(accountOwnerId, null);
+        accountOwnerQueryRepository.editProfileImage(accountOwnerId, null);
 
         if (oldProfileImageUrl != null && !oldProfileImageUrl.isBlank()) {
 
@@ -83,7 +85,7 @@ public class AccountOwnerServiceImpl implements AccountOwnerService {
     @Transactional
     public void editProfileImage(Long accountOwnerId, MultipartFile file) {
 
-        AccountOwner accountOwner = accountOwnerRepository.findById(accountOwnerId)
+        AccountOwner accountOwner = accountOwnerQueryRepository.findById(accountOwnerId)
                 .orElseThrow(()->new RuntimeException("Account with provided id not found"));
 
         String oldImageUrl = accountOwner.getProfileImageUrl();
@@ -113,7 +115,7 @@ public class AccountOwnerServiceImpl implements AccountOwnerService {
 
             String imageUrl = "/"+profileImagesDir + fileName;
 
-            accountOwnerRepository.editProfileImage(accountOwner, imageUrl);
+            accountOwnerQueryRepository.editProfileImage(accountOwner, imageUrl);
 
             if (oldImageUrl != null && !oldImageUrl.isBlank()) {
 

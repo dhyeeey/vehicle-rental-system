@@ -6,7 +6,7 @@ import org.intech.vehiclerental.models.AccountOwner;
 import org.intech.vehiclerental.models.User;
 import org.intech.vehiclerental.models.enums.AccountStatus;
 import org.intech.vehiclerental.models.enums.Role;
-import org.intech.vehiclerental.repositories.AccountOwnerRepository;
+import org.intech.vehiclerental.repositories.custom.AccountOwnerQueryRepository;
 import org.intech.vehiclerental.services.LoginAndRegistrationService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,11 +16,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class LoginAndRegistrationServiceImpl
         implements LoginAndRegistrationService {
 
-    private final AccountOwnerRepository repository;
+    private final AccountOwnerQueryRepository repository;
     private final PasswordEncoder passwordEncoder;
 
     public LoginAndRegistrationServiceImpl(
-            AccountOwnerRepository repository,
+            AccountOwnerQueryRepository repository,
             PasswordEncoder passwordEncoder
     ) {
         this.repository = repository;

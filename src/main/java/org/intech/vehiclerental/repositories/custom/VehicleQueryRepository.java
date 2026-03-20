@@ -1,21 +1,18 @@
-package org.intech.vehiclerental.repositories;
+package org.intech.vehiclerental.repositories.custom;
 
 import com.blazebit.persistence.PagedList;
-import org.intech.vehiclerental.dto.vehicledto.*;
-import org.intech.vehiclerental.models.AccountOwner;
+import org.intech.vehiclerental.dto.vehicledto.VehicleFleetDto;
+import org.intech.vehiclerental.dto.vehicledto.VehicleListViewAdmin;
+import org.intech.vehiclerental.dto.vehicledto.VehicleSearchInfo;
+import org.intech.vehiclerental.dto.vehicledto.VehicleUpdateFormData;
 import org.intech.vehiclerental.models.Vehicle;
 import org.intech.vehiclerental.models.enums.VehicleApprovalStatus;
 import org.intech.vehiclerental.models.enums.VehicleStatus;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
-public interface VehicleEntityViewRepository {
-
-    Optional<VehicleInfo> findVehicleInfoById(Long id);
+public interface VehicleQueryRepository {
 
     PagedList<VehicleFleetDto> findVehicleFleetPageByOwner(
             Long accountOwnerId,
@@ -33,17 +30,11 @@ public interface VehicleEntityViewRepository {
             Integer minSeats
     );
 
-    Optional<AccountOwner> findVehicleOwnerByVehicleId(Long vehicleId);
-
     List<VehicleSearchInfo> findVehicleSearchSetByDifferentOwner(Long accountOwnerId);
-
-    Optional<Vehicle> findVehicleEntityWithOwnerById(Long id);
 
     Vehicle saveVehicle(Vehicle vehicle);
 
     int deleteVehicleById(Long id, Long accountOwnerId);
-
-    Vehicle findVehicleById(Long vehicleId);
 
     int changeVehicleApprovalStatus(Long vehicleId,
                             VehicleStatus vehicleStatus,

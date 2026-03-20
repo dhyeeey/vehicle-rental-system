@@ -1,13 +1,14 @@
-package org.intech.vehiclerental.repositories;
+package org.intech.vehiclerental.repositories.custom;
 
-import org.intech.vehiclerental.dto.auth.AuthUserProjection;
+import org.intech.vehiclerental.dto.admin.ListUserAccountAdminView;
+import org.intech.vehiclerental.dto.authdto.AuthUserProjection;
 import org.intech.vehiclerental.dto.requestbody.EditAccountProfileDto;
 import org.intech.vehiclerental.models.AccountOwner;
-import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Optional;
 
-public interface AccountOwnerRepository {
+public interface AccountOwnerQueryRepository {
 
     Optional<AccountOwner> findById(Long id);
 

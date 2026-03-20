@@ -7,6 +7,7 @@ import org.intech.vehiclerental.models.CustomUserDetails;
 import org.intech.vehiclerental.models.enums.VehicleApprovalStatus;
 import org.intech.vehiclerental.models.enums.VehicleStatus;
 import org.intech.vehiclerental.services.AccountOwnerService;
+import org.intech.vehiclerental.services.AdminService;
 import org.intech.vehiclerental.services.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,11 +23,15 @@ public class AdminController {
 
     private final VehicleService vehicleService;
     private final AccountOwnerService accountOwnerService;
+    private final AdminService adminService;
 
     @Autowired
-    public AdminController(VehicleService vehicleService, AccountOwnerService accountOwnerService){
+    public AdminController(VehicleService vehicleService,
+                           AccountOwnerService accountOwnerService,
+                           AdminService adminService){
         this.vehicleService = vehicleService;
         this.accountOwnerService = accountOwnerService;
+        this.adminService = adminService;
     }
 
     @GetMapping(value="/vehicles/list-all")
@@ -36,8 +41,17 @@ public class AdminController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ){
-        return ResponseEntity.ok(new PageResponse<>(vehicleService
-                .getVehicleListForAdminAndCompanyByStatus(vehicleStatus,vehicleApprovalStatus, page, size)));
+        return ResponseEntity.ok(
+                new PageResponse<>(
+                        vehicleService
+                            .getVehicleListForAdminAndCompanyByStatus(
+                                    vehicleStatus,
+                                    vehicleApprovalStatus,
+                                    page,
+                                    size
+                            )
+                )
+        );
     }
 
     @GetMapping(value="/vehicle/{vehicleId}")
@@ -45,6 +59,21 @@ public class AdminController {
             @PathVariable Long vehicleId
     ){
         return ResponseEntity.ok(vehicleService.findVehicleInfoById(vehicleId).orElseGet(()->null));
+    }
+
+    @GetMapping("/list-users")
+    public ResponseEntity<?> getUsersListForAdmin(){
+        return ResponseEntity.ok(adminService.findUserListForAdmin());
+    }
+
+    @GetMapping("/user-detail/{userId}")
+    public ResponseEntity<?> getUserDetailForAdmin(@PathVariable Long userId){
+        return ResponseEntity.ok(adminService.findUserDetailForAdmin(userId));
+    }
+
+    @GetMapping("/user-detail/{userId}/rentals")
+    public ResponseEntity<?> getUserRentalsForAdmin(@PathVariable Long userId){
+        return ResponseEntity.ok(adminService.findRentalsOfUserForAdmin(userId));
     }
 
     @DeleteMapping("/delete-user")

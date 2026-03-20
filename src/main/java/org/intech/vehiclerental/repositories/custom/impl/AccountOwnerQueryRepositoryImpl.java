@@ -1,37 +1,39 @@
-package org.intech.vehiclerental.repositories.impl;
+package org.intech.vehiclerental.repositories.custom.impl;
 
 import com.blazebit.persistence.CriteriaBuilderFactory;
 import com.blazebit.persistence.UpdateCriteriaBuilder;
+import com.blazebit.persistence.view.EntityViewManager;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
-import org.intech.vehiclerental.dto.auth.AuthUserProjection;
+import org.intech.vehiclerental.dto.authdto.AuthUserProjection;
 import org.intech.vehiclerental.dto.requestbody.EditAccountProfileDto;
 import org.intech.vehiclerental.models.AccountOwner;
 import org.intech.vehiclerental.models.Company;
 import org.intech.vehiclerental.models.User;
 import org.intech.vehiclerental.models.enums.AccountStatus;
 import org.intech.vehiclerental.models.enums.Role;
-import org.intech.vehiclerental.repositories.AccountOwnerRepository;
+import org.intech.vehiclerental.repositories.custom.AccountOwnerQueryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
 @Repository
-public class AccountOwnerRepositoryImpl implements AccountOwnerRepository {
+public class AccountOwnerQueryRepositoryImpl implements AccountOwnerQueryRepository {
 
     private final EntityManager em;
     private final CriteriaBuilderFactory cbf;
+    private final EntityViewManager evm;
 
     @Autowired
-    public AccountOwnerRepositoryImpl(
+    public AccountOwnerQueryRepositoryImpl(
             EntityManager em,
-            CriteriaBuilderFactory cbf
+            CriteriaBuilderFactory cbf,
+            EntityViewManager evm
     ) {
         this.em = em;
         this.cbf = cbf;
+        this.evm = evm;
     }
 
     @Override

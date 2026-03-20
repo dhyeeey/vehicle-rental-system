@@ -17,7 +17,8 @@ import java.util.Optional;
 
 public interface RentalService {
 
-    Rental createRental(User renter, Vehicle vehicle, CreateRentalRequestDto createRentalRequestDto);
+    Rental createRental(User renter,
+                        CreateRentalRequestDto createRentalRequestDto);
 
     Optional<RentalInfo> findRentalInfoById(Long id);
 

@@ -9,9 +9,9 @@ import org.intech.vehiclerental.models.Rental;
 import org.intech.vehiclerental.models.User;
 import org.intech.vehiclerental.models.Vehicle;
 import org.intech.vehiclerental.models.enums.RentalStatus;
-import org.intech.vehiclerental.repositories.RentalEntityViewRepository;
+import org.intech.vehiclerental.repositories.custom.RentalQueryRepository;
+import org.intech.vehiclerental.repositories.datajpa.VehicleRepository;
 import org.intech.vehiclerental.services.RentalService;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,15 +23,20 @@ import java.util.Optional;
 @Service
 public class RentalServiceImpl implements RentalService {
 
-    private final RentalEntityViewRepository rentalRepository;
+    private final RentalQueryRepository rentalRepository;
+    private final VehicleRepository vehicleRepository;
 
-    public RentalServiceImpl(RentalEntityViewRepository rentalRepository) {
+    public RentalServiceImpl(RentalQueryRepository rentalRepository, VehicleRepository vehicleRepository) {
         this.rentalRepository = rentalRepository;
+        this.vehicleRepository = vehicleRepository;
     }
 
     @Override
     @Transactional
-    public Rental createRental(User renter, Vehicle vehicle, CreateRentalRequestDto createRentalRequestDto) {
+    public Rental createRental(User renter, CreateRentalRequestDto createRentalRequestDto) {
+
+        Vehicle vehicle = vehicleRepository.findEntityById(createRentalRequestDto.vehicleId())
+                .orElseThrow(()->new RuntimeException("Vehicle with provided id not found"));
 
         if(vehicle.getQuantity() <= 0){
             throw new RuntimeException("Vehicle sold out");

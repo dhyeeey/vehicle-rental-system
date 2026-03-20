@@ -1,4 +1,4 @@
-package org.intech.vehiclerental.repositories.impl;
+package org.intech.vehiclerental.repositories.custom.impl;
 
 import com.blazebit.persistence.CriteriaBuilder;
 import com.blazebit.persistence.CriteriaBuilderFactory;
@@ -14,7 +14,7 @@ import org.intech.vehiclerental.models.Rental;
 import org.intech.vehiclerental.models.User;
 import org.intech.vehiclerental.models.Vehicle;
 import org.intech.vehiclerental.models.enums.RentalStatus;
-import org.intech.vehiclerental.repositories.RentalEntityViewRepository;
+import org.intech.vehiclerental.repositories.custom.RentalQueryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
@@ -23,21 +23,20 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class RentalEntityViewRepositoryImpl implements RentalEntityViewRepository {
+public class RentalQueryRepositoryImpl implements RentalQueryRepository {
 
     private final EntityManager em;
     private final CriteriaBuilderFactory cbf;
     private final EntityViewManager evm;
 
     @Autowired
-    public RentalEntityViewRepositoryImpl(EntityManager em,
-                                          CriteriaBuilderFactory cbf,
-                                          EntityViewManager evm) {
+    public RentalQueryRepositoryImpl(EntityManager em,
+                                     CriteriaBuilderFactory cbf,
+                                     EntityViewManager evm) {
         this.em = em;
         this.cbf = cbf;
         this.evm = evm;
     }
-
 
     @Override
     public Optional<RentalInfo> findRentalInfoById(Long id) {
@@ -62,10 +61,7 @@ public class RentalEntityViewRepositoryImpl implements RentalEntityViewRepositor
                         .orderByDesc("createdAt")
                         .orderByDesc("id");
 
-        return evm.applySetting(
-                EntityViewSetting.create(RentalViewForRequests.class),
-                cb
-        ).getResultList();
+        return evm.applySetting(EntityViewSetting.create(RentalViewForRequests.class),cb).getResultList();
     }
 
 
@@ -136,7 +132,6 @@ public class RentalEntityViewRepositoryImpl implements RentalEntityViewRepositor
                 .where("v.accountOwner.id").eq(loggedUserId)
                 .setMaxResults(1)
                 .getResultList().isEmpty();
-
     }
 
     @Override
