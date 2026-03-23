@@ -64,7 +64,6 @@ public class ErrorResponse {
 
     public ErrorResponse(PSQLException ex, HttpStatus httpStatus) {
         this(httpStatus);
-
         message = ex.getMessage();
     }
 

@@ -65,8 +65,6 @@ public class LoginAndRegistrationController {
 
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-//        SecurityContextHolder.getContext().getAuthentication();
-
         int ONE_WEEK = 7 /* Days*/
                 * 24  /* Hours */
                 * 60  /* Minute */

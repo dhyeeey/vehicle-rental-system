@@ -9,7 +9,6 @@ import org.intech.vehiclerental.models.Rental;
 import org.intech.vehiclerental.models.User;
 import org.intech.vehiclerental.models.Vehicle;
 import org.intech.vehiclerental.models.enums.RentalStatus;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;

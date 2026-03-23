@@ -12,6 +12,7 @@ import org.intech.vehiclerental.models.enums.RentalStatus;
 import org.intech.vehiclerental.repositories.custom.RentalQueryRepository;
 import org.intech.vehiclerental.repositories.datajpa.VehicleRepository;
 import org.intech.vehiclerental.services.RentalService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +27,11 @@ public class RentalServiceImpl implements RentalService {
     private final RentalQueryRepository rentalRepository;
     private final VehicleRepository vehicleRepository;
 
-    public RentalServiceImpl(RentalQueryRepository rentalRepository, VehicleRepository vehicleRepository) {
+    @Autowired
+    public RentalServiceImpl(
+            RentalQueryRepository rentalRepository,
+            VehicleRepository vehicleRepository
+    ) {
         this.rentalRepository = rentalRepository;
         this.vehicleRepository = vehicleRepository;
     }
@@ -46,6 +51,7 @@ public class RentalServiceImpl implements RentalService {
                 createRentalRequestDto.startDate(),
                 createRentalRequestDto.endDate()
         );
+
         Double durationInDays = (double)duration.toDays();
 
         Double baseAmount = vehicle.getPricePerDay()*durationInDays;
@@ -66,8 +72,8 @@ public class RentalServiceImpl implements RentalService {
                 .discountAmount(discountAmount)
                 .taxAmount(taxAmount)
                 .totalAmount(totalAmount)
-                .actualStartDateTime(createRentalRequestDto.startDate())
-                .actualEndDateTime(createRentalRequestDto.endDate())
+                .scheduledStartDateTime(createRentalRequestDto.startDate())
+                .scheduledEndDateTime(createRentalRequestDto.endDate())
                 .status(RentalStatus.PENDING)
                 .build();
 

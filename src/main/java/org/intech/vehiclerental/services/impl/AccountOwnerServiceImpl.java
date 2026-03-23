@@ -1,10 +1,11 @@
 package org.intech.vehiclerental.services.impl;
 
-import org.intech.vehiclerental.dto.admin.ListUserAccountAdminView;
 import org.intech.vehiclerental.dto.requestbody.EditAccountProfileDto;
 import org.intech.vehiclerental.models.AccountOwner;
 import org.intech.vehiclerental.repositories.custom.AccountOwnerQueryRepository;
+import org.intech.vehiclerental.repositories.datajpa.AccountOwnerRepository;
 import org.intech.vehiclerental.services.AccountOwnerService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +16,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -23,24 +23,30 @@ import java.util.UUID;
 public class AccountOwnerServiceImpl implements AccountOwnerService {
 
     private final AccountOwnerQueryRepository accountOwnerQueryRepository;
+    private final AccountOwnerRepository accountOwnerRepository;
 
     @Value("${app.upload.profile.image.dir}")
     private String profileImagesDir;
 
-    public AccountOwnerServiceImpl(AccountOwnerQueryRepository accountOwnerQueryRepository) {
+    @Autowired
+    public AccountOwnerServiceImpl(
+            AccountOwnerQueryRepository accountOwnerQueryRepository,
+            AccountOwnerRepository accountOwnerRepository
+    ) {
         this.accountOwnerQueryRepository = accountOwnerQueryRepository;
+        this.accountOwnerRepository = accountOwnerRepository;
     }
 
     @Override
     public AccountOwner findAccountByEmail(String email) {
-        return accountOwnerQueryRepository.findByEmail(email)
+        return accountOwnerRepository.findByEmail(email)
                 .orElseThrow(() ->
                         new IllegalArgumentException("Invalid email id"));
     }
 
     @Override
     public AccountOwner findByIdOrThrow(Long id) {
-        return accountOwnerQueryRepository.findById(id)
+        return accountOwnerRepository.findById(id)
                 .orElseThrow(() ->
                         new IllegalArgumentException("Account not found"));
     }
@@ -48,12 +54,12 @@ public class AccountOwnerServiceImpl implements AccountOwnerService {
     @Override
     @Transactional
     public void deleteUser(Long userId){
-        accountOwnerQueryRepository.deleteUser(userId);
+        accountOwnerRepository.deleteById(userId);
     }
 
     @Override
     public boolean emailExists(String email) {
-        return accountOwnerQueryRepository.existsByEmail(email);
+        return accountOwnerRepository.existsByEmail(email);
     }
 
     @Override
@@ -85,7 +91,7 @@ public class AccountOwnerServiceImpl implements AccountOwnerService {
     @Transactional
     public void editProfileImage(Long accountOwnerId, MultipartFile file) {
 
-        AccountOwner accountOwner = accountOwnerQueryRepository.findById(accountOwnerId)
+        AccountOwner accountOwner = accountOwnerRepository.findById(accountOwnerId)
                 .orElseThrow(()->new RuntimeException("Account with provided id not found"));
 
         String oldImageUrl = accountOwner.getProfileImageUrl();

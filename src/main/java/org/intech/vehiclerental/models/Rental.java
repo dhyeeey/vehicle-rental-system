@@ -37,6 +37,12 @@ public class Rental {
     private User renter;
 
     @Column(columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private Instant scheduledStartDateTime;
+
+    @Column(columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private Instant scheduledEndDateTime;
+
+    @Column(columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private Instant actualStartDateTime;
 
     @Column(columnDefinition = "TIMESTAMP WITH TIME ZONE")

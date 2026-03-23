@@ -11,6 +11,7 @@ import org.intech.vehiclerental.dto.rentaldto.RentalInfo;
 import org.intech.vehiclerental.dto.rentaldto.RentalListDto;
 import org.intech.vehiclerental.dto.rentaldto.RentalViewForRequests;
 import org.intech.vehiclerental.models.Rental;
+import org.intech.vehiclerental.models.Rental_;
 import org.intech.vehiclerental.models.User;
 import org.intech.vehiclerental.models.Vehicle;
 import org.intech.vehiclerental.models.enums.RentalStatus;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -134,11 +136,23 @@ public class RentalQueryRepositoryImpl implements RentalQueryRepository {
                 .getResultList().isEmpty();
     }
 
+    public Boolean existsOverlappingRental(Long vehicleId, Instant start, Instant end){
+        return !cbf.create(em, Long.class)
+                .from(Rental.class,"r").select("1L")
+                .where("r.vehicle.id").eq(vehicleId)
+                .where("r.scheduledStartDateTime").lt(end)
+                .where("r.scheduledEndDateTime").gt(start)
+                .where("r.status").notIn(RentalStatus.CANCELLED, RentalStatus.COMPLETED)
+                .setMaxResults(1)
+                .getResultList()
+                .isEmpty();
+    }
+
     @Override
     public int changeRentalStatus(Long rentalId, RentalStatus rentalStatus){
         return cbf.update(em, Rental.class)
-                .set("status",rentalStatus)
-                .where("id").eq(rentalId)
+                .set(Rental_.STATUS,rentalStatus)
+                .where(Rental_.ID).eq(rentalId)
                 .executeUpdate();
     }
 

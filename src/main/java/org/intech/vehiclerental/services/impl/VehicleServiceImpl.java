@@ -11,6 +11,7 @@ import org.intech.vehiclerental.models.enums.VehicleApprovalStatus;
 import org.intech.vehiclerental.models.enums.VehicleStatus;
 import org.intech.vehiclerental.repositories.custom.AccountOwnerQueryRepository;
 import org.intech.vehiclerental.repositories.custom.VehicleQueryRepository;
+import org.intech.vehiclerental.repositories.datajpa.AccountOwnerRepository;
 import org.intech.vehiclerental.repositories.datajpa.VehicleRepository;
 import org.intech.vehiclerental.services.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,7 @@ public class VehicleServiceImpl implements VehicleService {
 
     private final VehicleQueryRepository vehicleQueryRepository;
     private final AccountOwnerQueryRepository accountOwnerQueryRepository;
+    private final AccountOwnerRepository accountOwnerRepository;
     private final VehicleMapper vehicleMapper;
 
     private final VehicleRepository vehicleRepository;
@@ -44,11 +46,13 @@ public class VehicleServiceImpl implements VehicleService {
     public VehicleServiceImpl(VehicleQueryRepository vehicleQueryRepository,
                               VehicleMapper vehicleMapper,
                               AccountOwnerQueryRepository accountOwnerQueryRepository,
+                              AccountOwnerRepository accountOwnerRepository,
                               VehicleRepository vehicleRepository) {
         this.vehicleQueryRepository = vehicleQueryRepository;
         this.vehicleMapper = vehicleMapper;
         this.accountOwnerQueryRepository = accountOwnerQueryRepository;
         this.vehicleRepository = vehicleRepository;
+        this.accountOwnerRepository = accountOwnerRepository;
     }
 
     /**
@@ -66,7 +70,7 @@ public class VehicleServiceImpl implements VehicleService {
         vehicle.setStatus(VehicleStatus.INACTIVE);
         vehicle.setApprovalStatus(VehicleApprovalStatus.PENDING);
 
-        AccountOwner accountOwner = accountOwnerQueryRepository.findById(accountOwnerId).orElseThrow(()->new RuntimeException("User with provided id not found"));
+        AccountOwner accountOwner = accountOwnerRepository.findById(accountOwnerId).orElseThrow(()->new RuntimeException("User with provided id not found"));
         vehicle.setAccountOwner(accountOwner);
 
         for (int i = 0; i < images.size(); i++) {

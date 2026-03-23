@@ -1,12 +1,14 @@
 package org.intech.vehiclerental.repositories.custom.impl;
 
-import com.blazebit.persistence.*;
+import com.blazebit.persistence.CriteriaBuilder;
+import com.blazebit.persistence.CriteriaBuilderFactory;
+import com.blazebit.persistence.PagedList;
+import com.blazebit.persistence.PaginatedCriteriaBuilder;
 import com.blazebit.persistence.view.EntityViewManager;
 import com.blazebit.persistence.view.EntityViewSetting;
 import jakarta.persistence.EntityManager;
 import org.intech.vehiclerental.dto.vehicledto.*;
 import org.intech.vehiclerental.mappers.VehicleMapper;
-import org.intech.vehiclerental.models.AccountOwner;
 import org.intech.vehiclerental.models.Vehicle;
 import org.intech.vehiclerental.models.enums.VehicleApprovalStatus;
 import org.intech.vehiclerental.models.enums.VehicleStatus;
@@ -15,7 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 @Repository

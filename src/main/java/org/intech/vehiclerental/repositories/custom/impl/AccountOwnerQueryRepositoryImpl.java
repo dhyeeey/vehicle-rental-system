@@ -8,11 +8,14 @@ import jakarta.persistence.Tuple;
 import org.intech.vehiclerental.dto.authdto.AuthUserProjection;
 import org.intech.vehiclerental.dto.requestbody.EditAccountProfileDto;
 import org.intech.vehiclerental.models.AccountOwner;
+import org.intech.vehiclerental.models.AccountOwner_;
 import org.intech.vehiclerental.models.Company;
 import org.intech.vehiclerental.models.User;
 import org.intech.vehiclerental.models.enums.AccountStatus;
 import org.intech.vehiclerental.models.enums.Role;
 import org.intech.vehiclerental.repositories.custom.AccountOwnerQueryRepository;
+import org.intech.vehiclerental.repositories.utility.Predicates;
+import org.intech.vehiclerental.repositories.utility.QueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -36,37 +39,26 @@ public class AccountOwnerQueryRepositoryImpl implements AccountOwnerQueryReposit
         this.evm = evm;
     }
 
-    @Override
     public Optional<AccountOwner> findById(Long id) {
-
-        AccountOwner owner = cbf.create(em, AccountOwner.class)
-                .where("id").eq(id)
-                .getSingleResultOrNull();
-
-        return Optional.ofNullable(owner);
-    }
-
-    @Override
-    public Optional<AccountOwner> findByEmail(String email) {
-
-        AccountOwner owner = cbf.create(em, AccountOwner.class)
-                .where("email").eq(email)
-                .getSingleResultOrNull();
-
-        return Optional.ofNullable(owner);
+        return Optional.ofNullable(
+                QueryBuilder.build(
+                    cbf,em ,AccountOwner.class,
+                    Predicates.eq(AccountOwner_.ID, id)
+                ).getSingleResultOrNull()
+        );
     }
 
     @Override
     public Optional<AuthUserProjection> findAuthDetailsByEmail(String email) {
 
         Tuple tuple = cbf.create(em, Tuple.class)
-                .from(AccountOwner.class, "ao")
-                .select("ao.id")
-                .select("ao.email")
-                .select("ao.password")
-                .select("ao.role")
-                .select("ao.accountStatus")
-                .where("ao.email").eq(email)
+                .from(AccountOwner.class)
+                .select(AccountOwner_.ID)
+                .select(AccountOwner_.EMAIL)
+                .select(AccountOwner_.PASSWORD)
+                .select(AccountOwner_.ROLE)
+                .select(AccountOwner_.ACCOUNT_STATUS)
+                .where(AccountOwner_.EMAIL).eq(email)
                 .getSingleResultOrNull();
 
         if (tuple == null) return Optional.empty();
@@ -78,29 +70,6 @@ public class AccountOwnerQueryRepositoryImpl implements AccountOwnerQueryReposit
                 tuple.get(3, Role.class),
                 tuple.get(4, AccountStatus.class)
         ));
-    }
-
-    @Override
-    public boolean existsByEmail(String email) {
-
-        Long count = cbf.create(em, Long.class)
-                .from(AccountOwner.class)
-                .select("COUNT(id)")
-                .where("email").eq(email)
-                .getSingleResult();
-
-        return count > 0;
-    }
-
-    @Override
-    public AccountOwner save(AccountOwner accountOwner) {
-
-        if (accountOwner.getId() == null) {
-            em.persist(accountOwner);
-            return accountOwner;
-        } else {
-            return em.merge(accountOwner);
-        }
     }
 
     private boolean updateCommonFields(UpdateCriteriaBuilder<?> update,
@@ -195,17 +164,6 @@ public class AccountOwnerQueryRepositoryImpl implements AccountOwnerQueryReposit
         }
 
         return 0;
-    }
-
-    @Override
-    public void deleteUser(Long userId){
-        User user = em.find(User.class, userId);
-
-        if (user == null) {
-            throw new RuntimeException("User not found");
-        }
-
-        em.remove(user);
     }
 
 
