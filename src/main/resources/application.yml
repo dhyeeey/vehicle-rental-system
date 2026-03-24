@@ -42,6 +42,8 @@ server:
     max-swallow-size: -1
 
 app:
+  security:
+    public-paths : /api/auth/login,/api/auth/createaccount,/api/vehicle/detail/**,/api/vehicle/explore/search,/uploads/**
   upload:
     dir: /uploads/vehicles
 

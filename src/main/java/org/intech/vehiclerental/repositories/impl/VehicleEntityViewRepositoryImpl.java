@@ -113,6 +113,15 @@ public class VehicleEntityViewRepositoryImpl implements VehicleEntityViewReposit
         return pagedList;
     }
 
+    @Override
+    public int updateVehicleStatus(Long vehicleId, VehicleStatus status, AccountOwner accountOwner) {
+
+        return cbf.update(em, Vehicle.class)
+                .set("status", status)
+                .where("id").eq(vehicleId)
+                .where("accountOwner").eq(accountOwner)
+                .executeUpdate();
+    }
 
     @Override
     public List<VehicleSearchInfo> findVehicleSearchList(
@@ -160,8 +169,11 @@ public class VehicleEntityViewRepositoryImpl implements VehicleEntityViewReposit
 
         CriteriaBuilder<Vehicle> cb =
                 cbf.create(em, Vehicle.class)
-                        .where("accountOwner").notEq(owner)
                         .where("isAvailable").eq(true);
+
+        if(owner != null){
+            cb.where("accountOwner").notEq(owner);
+        }
 
         CriteriaBuilder<VehicleSearchInfo> viewCb =
                 evm.applySetting(
@@ -187,12 +199,25 @@ public class VehicleEntityViewRepositoryImpl implements VehicleEntityViewReposit
     }
 
     @Override
-    public void deleteVehicleById(Long id) {
+    public int deleteVehicleById(Long id, AccountOwner owner) {
 
-        Vehicle vehicle = em.find(Vehicle.class, id);
+//        Vehicle vehicle = cbf.create(em, Vehicle.class).where("id").eq(id)
+//                .where("accountOwner").eq(owner).getSingleResultOrNull();
+//
+//        if (vehicle != null) {
+//            em.remove(vehicle);
+//        }
 
-        if (vehicle != null) {
-            em.remove(vehicle);
-        }
+        return cbf.delete(em, Vehicle.class)
+                .where("id").eq(id)
+                .where("accountOwner").eq(owner)
+                .executeUpdate();
+
+    }
+
+    @Override
+    public Vehicle findVehicleById(Long vehicleId) {
+        CriteriaBuilder<Vehicle> cb =  cbf.create(em,Vehicle.class).where("id").eq(vehicleId);
+        return cb.getSingleResult();
     }
 }

@@ -4,6 +4,7 @@ import com.blazebit.persistence.PagedList;
 import org.intech.vehiclerental.dto.rentaldto.CreateRentalRequestDto;
 import org.intech.vehiclerental.dto.rentaldto.RentalInfo;
 import org.intech.vehiclerental.dto.rentaldto.RentalListDto;
+import org.intech.vehiclerental.dto.rentaldto.RentalViewForRequests;
 import org.intech.vehiclerental.models.Rental;
 import org.intech.vehiclerental.models.User;
 import org.intech.vehiclerental.models.Vehicle;
@@ -11,6 +12,7 @@ import org.intech.vehiclerental.models.enums.RentalStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface RentalService {
@@ -24,6 +26,8 @@ public interface RentalService {
             RentalStatus status,
             Pageable pageable
     );
+
+    List<RentalViewForRequests> findRentalRequestsByVehicleId(Long vehicleId);
 
     PagedList<RentalListDto> findRentalPageByVehicle(
             Vehicle vehicle,

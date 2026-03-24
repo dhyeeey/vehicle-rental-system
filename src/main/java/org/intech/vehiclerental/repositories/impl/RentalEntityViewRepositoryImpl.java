@@ -9,6 +9,7 @@ import com.blazebit.persistence.view.EntityViewSetting;
 import jakarta.persistence.EntityManager;
 import org.intech.vehiclerental.dto.rentaldto.RentalInfo;
 import org.intech.vehiclerental.dto.rentaldto.RentalListDto;
+import org.intech.vehiclerental.dto.rentaldto.RentalViewForRequests;
 import org.intech.vehiclerental.models.Rental;
 import org.intech.vehiclerental.models.User;
 import org.intech.vehiclerental.models.Vehicle;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -50,6 +52,20 @@ public class RentalEntityViewRepositoryImpl implements RentalEntityViewRepositor
         ).getSingleResultOrNull();
 
         return Optional.ofNullable(result);
+    }
+
+    public List<RentalViewForRequests> findRentalRequestsByVehicleId(Long vehicleId) {
+
+        CriteriaBuilder<Rental> cb =
+                cbf.create(em, Rental.class)
+                        .where("vehicle.id").eq(vehicleId)
+                        .orderByDesc("createdAt")
+                        .orderByDesc("id");
+
+        return evm.applySetting(
+                EntityViewSetting.create(RentalViewForRequests.class),
+                cb
+        ).getResultList();
     }
 
 

@@ -1,12 +1,17 @@
 package org.intech.vehiclerental.repositories.impl;
 
 import com.blazebit.persistence.CriteriaBuilderFactory;
+import com.blazebit.persistence.UpdateCriteriaBuilder;
 import jakarta.persistence.EntityManager;
+import org.intech.vehiclerental.dto.requestbody.EditAccountProfileDto;
 import org.intech.vehiclerental.models.AccountOwner;
+import org.intech.vehiclerental.models.Company;
+import org.intech.vehiclerental.models.User;
 import org.intech.vehiclerental.repositories.AccountOwnerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -58,7 +63,6 @@ public class AccountOwnerRepositoryImpl implements AccountOwnerRepository {
     }
 
     @Override
-    @Transactional
     public AccountOwner save(AccountOwner accountOwner) {
 
         if (accountOwner.getId() == null) {
@@ -67,5 +71,112 @@ public class AccountOwnerRepositoryImpl implements AccountOwnerRepository {
         } else {
             return em.merge(accountOwner);
         }
+    }
+
+    private boolean updateCommonFields(UpdateCriteriaBuilder<?> update,
+                                       AccountOwner accountOwner,
+                                       EditAccountProfileDto dto) {
+
+        boolean hasChanges = false;
+
+        if (dto.phoneNumber() != null && !dto.phoneNumber().equals(accountOwner.getPhoneNumber())) {
+            update.set("phoneNumber", dto.phoneNumber());
+            hasChanges = true;
+        }
+
+        if (dto.address() != null && !dto.address().equals(accountOwner.getAddress())) {
+            update.set("address", dto.address());
+            hasChanges = true;
+        }
+
+        if (dto.city() != null && !dto.city().equals(accountOwner.getCity())) {
+            update.set("city", dto.city());
+            hasChanges = true;
+        }
+
+        if (dto.state() != null && !dto.state().equals(accountOwner.getState())) {
+            update.set("state", dto.state());
+            hasChanges = true;
+        }
+
+        if (dto.country() != null && !dto.country().equals(accountOwner.getCountry())) {
+            update.set("country", dto.country());
+            hasChanges = true;
+        }
+
+        if (dto.zipCode() != null && !dto.zipCode().equals(accountOwner.getZipCode())) {
+            update.set("zipCode", dto.zipCode());
+            hasChanges = true;
+        }
+
+        return hasChanges;
+    }
+
+    @Override
+    public int editProfileDetails(Long accountOwnerId, EditAccountProfileDto dto) {
+
+        UpdateCriteriaBuilder<?> update;
+
+        AccountOwner accountOwner = findById(accountOwnerId).orElseThrow(()->new RuntimeException("Account with provided id not found"));
+
+        if (accountOwner instanceof User user) {
+
+            update = cbf.update(em, User.class)
+                    .where("id").eq(user.getId());
+
+            boolean hasChanges = false;
+
+            if (dto.firstName() != null && !dto.firstName().isEmpty()
+                    && !dto.firstName().equals(user.getFirstName())) {
+
+                update.set("firstName", dto.firstName());
+                hasChanges = true;
+            }
+
+            if (dto.lastName() != null && !dto.lastName().isEmpty()
+                    && !dto.lastName().equals(user.getLastName())) {
+
+                update.set("lastName", dto.lastName());
+                hasChanges = true;
+            }
+
+            hasChanges |= updateCommonFields(update, accountOwner, dto);
+
+            return hasChanges ? update.executeUpdate() : 0;
+        }
+
+        if (accountOwner instanceof Company company) {
+
+            update = cbf.update(em, Company.class)
+                    .where("id").eq(company.getId());
+
+            boolean hasChanges = false;
+
+            if (dto.name() != null && !dto.name().isEmpty()
+                    && !dto.name().equals(company.getName())) {
+
+                update.set("name", dto.name());
+                hasChanges = true;
+            }
+
+            hasChanges |= updateCommonFields(update, accountOwner, dto);
+
+            return hasChanges ? update.executeUpdate() : 0;
+        }
+
+        return 0;
+    }
+
+    @Override
+    public int editProfileImage(AccountOwner accountOwner, String imageUrl) {
+        if (imageUrl == null || imageUrl.isBlank()) {
+            return 0;
+        }
+
+        UpdateCriteriaBuilder<AccountOwner> update = cbf.update(em, AccountOwner.class)
+                .set("profileImageUrl", imageUrl)
+                .where("id").eq(accountOwner.getId());
+
+        return update.executeUpdate();
     }
 }

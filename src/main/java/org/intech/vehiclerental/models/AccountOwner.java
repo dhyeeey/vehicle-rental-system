@@ -7,15 +7,19 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.intech.vehiclerental.models.enums.Role;
-import org.intech.vehiclerental.models.enums.Status;
+import org.intech.vehiclerental.models.enums.AccountStatus;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "account_owners",indexes = {
-        @Index(name = "idx_account_owner_email",columnList = "email")
+        @Index(name = "idx_account_owner_id",columnList = "id"),
+        @Index(name = "idx_account_owner_email",columnList = "email"),
+        @Index(name = "idx_account_owner_phone_number", columnList = "phoneNumber")
 })
 @Inheritance(strategy = InheritanceType.JOINED)
 @Getter
@@ -33,13 +37,36 @@ public abstract class AccountOwner{
     @Column(nullable = false, unique = true, length = 150)
     private String email;
 
+    @JsonIgnore
     @Column(nullable = false)
     private String password;
 
-//    @JsonIgnore
+//    @Lob
+    @Column(nullable = true, columnDefinition = "TEXT")
+    private String profileImageUrl;
+
+
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    protected Status status;
+    @Column(nullable = true, length = 20)
+    protected AccountStatus accountStatus;
+
+    @Column(nullable = true, unique = true, length = 20)
+    private String phoneNumber;
+
+    @Column(length = 255)
+    private String address;
+
+    @Column(length = 100)
+    private String city;
+
+    @Column(length = 100)
+    private String state;
+
+    @Column
+    private Long zipCode;
+
+    @Column(length = 50)
+    private String country;
 
     @JsonIgnore
     @JsonManagedReference
@@ -48,7 +75,7 @@ public abstract class AccountOwner{
 
     @JsonIgnore
     @JsonManagedReference
-    @OneToMany(mappedBy = "accountOwner", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "accountOwner", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Vehicle> vehicles = new ArrayList<>();
 
     @CreationTimestamp

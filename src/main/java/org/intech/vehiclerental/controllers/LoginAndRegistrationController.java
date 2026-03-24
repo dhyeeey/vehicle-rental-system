@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.intech.vehiclerental.dto.requestbody.CreateAccountPayloadBody;
 import org.intech.vehiclerental.dto.requestbody.LoginPayloadBody;
+import org.intech.vehiclerental.models.CustomUserDetails;
 import org.intech.vehiclerental.models.User;
 import org.intech.vehiclerental.services.LoginAndRegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +17,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 
 @RestController
@@ -40,30 +40,39 @@ public class LoginAndRegistrationController {
 
     @PostMapping(value="/login")
     public ResponseEntity<?> login(
-            HttpServletRequest httpServletRequest,
-            @Valid @RequestBody(required = true) LoginPayloadBody loginPayloadBody
+            HttpServletRequest request,
+            @RequestBody(required = false) LoginPayloadBody body,
+            Authentication authentication
     ){
-        Authentication authentication =
+        // CASE 1: Check existing session
+        if (body == null || (body.email() == null && body.password() == null)) {
+
+            if (authentication != null && authentication.isAuthenticated()) {
+                return ResponseEntity.ok().build();
+            }
+
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        // CASE 2: Normal login
+        Authentication auth =
                 authenticationManager.authenticate(
                         new UsernamePasswordAuthenticationToken(
-                                loginPayloadBody.email(),
-                                loginPayloadBody.password()
+                                body.email(),
+                                body.password()
                         )
                 );
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
-        // Create or get session
-        HttpSession session = httpServletRequest.getSession(true);
+        HttpSession session = request.getSession(true);
 
-        // Store security context in session
         session.setAttribute(
                 HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
                 SecurityContextHolder.getContext()
         );
 
-        // regenerate session ID for security
-        httpServletRequest.changeSessionId();
+        request.changeSessionId();
 
         return ResponseEntity.ok().build();
     }

@@ -30,6 +30,8 @@ public interface VehicleService {
 
     AccountOwner getVehicleOwnerByVehicleIdOrThrow(Long vehicleId);
 
+    void changeVehicleStatus(Long vehicleId, VehicleStatus status, AccountOwner accountOwner);
+
     // Vehicle Info Projections
     Optional<VehicleInfo> findVehicleInfoById(Long id);
 
@@ -52,5 +54,7 @@ public interface VehicleService {
 
     Vehicle saveVehicle(Vehicle vehicle);
 
-    void deleteVehicleById(Long id);
+    int deleteVehicleById(Long id, AccountOwner owner);
+
+    void approveUserVehicles(Long vehicleId);
 }

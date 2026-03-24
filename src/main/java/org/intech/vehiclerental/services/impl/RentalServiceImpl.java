@@ -4,6 +4,7 @@ import com.blazebit.persistence.PagedList;
 import org.intech.vehiclerental.dto.rentaldto.CreateRentalRequestDto;
 import org.intech.vehiclerental.dto.rentaldto.RentalInfo;
 import org.intech.vehiclerental.dto.rentaldto.RentalListDto;
+import org.intech.vehiclerental.dto.rentaldto.RentalViewForRequests;
 import org.intech.vehiclerental.models.Rental;
 import org.intech.vehiclerental.models.User;
 import org.intech.vehiclerental.models.Vehicle;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -32,7 +34,7 @@ public class RentalServiceImpl implements RentalService {
     public Rental createRental(User renter, Vehicle vehicle, CreateRentalRequestDto createRentalRequestDto) {
 
         if(vehicle.getQuantity() <= 0){
-            throw new RuntimeException("");
+            throw new RuntimeException("Vehicle sold out");
         }
 
         Duration duration = Duration.between(
@@ -91,6 +93,10 @@ public class RentalServiceImpl implements RentalService {
         return rentalRepository.findRentalPageByVehicle(vehicle, status, pageable);
     }
 
+    @Override
+    public List<RentalViewForRequests> findRentalRequestsByVehicleId(Long vehicleId){
+        return rentalRepository.findRentalRequestsByVehicleId(vehicleId);
+    }
 
     @Override
     public Rental saveRental(Rental rental) {
