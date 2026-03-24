@@ -1,6 +1,7 @@
 package org.intech.vehiclerental.controllers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.intech.vehiclerental.dto.admin.ListUserAccountAdminView;
 import org.intech.vehiclerental.dto.paginationdto.PageResponse;
 import org.intech.vehiclerental.dto.requestbody.ChangeVehicleStatusDto;
 import org.intech.vehiclerental.models.CustomUserDetails;
@@ -10,6 +11,9 @@ import org.intech.vehiclerental.services.AccountOwnerService;
 import org.intech.vehiclerental.services.AdminService;
 import org.intech.vehiclerental.services.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -62,8 +66,11 @@ public class AdminController {
     }
 
     @GetMapping("/list-users")
-    public ResponseEntity<?> getUsersListForAdmin(){
-        return ResponseEntity.ok(adminService.findUserListForAdmin());
+    public ResponseEntity<PageResponse<ListUserAccountAdminView>> getUsersListForAdmin(
+            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC)
+            Pageable pageable
+    ){
+        return ResponseEntity.ok(new PageResponse<>(adminService.findUsersListForAdmin(pageable)));
     }
 
     @GetMapping("/user-detail/{userId}")
@@ -74,6 +81,11 @@ public class AdminController {
     @GetMapping("/user-detail/{userId}/rentals")
     public ResponseEntity<?> getUserRentalsForAdmin(@PathVariable Long userId){
         return ResponseEntity.ok(adminService.findRentalsOfUserForAdmin(userId));
+    }
+
+    @GetMapping("/user-detail/{userId}/vehicles")
+    public ResponseEntity<?> getUserVehiclesForAdmin(@PathVariable Long userId){
+        return ResponseEntity.ok(adminService.findUserVehiclesForAdmin(userId));
     }
 
     @DeleteMapping("/delete-user")

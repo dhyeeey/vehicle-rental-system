@@ -90,9 +90,7 @@ public class RentalQueryRepositoryImpl implements RentalQueryRepository {
                         cb
                 ).page(pageable.getOffset(), pageable.getPageSize());
 
-        PagedList<RentalListDto> pagedList = pageCb.getResultList();
-
-        return pagedList;
+        return pageCb.getResultList();
     }
 
 
@@ -119,9 +117,7 @@ public class RentalQueryRepositoryImpl implements RentalQueryRepository {
                         cb
                 ).page(pageable.getOffset(), pageable.getPageSize());
 
-        PagedList<RentalListDto> pagedList = pageCb.getResultList();
-
-        return pagedList;
+        return pageCb.getResultList();
     }
 
     @Override

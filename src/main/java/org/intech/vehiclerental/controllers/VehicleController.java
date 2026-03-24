@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -90,24 +91,21 @@ public class VehicleController {
     @GetMapping("/all-fleet")
     public ResponseEntity<?> getAllFleetVehicles(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "desc") String direction
+            @PageableDefault(
+                    size = 10,
+                    sort = "createdAt",
+                    direction = Sort.Direction.DESC
+            )
+            Pageable pageable
     ) {
 
-        Sort sort = direction.equalsIgnoreCase("asc")
-                ? Sort.by(sortBy).ascending()
-                : Sort.by(sortBy).descending();
-
-        Pageable pageable = PageRequest.of(page, size, sort);
-
-        PagedList<VehicleFleetDto> vehiclePage = vehicleService.findVehicleFleetPageByOwner(
-                userDetails.getId(),
-                null,
-                true,
-                pageable
-        );
+        PagedList<VehicleFleetDto> vehiclePage =
+                vehicleService.findVehicleFleetPageByOwner(
+                        userDetails.getId(),
+                        null,
+                        true,
+                        pageable
+                );
 
         return ResponseEntity.ok(new PageResponse<>(vehiclePage));
     }
