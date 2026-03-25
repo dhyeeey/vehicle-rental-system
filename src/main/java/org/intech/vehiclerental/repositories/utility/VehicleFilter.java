@@ -1,5 +1,6 @@
 package org.intech.vehiclerental.repositories.utility;
 
+import org.intech.vehiclerental.models.Vehicle_;
 import org.intech.vehiclerental.models.enums.*;
 
 import java.time.Instant;
@@ -9,91 +10,84 @@ import java.util.Set;
  * This class will be used to apply filters at runtime in repository for data filtering
  */
 
-public class VehicleFilter {
+public record VehicleFilter (
 
     // ===== ENUMS (multi-select supported) =====
-    @Filter(field = "status", op = Operator.IN)
-    private Set<VehicleStatus> status;
+    @Filter(field = Vehicle_.STATUS, op = Operator.IN)
+    Set<VehicleStatus> status,
 
-    @Filter(field = "approvalStatus", op = Operator.IN)
-    private Set<VehicleApprovalStatus> approvalStatus;
+    @Filter(field = Vehicle_.APPROVAL_STATUS, op = Operator.IN)
+    Set<VehicleApprovalStatus> approvalStatus,
 
-    @Filter(field = "fuelType", op = Operator.IN)
-    private Set<FuelType> fuelType;
+    @Filter(field = Vehicle_.FUEL_TYPE, op = Operator.IN)
+    Set<FuelType> fuelType,
 
-    @Filter(field = "transmissionType", op = Operator.IN)
-    private Set<TransmissionType> transmissionType;
+    @Filter(field = Vehicle_.TRANSMISSION_TYPE, op = Operator.IN)
+    Set<TransmissionType> transmissionType,
 
-    @Filter(field = "type", op = Operator.IN)
-    private Set<VehicleType> vehicleType;
+    @Filter(field = Vehicle_.TYPE, op = Operator.IN)
+    Set<VehicleType> vehicleType,
 
+    @Filter(field = Vehicle_.SEATING_CAPACITY, op = Operator.IN)
+    Set<Integer> seats,
 
     // ===== BOOLEAN =====
-    @Filter(field = "isAvailable", op = Operator.EQ)
-    private Boolean isAvailable;
+    @Filter(field = Vehicle_.IS_AVAILABLE, op = Operator.EQ)
+    Boolean isAvailable,
 
 
     // ===== TEXT SEARCH =====
-    @Filter(field = "location", op = Operator.LIKE)
-    private String city;
 
-    @Filter(field = "make", op = Operator.LIKE)
-    private String make;
+    @Filter(field = Vehicle_.MAKE, op = Operator.LIKE)
+    String make,
 
-    @Filter(field = "model", op = Operator.LIKE)
-    private String model;
+    @Filter(field = Vehicle_.MODEL, op = Operator.LIKE)
+    String model,
 
-    @Filter(field = "color", op = Operator.LIKE)
-    private String color;
+    @Filter(field = Vehicle_.COLOR, op = Operator.LIKE)
+    String color,
 
 
     // ===== RANGE FILTERS =====
-    @Filter(field = "pricePerDay", op = Operator.GE)
-    private Double minPrice;
+    @Filter(field = Vehicle_.PRICE_PER_DAY, op = Operator.LE)
+    Double perDayMaxPrice,
 
-    @Filter(field = "pricePerDay", op = Operator.LE)
-    private Double maxPrice;
+    @Filter(field = Vehicle_.AVERAGE_RATING, op = Operator.GE)
+    Double minRating,
 
-    @Filter(field = "seatingCapacity", op = Operator.GE)
-    private Integer minSeats;
+    @Filter(field = Vehicle_.PRICE_PER_DAY, op = Operator.GE)
+    Double perDayMinPrice,
 
-    @Filter(field = "mileage", op = Operator.LE)
-    private Integer maxMileage;
+//    ========================================================
 
-    @Filter(field = "year", op = Operator.GE)
-    private Integer minYear;
-
-    @Filter(field = "year", op = Operator.LE)
-    private Integer maxYear;
+    @Filter(field = Vehicle_.MILEAGE, op = Operator.LE)
+    Integer maxMileage,
 
 
     // ===== RELATION FILTERS =====
     @Filter(field = "accountOwner.id", op = Operator.EQ)
-    private Long ownerId;
+    Long ownerId,
 
     @Filter(field = "approvedBy.id", op = Operator.EQ)
-    private Long approvedByCompanyId;
+    Long approvedByCompanyId,
 
 
     // ===== DATE RANGE =====
-    @Filter(field = "createdAt", op = Operator.GE)
-    private Instant createdAfter;
+    @Filter(field = Vehicle_.CREATED_AT, op = Operator.GE)
+    Instant createdAfter,
 
-    @Filter(field = "createdAt", op = Operator.LE)
-    private Instant createdBefore;
+    @Filter(field = Vehicle_.CREATED_AT, op = Operator.LE)
+    Instant createdBefore,
 
-    @Filter(field = "approvedAt", op = Operator.GE)
-    private Instant approvedAfter;
+    @Filter(field = Vehicle_.APPROVED_AT, op = Operator.GE)
+    Instant approvedAfter,
 
-    @Filter(field = "approvedAt", op = Operator.LE)
-    private Instant approvedBefore;
-
-    @Filter(field = "averageRating", op = Operator.GE)
-    private Double minRating;
-
-    @Filter(field = "reviewCount", op = Operator.GE)
-    private Integer minReviews;
+    @Filter(field = Vehicle_.APPROVED_AT, op = Operator.LE)
+    Instant approvedBefore,
 
 
-    private Set<String> features;
-}
+    @Filter(field = Vehicle_.REVIEW_COUNT, op = Operator.GE)
+    Integer minReviews,
+
+    Set<String> features
+){}

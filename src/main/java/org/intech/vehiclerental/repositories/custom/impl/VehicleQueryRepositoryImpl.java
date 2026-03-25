@@ -13,6 +13,8 @@ import org.intech.vehiclerental.models.Vehicle;
 import org.intech.vehiclerental.models.enums.VehicleApprovalStatus;
 import org.intech.vehiclerental.models.enums.VehicleStatus;
 import org.intech.vehiclerental.repositories.custom.VehicleQueryRepository;
+import org.intech.vehiclerental.repositories.utility.FilterApplier;
+import org.intech.vehiclerental.repositories.utility.VehicleFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
@@ -137,11 +139,15 @@ public class VehicleQueryRepositoryImpl implements VehicleQueryRepository {
         return cb;
     }
 
+
+
     @Override
-    public List<VehicleSearchInfo> findVehicleSearchSetByDifferentOwner(Long accountOwnerId) {
+    public List<VehicleSearchInfo> findVehicleSearchSetByDifferentOwner(Long accountOwnerId, VehicleFilter vehicleFilters) {
 
         CriteriaBuilder<Vehicle> cb = findSearchVehicleCB(true,
                 VehicleStatus.ACTIVE, VehicleApprovalStatus.APPROVED);
+
+        FilterApplier.applyFilters(cb, vehicleFilters);
 
         if(accountOwnerId != null){
             cb.where("accountOwner.id").notEq(accountOwnerId);

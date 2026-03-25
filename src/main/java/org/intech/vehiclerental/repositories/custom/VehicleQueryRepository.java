@@ -8,6 +8,7 @@ import org.intech.vehiclerental.dto.vehicledto.VehicleUpdateFormData;
 import org.intech.vehiclerental.models.Vehicle;
 import org.intech.vehiclerental.models.enums.VehicleApprovalStatus;
 import org.intech.vehiclerental.models.enums.VehicleStatus;
+import org.intech.vehiclerental.repositories.utility.VehicleFilter;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -30,7 +31,7 @@ public interface VehicleQueryRepository {
             Integer minSeats
     );
 
-    List<VehicleSearchInfo> findVehicleSearchSetByDifferentOwner(Long accountOwnerId);
+    List<VehicleSearchInfo> findVehicleSearchSetByDifferentOwner(Long accountOwnerId, VehicleFilter vehicleFilters);
 
     Vehicle saveVehicle(Vehicle vehicle);
 

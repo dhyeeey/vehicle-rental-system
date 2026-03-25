@@ -8,6 +8,7 @@ import org.intech.vehiclerental.models.AccountOwner;
 import org.intech.vehiclerental.models.Vehicle;
 import org.intech.vehiclerental.models.enums.VehicleApprovalStatus;
 import org.intech.vehiclerental.models.enums.VehicleStatus;
+import org.intech.vehiclerental.repositories.utility.VehicleFilter;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -38,7 +39,7 @@ public interface VehicleService {
                                                   Long maxPrice,
                                                   Integer minSeats);
 
-    List<VehicleSearchInfo> findVehicleSearchSetByDifferentOwner(Long accountOwnerId);
+    List<VehicleSearchInfo> findVehicleSearchSetByDifferentOwner(Long accountOwnerId, VehicleFilter vehicleFilters);
 
     Vehicle saveVehicle(Vehicle vehicle);
 

@@ -13,6 +13,7 @@ import org.intech.vehiclerental.repositories.custom.AccountOwnerQueryRepository;
 import org.intech.vehiclerental.repositories.custom.VehicleQueryRepository;
 import org.intech.vehiclerental.repositories.datajpa.AccountOwnerRepository;
 import org.intech.vehiclerental.repositories.datajpa.VehicleRepository;
+import org.intech.vehiclerental.repositories.utility.VehicleFilter;
 import org.intech.vehiclerental.services.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -129,8 +130,8 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    public List<VehicleSearchInfo> findVehicleSearchSetByDifferentOwner(Long accountOwnerId) {
-        return vehicleQueryRepository.findVehicleSearchSetByDifferentOwner(accountOwnerId);
+    public List<VehicleSearchInfo> findVehicleSearchSetByDifferentOwner(Long accountOwnerId, VehicleFilter vehicleFilters) {
+        return vehicleQueryRepository.findVehicleSearchSetByDifferentOwner(accountOwnerId, vehicleFilters);
     }
 
     @Override

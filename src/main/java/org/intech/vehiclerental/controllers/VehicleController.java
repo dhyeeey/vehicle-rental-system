@@ -9,6 +9,7 @@ import org.intech.vehiclerental.dto.requestbody.VehicleStatusUpdateRequest;
 import org.intech.vehiclerental.dto.vehicledto.*;
 import org.intech.vehiclerental.models.CustomUserDetails;
 import org.intech.vehiclerental.models.Vehicle;
+import org.intech.vehiclerental.repositories.utility.VehicleFilter;
 import org.intech.vehiclerental.services.ImageValidationService;
 import org.intech.vehiclerental.services.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,18 +72,17 @@ public class VehicleController {
     @GetMapping("/explore/search")
     public ResponseEntity<?> getAllSearchVehicles(
             Authentication authentication,
-            @AuthenticationPrincipal CustomUserDetails customUserDetails
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @ModelAttribute VehicleFilter vehicleFilters
     ){
         List<VehicleSearchInfo> vehicles;
 
         if(authentication != null && authentication.isAuthenticated()){
              vehicles = vehicleService.findVehicleSearchSetByDifferentOwner(
-                    customUserDetails.getId()
+                    customUserDetails.getId(), vehicleFilters
             );
         }else{
-            vehicles = vehicleService.findVehicleSearchSetByDifferentOwner(
-                    null
-            );
+            vehicles = vehicleService.findVehicleSearchSetByDifferentOwner(null, vehicleFilters);
         }
 
         return ResponseEntity.ok(vehicles);
