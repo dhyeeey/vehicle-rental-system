@@ -1,4 +1,4 @@
-package org.intech.vehiclerental.repositories.impl;
+package org.intech.vehiclerental.repositories.custom.impl;
 
 import com.blazebit.persistence.CriteriaBuilder;
 import com.blazebit.persistence.CriteriaBuilderFactory;
@@ -11,33 +11,39 @@ import org.intech.vehiclerental.dto.rentaldto.RentalInfo;
 import org.intech.vehiclerental.dto.rentaldto.RentalListDto;
 import org.intech.vehiclerental.dto.rentaldto.RentalViewForRequests;
 import org.intech.vehiclerental.models.Rental;
+import org.intech.vehiclerental.models.Rental_;
 import org.intech.vehiclerental.models.User;
 import org.intech.vehiclerental.models.Vehicle;
 import org.intech.vehiclerental.models.enums.RentalStatus;
-import org.intech.vehiclerental.repositories.RentalEntityViewRepository;
+import org.intech.vehiclerental.repositories.custom.RentalQueryRepository;
+import org.intech.vehiclerental.repositories.datajpa.VehicleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class RentalEntityViewRepositoryImpl implements RentalEntityViewRepository {
+public class RentalQueryRepositoryImpl implements RentalQueryRepository {
 
     private final EntityManager em;
     private final CriteriaBuilderFactory cbf;
     private final EntityViewManager evm;
 
+    private final VehicleRepository vehicleRepository;
+
     @Autowired
-    public RentalEntityViewRepositoryImpl(EntityManager em,
-                                          CriteriaBuilderFactory cbf,
-                                          EntityViewManager evm) {
+    public RentalQueryRepositoryImpl(EntityManager em,
+                                     CriteriaBuilderFactory cbf,
+                                     EntityViewManager evm,
+                                     VehicleRepository vehicleRepository) {
         this.em = em;
         this.cbf = cbf;
         this.evm = evm;
+        this.vehicleRepository = vehicleRepository;
     }
-
 
     @Override
     public Optional<RentalInfo> findRentalInfoById(Long id) {
@@ -62,10 +68,7 @@ public class RentalEntityViewRepositoryImpl implements RentalEntityViewRepositor
                         .orderByDesc("createdAt")
                         .orderByDesc("id");
 
-        return evm.applySetting(
-                EntityViewSetting.create(RentalViewForRequests.class),
-                cb
-        ).getResultList();
+        return evm.applySetting(EntityViewSetting.create(RentalViewForRequests.class),cb).getResultList();
     }
 
 
@@ -92,9 +95,7 @@ public class RentalEntityViewRepositoryImpl implements RentalEntityViewRepositor
                         cb
                 ).page(pageable.getOffset(), pageable.getPageSize());
 
-        PagedList<RentalListDto> pagedList = pageCb.getResultList();
-
-        return pagedList;
+        return pageCb.getResultList();
     }
 
 
@@ -121,11 +122,47 @@ public class RentalEntityViewRepositoryImpl implements RentalEntityViewRepositor
                         cb
                 ).page(pageable.getOffset(), pageable.getPageSize());
 
-        PagedList<RentalListDto> pagedList = pageCb.getResultList();
-
-        return pagedList;
+        return pageCb.getResultList();
     }
 
+    @Override
+    public Boolean isCarOwnerAndLoggedUserSame(Long loggedUserId, Long rentalId){
+        return !cbf.create(em, Long.class)
+                .from(Rental.class, "r")
+                .innerJoin("r.vehicle", "v")
+                .select("1L")
+                .where("r.id").eq(rentalId)
+                .where("v.accountOwner.id").eq(loggedUserId)
+                .setMaxResults(1)
+                .getResultList().isEmpty();
+    }
+
+    public Boolean existsOverlappingRental(Long vehicleId, Instant start, Instant end){
+        return !cbf.create(em, Long.class)
+                .from(Rental.class,"r").select("1L")
+                .where("r.vehicle.id").eq(vehicleId)
+                .where("r.scheduledStartDateTime").lt(end)
+                .where("r.scheduledEndDateTime").gt(start)
+                .where("r.status").notIn(RentalStatus.CANCELLED, RentalStatus.COMPLETED)
+                .setMaxResults(1)
+                .getResultList()
+                .isEmpty();
+    }
+
+    @Override
+    public int changeRentalStatus(Long rentalId, RentalStatus rentalStatus){
+
+        Rental rental = em.find(Rental.class, rentalId);
+        rental.setStatus(rentalStatus);
+
+        if(rentalStatus == RentalStatus.CONFIRMED){
+            Vehicle vehicle = rental.getVehicle();
+            vehicle.setQuantity((byte) (vehicle.getQuantity() - 1));
+            vehicle.setIsAvailable(vehicle.getQuantity() > 0);
+        }
+
+        return 1;
+    }
 
     @Override
     public Rental saveRental(Rental rental) {

@@ -1,76 +1,75 @@
-package org.intech.vehiclerental.repositories.impl;
+package org.intech.vehiclerental.repositories.custom.impl;
 
 import com.blazebit.persistence.CriteriaBuilderFactory;
 import com.blazebit.persistence.UpdateCriteriaBuilder;
+import com.blazebit.persistence.view.EntityViewManager;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.Tuple;
+import org.intech.vehiclerental.dto.authdto.AuthUserProjection;
 import org.intech.vehiclerental.dto.requestbody.EditAccountProfileDto;
 import org.intech.vehiclerental.models.AccountOwner;
+import org.intech.vehiclerental.models.AccountOwner_;
 import org.intech.vehiclerental.models.Company;
 import org.intech.vehiclerental.models.User;
-import org.intech.vehiclerental.repositories.AccountOwnerRepository;
+import org.intech.vehiclerental.models.enums.AccountStatus;
+import org.intech.vehiclerental.models.enums.Role;
+import org.intech.vehiclerental.repositories.custom.AccountOwnerQueryRepository;
+import org.intech.vehiclerental.repositories.utility.Predicates;
+import org.intech.vehiclerental.repositories.utility.QueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
 @Repository
-public class AccountOwnerRepositoryImpl implements AccountOwnerRepository {
+public class AccountOwnerQueryRepositoryImpl implements AccountOwnerQueryRepository {
 
     private final EntityManager em;
     private final CriteriaBuilderFactory cbf;
+    private final EntityViewManager evm;
 
     @Autowired
-    public AccountOwnerRepositoryImpl(
+    public AccountOwnerQueryRepositoryImpl(
             EntityManager em,
-            CriteriaBuilderFactory cbf
+            CriteriaBuilderFactory cbf,
+            EntityViewManager evm
     ) {
         this.em = em;
         this.cbf = cbf;
+        this.evm = evm;
     }
 
-    @Override
     public Optional<AccountOwner> findById(Long id) {
-
-        AccountOwner owner = cbf.create(em, AccountOwner.class)
-                .where("id").eq(id)
-                .getSingleResultOrNull();
-
-        return Optional.ofNullable(owner);
+        return Optional.ofNullable(
+                QueryBuilder.build(
+                    cbf,em ,AccountOwner.class,
+                    Predicates.eq(AccountOwner_.ID, id)
+                ).getSingleResultOrNull()
+        );
     }
 
     @Override
-    public Optional<AccountOwner> findByEmail(String email) {
+    public Optional<AuthUserProjection> findAuthDetailsByEmail(String email) {
 
-        AccountOwner owner = cbf.create(em, AccountOwner.class)
-                .where("email").eq(email)
-                .getSingleResultOrNull();
-
-        return Optional.ofNullable(owner);
-    }
-
-    @Override
-    public boolean existsByEmail(String email) {
-
-        Long count = cbf.create(em, Long.class)
+        Tuple tuple = cbf.create(em, Tuple.class)
                 .from(AccountOwner.class)
-                .select("COUNT(id)")
-                .where("email").eq(email)
-                .getSingleResult();
+                .select(AccountOwner_.ID)
+                .select(AccountOwner_.EMAIL)
+                .select(AccountOwner_.PASSWORD)
+                .select(AccountOwner_.ROLE)
+                .select(AccountOwner_.ACCOUNT_STATUS)
+                .where(AccountOwner_.EMAIL).eq(email)
+                .getSingleResultOrNull();
 
-        return count > 0;
-    }
+        if (tuple == null) return Optional.empty();
 
-    @Override
-    public AccountOwner save(AccountOwner accountOwner) {
-
-        if (accountOwner.getId() == null) {
-            em.persist(accountOwner);
-            return accountOwner;
-        } else {
-            return em.merge(accountOwner);
-        }
+        return Optional.of(new AuthUserProjection(
+                tuple.get(0, Long.class),
+                tuple.get(1, String.class),
+                tuple.get(2, String.class),
+                tuple.get(3, Role.class),
+                tuple.get(4, AccountStatus.class)
+        ));
     }
 
     private boolean updateCommonFields(UpdateCriteriaBuilder<?> update,
@@ -167,16 +166,48 @@ public class AccountOwnerRepositoryImpl implements AccountOwnerRepository {
         return 0;
     }
 
+
     @Override
     public int editProfileImage(AccountOwner accountOwner, String imageUrl) {
-        if (imageUrl == null || imageUrl.isBlank()) {
-            return 0;
-        }
-
         UpdateCriteriaBuilder<AccountOwner> update = cbf.update(em, AccountOwner.class)
-                .set("profileImageUrl", imageUrl)
                 .where("id").eq(accountOwner.getId());
+
+        if (imageUrl == null) {
+            update.setExpression("profileImageUrl", "NULL");
+        } else {
+            update.set("profileImageUrl", imageUrl);
+        }
 
         return update.executeUpdate();
     }
+
+    @Override
+    public String getCurrentProfileImageUrl(
+            Long accountOwnerId
+    ){
+        Tuple tuple = cbf.create(em, Tuple.class)
+                .from(AccountOwner.class,"ao")
+                .select("ao.profileImageUrl")
+                .where("ao.id").eq(accountOwnerId)
+                .getSingleResult();
+
+        return tuple.get(0, String.class);
+    }
+
+    @Override
+    public int editProfileImage(Long accountOwnerId, String imageUrl) {
+
+        UpdateCriteriaBuilder<AccountOwner> update = cbf.update(em, AccountOwner.class)
+                .where("id").eq(accountOwnerId);
+
+        if (imageUrl == null) {
+            update.setExpression("profileImageUrl", "NULL");
+        } else {
+            update.set("profileImageUrl", imageUrl);
+        }
+
+        return update.executeUpdate();
+    }
+
+
 }

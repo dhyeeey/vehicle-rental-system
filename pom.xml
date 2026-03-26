@@ -44,6 +44,14 @@
 			<artifactId>spring-session-core</artifactId>
 		</dependency>
 
+		<!-- Source: https://mvnrepository.com/artifact/org.springframework.session/spring-session-jdbc -->
+		<dependency>
+			<groupId>org.springframework.session</groupId>
+			<artifactId>spring-session-jdbc</artifactId>
+			<version>4.0.2</version>
+			<scope>compile</scope>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
@@ -124,6 +132,14 @@
 			<artifactId>blaze-persistence-entity-view-processor</artifactId>
 			<version>${blaze-persistence.version}</version>
 			<scope>provided</scope>
+		</dependency>
+
+		<!-- Source: https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-processor -->
+		<dependency>
+			<groupId>org.hibernate.orm</groupId>
+			<artifactId>hibernate-processor</artifactId>
+			<version>7.3.0.Final</version>
+			<scope>compile</scope>
 		</dependency>
 
 
@@ -249,7 +265,6 @@
 
 	<build>
 		<plugins>
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -263,6 +278,11 @@
 							<groupId>org.mapstruct</groupId>
 							<artifactId>mapstruct-processor</artifactId>
 							<version>${org.mapstruct.version}</version>
+						</path>
+						<path>
+							<groupId>org.hibernate.orm</groupId>
+							<artifactId>hibernate-processor</artifactId>
+							<version>7.3.0.Final</version>
 						</path>
 					</annotationProcessorPaths>
 				</configuration>

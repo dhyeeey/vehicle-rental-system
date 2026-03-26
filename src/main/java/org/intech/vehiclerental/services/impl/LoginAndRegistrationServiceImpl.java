@@ -6,8 +6,10 @@ import org.intech.vehiclerental.models.AccountOwner;
 import org.intech.vehiclerental.models.User;
 import org.intech.vehiclerental.models.enums.AccountStatus;
 import org.intech.vehiclerental.models.enums.Role;
-import org.intech.vehiclerental.repositories.AccountOwnerRepository;
+import org.intech.vehiclerental.repositories.custom.AccountOwnerQueryRepository;
+import org.intech.vehiclerental.repositories.datajpa.AccountOwnerRepository;
 import org.intech.vehiclerental.services.LoginAndRegistrationService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,15 +18,16 @@ import org.springframework.transaction.annotation.Transactional;
 public class LoginAndRegistrationServiceImpl
         implements LoginAndRegistrationService {
 
-    private final AccountOwnerRepository repository;
     private final PasswordEncoder passwordEncoder;
+    private final AccountOwnerRepository accountOwnerRepository;
 
+    @Autowired
     public LoginAndRegistrationServiceImpl(
-            AccountOwnerRepository repository,
-            PasswordEncoder passwordEncoder
+            PasswordEncoder passwordEncoder,
+            AccountOwnerRepository accountOwnerRepository
     ) {
-        this.repository = repository;
         this.passwordEncoder = passwordEncoder;
+        this.accountOwnerRepository = accountOwnerRepository;
     }
 
     @Override
@@ -36,7 +39,7 @@ public class LoginAndRegistrationServiceImpl
                     "Your password and confirm password do not match");
         }
 
-        if (repository.existsByEmail(payload.email())) {
+        if (accountOwnerRepository.existsByEmail(payload.email())) {
             throw new IllegalArgumentException("Email already registered");
         }
 
@@ -53,6 +56,6 @@ public class LoginAndRegistrationServiceImpl
         accountOwner.setPassword(passwordEncoder.encode(payload.password()));
         accountOwner.setRole(Role.ROLE_INDIVIDUAL);
 
-        return (User) repository.save(accountOwner);
+        return (User) accountOwnerRepository.save(accountOwner);
     }
 }

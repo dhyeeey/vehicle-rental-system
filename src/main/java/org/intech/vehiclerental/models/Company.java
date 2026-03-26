@@ -1,5 +1,6 @@
 package org.intech.vehiclerental.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -29,6 +30,7 @@ public class Company extends AccountOwner {
     @Column(unique = true, length = 50)
     private String taxId;
 
+    @JsonIgnore
     @JsonManagedReference
     @OneToMany(mappedBy = "approvedBy")
     private Set<Vehicle> approvedVehicles = new HashSet<>();
@@ -39,5 +41,22 @@ public class Company extends AccountOwner {
         this.name = name;
         this.registrationNumber = registrationNumber;
         this.taxId = taxId;
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+
+        Company other = (Company) obj;
+
+        return getId() != null && getId().equals(other.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

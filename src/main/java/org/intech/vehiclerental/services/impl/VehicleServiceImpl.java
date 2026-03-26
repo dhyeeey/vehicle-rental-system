@@ -3,17 +3,20 @@ package org.intech.vehiclerental.services.impl;
 import com.blazebit.persistence.PagedList;
 import jakarta.validation.Valid;
 import org.intech.vehiclerental.dto.requestbody.VehicleRegistrationDTO;
-import org.intech.vehiclerental.dto.vehicledto.VehicleFleetDto;
-import org.intech.vehiclerental.dto.vehicledto.VehicleInfo;
-import org.intech.vehiclerental.dto.vehicledto.VehicleSearchInfo;
+import org.intech.vehiclerental.dto.vehicledto.*;
 import org.intech.vehiclerental.exceptions.VehicleAccessDeniedException;
 import org.intech.vehiclerental.mappers.VehicleMapper;
 import org.intech.vehiclerental.models.*;
+import org.intech.vehiclerental.models.enums.VehicleApprovalStatus;
 import org.intech.vehiclerental.models.enums.VehicleStatus;
-import org.intech.vehiclerental.repositories.VehicleEntityViewRepository;
+import org.intech.vehiclerental.repositories.custom.AccountOwnerQueryRepository;
+import org.intech.vehiclerental.repositories.custom.VehicleQueryRepository;
+import org.intech.vehiclerental.repositories.datajpa.AccountOwnerRepository;
+import org.intech.vehiclerental.repositories.datajpa.VehicleRepository;
+import org.intech.vehiclerental.repositories.utility.VehicleFilter;
 import org.intech.vehiclerental.services.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,19 +29,31 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 public class VehicleServiceImpl implements VehicleService {
 
-    private final VehicleEntityViewRepository vehicleRepository;
+    private final VehicleQueryRepository vehicleQueryRepository;
+    private final AccountOwnerQueryRepository accountOwnerQueryRepository;
+    private final AccountOwnerRepository accountOwnerRepository;
     private final VehicleMapper vehicleMapper;
 
+    private final VehicleRepository vehicleRepository;
+
+    @Value("${app.upload.vehicles.image.dir}")
+    private String vehicleImagesDir;
+
     @Autowired
-    public VehicleServiceImpl(VehicleEntityViewRepository vehicleRepository,
-                              VehicleMapper vehicleMapper) {
-        this.vehicleRepository = vehicleRepository;
+    public VehicleServiceImpl(VehicleQueryRepository vehicleQueryRepository,
+                              VehicleMapper vehicleMapper,
+                              AccountOwnerQueryRepository accountOwnerQueryRepository,
+                              AccountOwnerRepository accountOwnerRepository,
+                              VehicleRepository vehicleRepository) {
+        this.vehicleQueryRepository = vehicleQueryRepository;
         this.vehicleMapper = vehicleMapper;
+        this.accountOwnerQueryRepository = accountOwnerQueryRepository;
+        this.vehicleRepository = vehicleRepository;
+        this.accountOwnerRepository = accountOwnerRepository;
     }
 
     /**
@@ -46,20 +61,24 @@ public class VehicleServiceImpl implements VehicleService {
      * due to need of index for image
      */
     @Override
+    @Transactional
     public Vehicle registerVehicle(@Valid VehicleRegistrationDTO dto,
                                    List<MultipartFile> images,
                                    Integer primaryImageIndex,
-                                   AccountOwner accountOwner) {
+                                   Long accountOwnerId) {
 
         Vehicle vehicle = vehicleMapper.toVehicleFromVehicleRegistrationDTO(dto);
-        vehicle.setStatus(VehicleStatus.PENDING_APPROVAL);
+        vehicle.setStatus(VehicleStatus.INACTIVE);
+        vehicle.setApprovalStatus(VehicleApprovalStatus.PENDING);
+
+        AccountOwner accountOwner = accountOwnerRepository.findById(accountOwnerId).orElseThrow(()->new RuntimeException("User with provided id not found"));
         vehicle.setAccountOwner(accountOwner);
 
         for (int i = 0; i < images.size(); i++) {
             MultipartFile file = images.get(i);
             String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
             try {
-                Path uploadPath = Paths.get("uploads/vehicles/");
+                Path uploadPath = Paths.get(vehicleImagesDir);
                 Files.createDirectories(uploadPath);
                 Path filePath = uploadPath.resolve(fileName);
                 Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
@@ -68,45 +87,28 @@ public class VehicleServiceImpl implements VehicleService {
             }
             VehicleImage vehicleImage = VehicleImage.builder()
                     .vehicle(vehicle)
-                    .imageUrl("/uploads/vehicles/" + fileName)
+                    .imageUrl(vehicleImagesDir + fileName)
                     .displayOrder(i).isPrimary(i == primaryImageIndex)
                     .caption(null).build();
             vehicle.getImages().add(vehicleImage);
         }
 
-        return vehicleRepository.saveVehicle(vehicle);
-    }
-
-    @Override
-    public Optional<AccountOwner> findVehicleOwnerByVehicleId(Long vehicleId) {
-        return vehicleRepository.findVehicleOwnerByVehicleId(vehicleId);
-    }
-
-    @Override
-    public AccountOwner getVehicleOwnerByVehicleIdOrThrow(Long vehicleId) {
-        AccountOwner owner = vehicleRepository.findVehicleOwnerByVehicleId(vehicleId)
-                .orElseThrow(() -> new RuntimeException("Vehicle not found with id: " + vehicleId));
-
-        if (owner instanceof User user) {
-            System.out.println(user.getFirstName());
-        } else if (owner instanceof Company company) {
-            System.out.println(company.getName());
-        }
-
-        return owner;
+        return vehicleQueryRepository.saveVehicle(vehicle);
     }
 
     @Override
     public Optional<VehicleInfo> findVehicleInfoById(Long id) {
-        return vehicleRepository.findVehicleInfoById(id);
+//        return vehicleQueryRepository.findVehicleInfoById(id);
+
+        return vehicleRepository.findInfoViewById(id);
     }
 
     @Override
-    public PagedList<VehicleFleetDto> findVehicleFleetPageByOwner(AccountOwner owner,
+    public PagedList<VehicleFleetDto> findVehicleFleetPageByOwner(Long accountOwnerId,
                                                                   org.intech.vehiclerental.models.enums.VehicleStatus status,
                                                                   Boolean isAvailable,
                                                                   Pageable pageable) {
-        return vehicleRepository.findVehicleFleetPageByOwner(owner, status, isAvailable, pageable);
+        return vehicleQueryRepository.findVehicleFleetPageByOwner(accountOwnerId, status, isAvailable, pageable);
     }
 
     @Override
@@ -114,13 +116,13 @@ public class VehicleServiceImpl implements VehicleService {
                                                          Long minPrice,
                                                          Long maxPrice,
                                                          Integer minSeats) {
-        return vehicleRepository.findVehicleSearchList(location, minPrice, maxPrice, minSeats);
+        return vehicleQueryRepository.findVehicleSearchList(location, minPrice, maxPrice, minSeats);
     }
 
     @Transactional
-    public void changeVehicleStatus(Long vehicleId, VehicleStatus status, AccountOwner accountOwner) {
+    public void changeVehicleStatus(Long vehicleId, VehicleStatus status, Long accountOwnerId) {
 
-        int updated = vehicleRepository.updateVehicleStatus(vehicleId, status, accountOwner);
+        int updated = vehicleQueryRepository.updateVehicleStatus(vehicleId, status, accountOwnerId);
 
         if (updated == 0) {
             throw new VehicleAccessDeniedException("Vehicle not found or you do not own vehicle");
@@ -128,25 +130,26 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    public Set<VehicleSearchInfo> findVehicleSearchSetByDifferentOwner(AccountOwner owner) {
-        return vehicleRepository.findVehicleSearchSetByDifferentOwner(owner);
-    }
-
-    @Override
-    public Optional<Vehicle> findVehicleEntityWithOwnerById(Long id) {
-        return vehicleRepository.findVehicleEntityWithOwnerById(id);
+    public List<VehicleSearchInfo> findVehicleSearchSetByDifferentOwner(Long accountOwnerId, VehicleFilter vehicleFilters) {
+        return vehicleQueryRepository.findVehicleSearchSetByDifferentOwner(accountOwnerId, vehicleFilters);
     }
 
     @Override
     @Transactional
     public Vehicle saveVehicle(Vehicle vehicle) {
-        return vehicleRepository.saveVehicle(vehicle);
+        return vehicleQueryRepository.saveVehicle(vehicle);
     }
 
     @Override
     @Transactional
-    public int deleteVehicleById(Long id, AccountOwner owner) {
-        int deleted = vehicleRepository.deleteVehicleById(id, owner);
+    public int updateVehiclePartial(Long vehicleId, VehicleUpdateFormData dto){
+        return vehicleQueryRepository.updateVehiclePartial(vehicleId,dto);
+    }
+
+    @Override
+    @Transactional
+    public int deleteVehicleById(Long id, Long accountOwnerId) {
+        int deleted = vehicleQueryRepository.deleteVehicleById(id, accountOwnerId);
 
         if (deleted == 0) {
             throw new VehicleAccessDeniedException("Vehicle not found or not owned by you");
@@ -156,8 +159,23 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    public void approveUserVehicles(Long vehicleId) {
-        Vehicle vehicle = vehicleRepository.findVehicleById(vehicleId);
+    @Transactional
+    public int changeVehicleApprovalStatus(Long vehicleId,
+                                    VehicleStatus vehicleStatus,
+                                    VehicleApprovalStatus vehicleApprovalStatus,
+                                    Long accountOwnerId) {
+
+        int val = vehicleQueryRepository.changeVehicleApprovalStatus(vehicleId,
+                vehicleStatus, vehicleApprovalStatus, accountOwnerId);
+        return val;
+    }
+
+
+    @Override
+    public PagedList<VehicleListViewAdmin> getVehicleListForAdminAndCompanyByStatus(VehicleStatus vehicleStatus,
+                                                                        VehicleApprovalStatus vehicleApprovalStatus, int page, int size){
+
+        return vehicleQueryRepository.getVehicleListForAdminAndCompanyByStatus(vehicleStatus,vehicleApprovalStatus, page, size);
     }
 
 

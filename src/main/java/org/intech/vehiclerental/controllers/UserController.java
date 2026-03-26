@@ -26,7 +26,6 @@ public class UserController {
     public ResponseEntity<?> getProfile(
             Authentication authentication
     ) {
-
         String email = authentication.getName();
 
         AccountOwner accountOwner =
@@ -35,25 +34,31 @@ public class UserController {
         return ResponseEntity.ok(accountOwner);
     }
 
+    @PatchMapping("/profile/remove-profile-image")
+    public ResponseEntity<?> removeProfileImage(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ){
+        accountOwnerService.removeProfileImage(customUserDetails.getId());
+
+        return ResponseEntity.ok().build();
+    }
+
     @PutMapping("/profile/edit-profile")
     public ResponseEntity<?> editProfileDetails(
-            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody EditAccountProfileDto editAccountProfileDto
     ){
-        Long accountOwnerId = customUserDetails.getAccountOwner().getId();
-        int val = accountOwnerService.editProfileDetails(accountOwnerId, editAccountProfileDto);
+        int val = accountOwnerService.editProfileDetails(userDetails.getId(), editAccountProfileDto);
 
         return ResponseEntity.ok(val);
     }
 
     @PutMapping("/profile/edit-profile-image")
     public ResponseEntity<?> editProfileImage(
-            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(value = "file", required = true) MultipartFile file
     ){
-        Long accountOwnerId = customUserDetails.getAccountOwner().getId();
-        accountOwnerService.editProfileImage(accountOwnerId, file);
-
+        accountOwnerService.editProfileImage(userDetails.getId(), file);
         return ResponseEntity.ok().build();
     }
 

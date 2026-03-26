@@ -8,6 +8,13 @@ spring:
     password: root
     driver-class-name: org.postgresql.Driver
 
+  session:
+    store-type: jdbc
+#    timeout: 7d
+    jdbc:
+      initialize-schema: always
+      cleanup-cron: "0 * * * * *" # cron job every minute
+
   servlet:
     multipart:
       max-request-size: 50MB
@@ -45,7 +52,12 @@ app:
   security:
     public-paths : /api/auth/login,/api/auth/createaccount,/api/vehicle/detail/**,/api/vehicle/explore/search,/uploads/**
   upload:
-    dir: /uploads/vehicles
+    vehicles:
+      image:
+        dir: uploads/vehicles/
+    profile:
+      image:
+        dir : uploads/profile-images/
 
   vehicle:
     max-image-size-mb: 5

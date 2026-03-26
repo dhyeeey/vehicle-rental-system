@@ -1,47 +1,58 @@
 package org.intech.vehiclerental.models;
 
+import lombok.Getter;
 import org.intech.vehiclerental.models.enums.Role;
 import org.intech.vehiclerental.models.enums.AccountStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
-public class CustomUserDetails implements UserDetails {
+public class CustomUserDetails implements UserDetails, Serializable {
 
-    private final AccountOwner accountOwner;
+    private static final long serialVersionUID = 1L;
 
-    public CustomUserDetails(AccountOwner accountOwner) {
-        this.accountOwner = accountOwner;
+    @Getter
+    private final Long id;
+    private final String email;
+    private final String password;
+    private final Role role;
+    private final AccountStatus accountStatus;
+
+    public CustomUserDetails(
+            Long id,
+            String email,
+            String password,
+            Role role,
+            AccountStatus accountStatus
+    ) {
+        this.id = id;
+        this.email = email;
+        this.password = password;
+        this.role = role;
+        this.accountStatus = accountStatus;
     }
 
-    public Long getId() {
-        return accountOwner.getId();
-    }
 
     public Role getAccountType() {
-        return accountOwner.getRole();
-    }
-
-    public AccountOwner getAccountOwner() {
-        return accountOwner;
+        return role;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(accountOwner.getRole());
+        return List.of(role);
     }
-
 
     @Override
     public String getPassword() {
-        return accountOwner.getPassword();
+        return password;
     }
 
     @Override
     public String getUsername() {
-        return accountOwner.getEmail();
+        return email;
     }
 
     @Override
@@ -51,7 +62,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return accountOwner.getAccountStatus() == AccountStatus.ACTIVE;
+        return accountStatus == AccountStatus.ACTIVE;
     }
 
 }

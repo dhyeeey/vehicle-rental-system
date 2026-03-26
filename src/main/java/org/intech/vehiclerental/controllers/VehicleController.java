@@ -6,30 +6,26 @@ import lombok.extern.slf4j.Slf4j;
 import org.intech.vehiclerental.dto.paginationdto.PageResponse;
 import org.intech.vehiclerental.dto.requestbody.VehicleRegistrationDTO;
 import org.intech.vehiclerental.dto.requestbody.VehicleStatusUpdateRequest;
-import org.intech.vehiclerental.dto.vehicledto.RegisterVehicleResponseDTO;
-import org.intech.vehiclerental.dto.vehicledto.VehicleFleetDto;
-import org.intech.vehiclerental.dto.vehicledto.VehicleInfo;
-import org.intech.vehiclerental.dto.vehicledto.VehicleSearchInfo;
-import org.intech.vehiclerental.models.AccountOwner;
+import org.intech.vehiclerental.dto.vehicledto.*;
 import org.intech.vehiclerental.models.CustomUserDetails;
 import org.intech.vehiclerental.models.Vehicle;
+import org.intech.vehiclerental.repositories.utility.VehicleFilter;
 import org.intech.vehiclerental.services.ImageValidationService;
 import org.intech.vehiclerental.services.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/api/vehicle")
@@ -76,18 +72,17 @@ public class VehicleController {
     @GetMapping("/explore/search")
     public ResponseEntity<?> getAllSearchVehicles(
             Authentication authentication,
-            @AuthenticationPrincipal CustomUserDetails customUserDetails
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @ModelAttribute VehicleFilter vehicleFilters
     ){
-        Set<VehicleSearchInfo> vehicles;
+        List<VehicleSearchInfo> vehicles;
 
         if(authentication != null && authentication.isAuthenticated()){
              vehicles = vehicleService.findVehicleSearchSetByDifferentOwner(
-                    customUserDetails.getAccountOwner()
+                    customUserDetails.getId(), vehicleFilters
             );
         }else{
-            vehicles = vehicleService.findVehicleSearchSetByDifferentOwner(
-                    null
-            );
+            vehicles = vehicleService.findVehicleSearchSetByDifferentOwner(null, vehicleFilters);
         }
 
         return ResponseEntity.ok(vehicles);
@@ -96,38 +91,26 @@ public class VehicleController {
     @GetMapping("/all-fleet")
     public ResponseEntity<?> getAllFleetVehicles(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "desc") String direction
+            @PageableDefault(
+                    size = 10,
+                    sort = "createdAt",
+                    direction = Sort.Direction.DESC
+            )
+            Pageable pageable
     ) {
 
-        Sort sort = direction.equalsIgnoreCase("asc")
-                ? Sort.by(sortBy).ascending()
-                : Sort.by(sortBy).descending();
-
-        Pageable pageable = PageRequest.of(page, size, sort);
-
-        PagedList<VehicleFleetDto> vehiclePage = vehicleService.findVehicleFleetPageByOwner(
-                userDetails.getAccountOwner(),
-                null,
-                true,
-                pageable
-        );
+        PagedList<VehicleFleetDto> vehiclePage =
+                vehicleService.findVehicleFleetPageByOwner(
+                        userDetails.getId(),
+                        null,
+                        null,
+                        pageable
+                );
 
         return ResponseEntity.ok(new PageResponse<>(vehiclePage));
     }
 
     /*--------------------------------------------POST--------------------------------------------------- */
-
-
-    @PreAuthorize("hasAnyRole('ADMIN','COMPANY')")
-    @PostMapping("/admin/approve-vehicle")
-    public ResponseEntity<?> approveUserVehicles(@RequestParam Long vehicleId){
-        vehicleService.approveUserVehicles(vehicleId);
-        return null;
-    }
-
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<RegisterVehicleResponseDTO> registerVehicle(
@@ -135,10 +118,9 @@ public class VehicleController {
             @Valid @ModelAttribute VehicleRegistrationDTO dto,
             @RequestParam(value = "images", required = true) List<MultipartFile> images
     ) {
-        AccountOwner accountOwner = userDetails.getAccountOwner();
 
         imageValidationService.validateImages(images, dto.primaryImageIndex());
-        Vehicle vehicle = vehicleService.registerVehicle(dto, images, dto.primaryImageIndex(), accountOwner);
+        Vehicle vehicle = vehicleService.registerVehicle(dto, images, dto.primaryImageIndex(), userDetails.getId());
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -169,10 +151,21 @@ public class VehicleController {
     ){
         vehicleService.changeVehicleStatus(
                 vehicleStatusUpdateRequest.vehicleId(),
-                vehicleStatusUpdateRequest.status(), customUserDetails.getAccountOwner()
+                vehicleStatusUpdateRequest.status(), customUserDetails.getId()
         );
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PatchMapping(
+            value = "/edit-vehicle-details/{vehicleId}"
+    )
+    public ResponseEntity<?> updateVehicle(
+            @PathVariable Long vehicleId,
+            @RequestBody VehicleUpdateFormData dto,
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        return ResponseEntity.ok(vehicleService.updateVehiclePartial(vehicleId, dto));
     }
 
     /*--------------------------------------------DELETE--------------------------------------------------- */
@@ -182,7 +175,7 @@ public class VehicleController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestParam Long vehicleId
     ){
-        int val = vehicleService.deleteVehicleById(vehicleId, customUserDetails.getAccountOwner());
+        int val = vehicleService.deleteVehicleById(vehicleId, customUserDetails.getId());
         return ResponseEntity.ok(val);
     }
 

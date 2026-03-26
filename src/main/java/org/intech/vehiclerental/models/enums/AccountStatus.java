@@ -2,7 +2,7 @@ package org.intech.vehiclerental.models.enums;
 
 public enum AccountStatus {
     ACTIVE,
-    SUSPENDED,
+    HIBERNATE,
     INACTIVE,
     BLOCKED
 }

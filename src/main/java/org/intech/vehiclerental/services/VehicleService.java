@@ -3,13 +3,12 @@ package org.intech.vehiclerental.services;
 import com.blazebit.persistence.PagedList;
 import jakarta.validation.Valid;
 import org.intech.vehiclerental.dto.requestbody.VehicleRegistrationDTO;
-import org.intech.vehiclerental.dto.vehicledto.VehicleFleetDto;
-import org.intech.vehiclerental.dto.vehicledto.VehicleInfo;
-import org.intech.vehiclerental.dto.vehicledto.VehicleSearchInfo;
+import org.intech.vehiclerental.dto.vehicledto.*;
 import org.intech.vehiclerental.models.AccountOwner;
 import org.intech.vehiclerental.models.Vehicle;
+import org.intech.vehiclerental.models.enums.VehicleApprovalStatus;
 import org.intech.vehiclerental.models.enums.VehicleStatus;
-import org.springframework.data.domain.Page;
+import org.intech.vehiclerental.repositories.utility.VehicleFilter;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,42 +18,38 @@ import java.util.Set;
 
 public interface VehicleService {
 
-    // Vehicle Registration
     Vehicle registerVehicle(@Valid VehicleRegistrationDTO dto,
                             List<MultipartFile> images,
                             Integer primaryImageIndex,
-                            AccountOwner accountOwner);
+                            Long accountOwnerId);
 
-    // Vehicle Owner
-    Optional<AccountOwner> findVehicleOwnerByVehicleId(Long vehicleId);
+    void changeVehicleStatus(Long vehicleId, VehicleStatus status, Long accountOwnerId);
 
-    AccountOwner getVehicleOwnerByVehicleIdOrThrow(Long vehicleId);
-
-    void changeVehicleStatus(Long vehicleId, VehicleStatus status, AccountOwner accountOwner);
-
-    // Vehicle Info Projections
     Optional<VehicleInfo> findVehicleInfoById(Long id);
 
-    // Vehicle Fleet Pagination
-    PagedList<VehicleFleetDto> findVehicleFleetPageByOwner(AccountOwner owner,
-                                                           VehicleStatus status,
-                                                           Boolean isAvailable,
-                                                           Pageable pageable);
+    PagedList<VehicleFleetDto> findVehicleFleetPageByOwner(
+            Long accountOwnerId,
+            VehicleStatus status,
+            Boolean isAvailable,
+            Pageable pageable
+    );
 
-    // Vehicle Search
     List<VehicleSearchInfo> findVehicleSearchList(String location,
                                                   Long minPrice,
                                                   Long maxPrice,
                                                   Integer minSeats);
 
-    Set<VehicleSearchInfo> findVehicleSearchSetByDifferentOwner(AccountOwner owner);
-
-    // Entity Operations
-    Optional<Vehicle> findVehicleEntityWithOwnerById(Long id);
+    List<VehicleSearchInfo> findVehicleSearchSetByDifferentOwner(Long accountOwnerId, VehicleFilter vehicleFilters);
 
     Vehicle saveVehicle(Vehicle vehicle);
 
-    int deleteVehicleById(Long id, AccountOwner owner);
+    int deleteVehicleById(Long id, Long accountOwnerId);
 
-    void approveUserVehicles(Long vehicleId);
+    int changeVehicleApprovalStatus(Long vehicleId, VehicleStatus vehicleStatus,
+                             VehicleApprovalStatus vehicleApprovalStatus, Long accountOwnerId);
+
+    int updateVehiclePartial(Long vehicleId, VehicleUpdateFormData dto);
+
+    PagedList<VehicleListViewAdmin> getVehicleListForAdminAndCompanyByStatus(VehicleStatus vehicleStatus,
+                                                                             VehicleApprovalStatus vehicleApprovalStatus, int page, int size);
 }

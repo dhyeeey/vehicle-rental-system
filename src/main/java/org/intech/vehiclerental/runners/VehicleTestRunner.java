@@ -1,63 +1,64 @@
 package org.intech.vehiclerental.runners;
 
+import org.intech.vehiclerental.dto.vehicledto.VehicleInfo;
+import org.intech.vehiclerental.dto.vehicledto.VehicleWithAccountOwnerView;
 import org.intech.vehiclerental.models.AccountOwner;
-import org.intech.vehiclerental.models.Company;
-import org.intech.vehiclerental.models.User;
 import org.intech.vehiclerental.models.Vehicle;
-import org.intech.vehiclerental.models.enums.FuelType;
-import org.intech.vehiclerental.models.enums.TransmissionType;
-import org.intech.vehiclerental.models.enums.VehicleStatus;
-import org.intech.vehiclerental.models.enums.VehicleType;
-import org.intech.vehiclerental.repositories.AccountOwnerRepository;
-import org.intech.vehiclerental.repositories.VehicleEntityViewRepository;
+import org.intech.vehiclerental.repositories.custom.AccountOwnerQueryRepository;
+import org.intech.vehiclerental.repositories.custom.VehicleQueryRepository;
+import org.intech.vehiclerental.repositories.datajpa.VehicleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
-import java.util.List;
+import java.util.Optional;
 
 
 /**
  * Runner class for inserting dummy data for testing purposes
  */
-@Component
+//@Component
 public class VehicleTestRunner implements CommandLineRunner {
 
-    private final AccountOwnerRepository accountOwnerRepository;
-    private final VehicleEntityViewRepository vehicleEntityViewRepository;
+    private final AccountOwnerQueryRepository accountOwnerQueryRepository;
+    private final VehicleQueryRepository vehicleQueryRepository;
+
+    private final VehicleRepository vehicleRepository;
 
     @Autowired
     public VehicleTestRunner(
-            AccountOwnerRepository accountOwnerRepository,
-            VehicleEntityViewRepository vehicleEntityViewRepository
+            AccountOwnerQueryRepository accountOwnerQueryRepository,
+            VehicleQueryRepository vehicleQueryRepository,
+            VehicleRepository vehicleRepository
     ) {
-        this.accountOwnerRepository = accountOwnerRepository;
-        this.vehicleEntityViewRepository = vehicleEntityViewRepository;
+        this.accountOwnerQueryRepository = accountOwnerQueryRepository;
+        this.vehicleQueryRepository = vehicleQueryRepository;
+        this.vehicleRepository = vehicleRepository;
     }
 
-    public void fetchallvehicles(){
-        AccountOwner accountOwner = accountOwnerRepository
-                .findById(3L)
-                .orElseThrow(()->new RuntimeException("Account owner not found"));
+    public void testing(){
+        Optional<VehicleInfo> vehicleInfo = vehicleRepository.findInfoViewById(2L);
 
-//        Set<Vehicle> vehicles = vehicleRepository.findByAccountOwnerNot(accountOwner);
-//
-//        for (Vehicle vh : vehicles){
-//            System.out.println(vh.getId()+", "+vh.getMake()+", "+vh.getModel());
-//        }
+        vehicleInfo.ifPresent((v)->{
+            System.out.println("VehicleInfo Projection : "+v.getId()+" "+v.getMake()+" "+v.getModel());
+        });
+
+        Optional<Vehicle> vehicle = vehicleRepository.findEntityById(3L);
+
+        vehicle.ifPresent((v)->{
+            System.out.println("Vehicle entity : "+v.getId()+" "+v.getMake()+" "+v.getModel());
+        });
+
+        Optional<VehicleWithAccountOwnerView> vehicleWithAccountOwnerView = vehicleRepository.findWithOwnerViewById(4L);
+
+        vehicleWithAccountOwnerView.ifPresent((v)->{
+            System.out.println("VehicleWithAccountOwnerView Projection : "+v.getId()+" "+v.getMake()+" "+v.getModel());
+        });
     }
-
 
     @Override
     public void run(String... args) {
-
-//        insertvehicle();
-//        fetchallvehicles();
-
+        testing();
     }
 
 }

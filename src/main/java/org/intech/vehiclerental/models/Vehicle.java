@@ -149,7 +149,7 @@ public class Vehicle {
             approvalStatus = VehicleApprovalStatus.PENDING;
         }
         if (status == null) {
-            status = VehicleStatus.ACTIVE;
+            status = VehicleStatus.INACTIVE;
         }
     }
 }
