@@ -1,10 +1,7 @@
 package org.intech.vehiclerental.services;
 
 import com.blazebit.persistence.PagedList;
-import org.intech.vehiclerental.dto.rentaldto.CreateRentalRequestDto;
-import org.intech.vehiclerental.dto.rentaldto.RentalInfo;
-import org.intech.vehiclerental.dto.rentaldto.RentalListDto;
-import org.intech.vehiclerental.dto.rentaldto.RentalViewForRequests;
+import org.intech.vehiclerental.dto.rentaldto.*;
 import org.intech.vehiclerental.models.Rental;
 import org.intech.vehiclerental.models.User;
 import org.intech.vehiclerental.models.Vehicle;
@@ -38,6 +35,8 @@ public interface RentalService {
             RentalStatus status,
             Pageable pageable
     );
+
+    RentalDetailViewForRentalRequest findRentalDetailViewForRentalRequest(Long rentalId);
 
     Rental saveRental(Rental rental);
 

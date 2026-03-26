@@ -2,6 +2,7 @@ package org.intech.vehiclerental.dto.rentaldto;
 
 import com.blazebit.persistence.view.EntityView;
 import com.blazebit.persistence.view.IdMapping;
+import com.blazebit.persistence.view.Mapping;
 import org.intech.vehiclerental.models.User;
 
 @EntityView(User.class)
@@ -10,6 +11,9 @@ public interface UserViewForRentalRequest {
     Long getId();
 
     String getEmail();
+
+    @Mapping("profileImageUrl")
+    String getProfileImageUrl();
 
     String getFirstName();
 

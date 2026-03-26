@@ -220,21 +220,9 @@ public class VehicleQueryRepositoryImpl implements VehicleQueryRepository {
         em.clear();
 
         if (dto.features() != null) {
-
-            em.createNativeQuery("DELETE FROM vehicle_features WHERE vehicle_id = :id")
-                    .setParameter("id", vehicleId)
-                    .executeUpdate();
-
-            for (String feature : dto.features()) {
-                em.createNativeQuery("""
-                    INSERT INTO vehicle_features(vehicle_id, feature)
-                    VALUES (:vId, :f)
-                """)
-                        .setParameter("vId", vehicleId)
-                        .setParameter("f", feature)
-                        .executeUpdate();
-            }
-
+            Vehicle vehicle = em.find(Vehicle.class, vehicleId);
+            vehicle.getFeatures().clear();
+            vehicle.getFeatures().addAll(dto.features());
         }
 
         return 1;

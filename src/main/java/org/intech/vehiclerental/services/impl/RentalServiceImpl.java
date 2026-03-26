@@ -1,15 +1,13 @@
 package org.intech.vehiclerental.services.impl;
 
 import com.blazebit.persistence.PagedList;
-import org.intech.vehiclerental.dto.rentaldto.CreateRentalRequestDto;
-import org.intech.vehiclerental.dto.rentaldto.RentalInfo;
-import org.intech.vehiclerental.dto.rentaldto.RentalListDto;
-import org.intech.vehiclerental.dto.rentaldto.RentalViewForRequests;
+import org.intech.vehiclerental.dto.rentaldto.*;
 import org.intech.vehiclerental.models.Rental;
 import org.intech.vehiclerental.models.User;
 import org.intech.vehiclerental.models.Vehicle;
 import org.intech.vehiclerental.models.enums.RentalStatus;
 import org.intech.vehiclerental.repositories.custom.RentalQueryRepository;
+import org.intech.vehiclerental.repositories.datajpa.RentalRepository;
 import org.intech.vehiclerental.repositories.datajpa.VehicleRepository;
 import org.intech.vehiclerental.services.RentalService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,16 +22,19 @@ import java.util.Optional;
 @Service
 public class RentalServiceImpl implements RentalService {
 
-    private final RentalQueryRepository rentalRepository;
+    private final RentalQueryRepository rentalQueryRepository;
     private final VehicleRepository vehicleRepository;
+    private final RentalRepository rentalRepository;
 
     @Autowired
     public RentalServiceImpl(
-            RentalQueryRepository rentalRepository,
-            VehicleRepository vehicleRepository
+            RentalQueryRepository rentalQueryRepository,
+            VehicleRepository vehicleRepository,
+            RentalRepository rentalRepository
     ) {
-        this.rentalRepository = rentalRepository;
+        this.rentalQueryRepository = rentalQueryRepository;
         this.vehicleRepository = vehicleRepository;
+        this.rentalRepository = rentalRepository;
     }
 
     @Override
@@ -77,26 +78,29 @@ public class RentalServiceImpl implements RentalService {
                 .status(RentalStatus.PENDING)
                 .build();
 
-        vehicle.setQuantity((byte) (vehicle.getQuantity()-1));
-        vehicle.setIsAvailable(vehicle.getQuantity() > 0);
-
-        return rentalRepository.saveRental(rental);
+        return rentalQueryRepository.saveRental(rental);
     }
 
     @Override
     public Optional<RentalInfo> findRentalInfoById(Long id) {
-        return rentalRepository.findRentalInfoById(id);
+        return rentalQueryRepository.findRentalInfoById(id);
+    }
+
+    @Override
+    public RentalDetailViewForRentalRequest findRentalDetailViewForRentalRequest(Long rentalId) {
+        return rentalRepository.findById(rentalId)
+                .orElseThrow(()->new RuntimeException("Rental with id " + rentalId + " not found"));
     }
 
     @Override
     @Transactional
     public int changeRentalStatus(Long rentalId, RentalStatus rentalStatus){
-        return rentalRepository.changeRentalStatus(rentalId, rentalStatus);
+        return rentalQueryRepository.changeRentalStatus(rentalId, rentalStatus);
     }
 
     @Override
     public Boolean isCarOwnerAndLoggedUserSame(Long loggedUserId, Long rentalId){
-        return rentalRepository.isCarOwnerAndLoggedUserSame(loggedUserId, rentalId);
+        return rentalQueryRepository.isCarOwnerAndLoggedUserSame(loggedUserId, rentalId);
     }
 
 
@@ -104,7 +108,7 @@ public class RentalServiceImpl implements RentalService {
     public PagedList<RentalListDto> findRentalPageByRenter(User renter,
                                                            RentalStatus status,
                                                            Pageable pageable) {
-        return rentalRepository.findRentalPageByRenter(renter, status, pageable);
+        return rentalQueryRepository.findRentalPageByRenter(renter, status, pageable);
     }
 
 
@@ -112,22 +116,21 @@ public class RentalServiceImpl implements RentalService {
     public PagedList<RentalListDto> findRentalPageByVehicle(Vehicle vehicle,
                                                        RentalStatus status,
                                                        Pageable pageable) {
-        return rentalRepository.findRentalPageByVehicle(vehicle, status, pageable);
+        return rentalQueryRepository.findRentalPageByVehicle(vehicle, status, pageable);
     }
 
     @Override
     public List<RentalViewForRequests> findRentalRequestsByVehicleId(Long vehicleId){
-        return rentalRepository.findRentalRequestsByVehicleId(vehicleId);
+        return rentalQueryRepository.findRentalRequestsByVehicleId(vehicleId);
     }
 
     @Override
     public Rental saveRental(Rental rental) {
-        return rentalRepository.saveRental(rental);
+        return rentalQueryRepository.saveRental(rental);
     }
-
 
     @Override
     public void deleteRentalById(Long id) {
-        rentalRepository.deleteRentalById(id);
+        rentalQueryRepository.deleteRentalById(id);
     }
 }

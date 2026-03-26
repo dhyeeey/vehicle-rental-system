@@ -3,6 +3,7 @@ package org.intech.vehiclerental.controllers;
 import com.blazebit.persistence.PagedList;
 import org.intech.vehiclerental.dto.paginationdto.PageResponse;
 import org.intech.vehiclerental.dto.rentaldto.CreateRentalRequestDto;
+import org.intech.vehiclerental.dto.rentaldto.RentalDetailViewForRentalRequest;
 import org.intech.vehiclerental.dto.rentaldto.RentalListDto;
 import org.intech.vehiclerental.dto.requestbody.ChangeRentalStatus;
 import org.intech.vehiclerental.mappers.RentalMapper;
@@ -76,6 +77,13 @@ public class RentalController {
         }
 
         return ResponseEntity.ok(rentalService.changeRentalStatus(dto.rentalId(),dto.status()));
+    }
+
+    @GetMapping("/rental-request-detail/{rentalId}")
+    public ResponseEntity<RentalDetailViewForRentalRequest> findRentalRequestDetailByRentalId(
+            @PathVariable Long rentalId
+    ){
+        return ResponseEntity.ok(rentalService.findRentalDetailViewForRentalRequest(rentalId));
     }
 
 

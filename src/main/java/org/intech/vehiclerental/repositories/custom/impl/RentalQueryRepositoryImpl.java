@@ -16,6 +16,7 @@ import org.intech.vehiclerental.models.User;
 import org.intech.vehiclerental.models.Vehicle;
 import org.intech.vehiclerental.models.enums.RentalStatus;
 import org.intech.vehiclerental.repositories.custom.RentalQueryRepository;
+import org.intech.vehiclerental.repositories.datajpa.VehicleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
@@ -31,13 +32,17 @@ public class RentalQueryRepositoryImpl implements RentalQueryRepository {
     private final CriteriaBuilderFactory cbf;
     private final EntityViewManager evm;
 
+    private final VehicleRepository vehicleRepository;
+
     @Autowired
     public RentalQueryRepositoryImpl(EntityManager em,
                                      CriteriaBuilderFactory cbf,
-                                     EntityViewManager evm) {
+                                     EntityViewManager evm,
+                                     VehicleRepository vehicleRepository) {
         this.em = em;
         this.cbf = cbf;
         this.evm = evm;
+        this.vehicleRepository = vehicleRepository;
     }
 
     @Override
@@ -146,10 +151,17 @@ public class RentalQueryRepositoryImpl implements RentalQueryRepository {
 
     @Override
     public int changeRentalStatus(Long rentalId, RentalStatus rentalStatus){
-        return cbf.update(em, Rental.class)
-                .set(Rental_.STATUS,rentalStatus)
-                .where(Rental_.ID).eq(rentalId)
-                .executeUpdate();
+
+        Rental rental = em.find(Rental.class, rentalId);
+        rental.setStatus(rentalStatus);
+
+        if(rentalStatus == RentalStatus.CONFIRMED){
+            Vehicle vehicle = rental.getVehicle();
+            vehicle.setQuantity((byte) (vehicle.getQuantity() - 1));
+            vehicle.setIsAvailable(vehicle.getQuantity() > 0);
+        }
+
+        return 1;
     }
 
     @Override

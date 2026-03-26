@@ -103,7 +103,7 @@ public class VehicleController {
                 vehicleService.findVehicleFleetPageByOwner(
                         userDetails.getId(),
                         null,
-                        true,
+                        null,
                         pageable
                 );
 
