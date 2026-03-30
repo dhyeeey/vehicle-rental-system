@@ -2,9 +2,7 @@ package org.intech.vehiclerental.controllers;
 
 import com.blazebit.persistence.PagedList;
 import org.intech.vehiclerental.dto.paginationdto.PageResponse;
-import org.intech.vehiclerental.dto.rentaldto.CreateRentalRequestDto;
-import org.intech.vehiclerental.dto.rentaldto.RentalDetailViewForRentalRequest;
-import org.intech.vehiclerental.dto.rentaldto.RentalListDto;
+import org.intech.vehiclerental.dto.rentaldto.*;
 import org.intech.vehiclerental.dto.requestbody.ChangeRentalStatus;
 import org.intech.vehiclerental.mappers.RentalMapper;
 import org.intech.vehiclerental.models.AccountOwner;
@@ -15,17 +13,19 @@ import org.intech.vehiclerental.models.enums.RentalStatus;
 import org.intech.vehiclerental.services.AccountOwnerService;
 import org.intech.vehiclerental.services.RentalService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/api/rental")
+@RequestMapping(value="/api/rental", produces = MediaType.APPLICATION_JSON_VALUE)
 public class RentalController {
 
     private AccountOwnerService accountOwnerService;
@@ -44,7 +44,7 @@ public class RentalController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createRental(
+    public ResponseEntity<CreateRentalResponseDto> createRental(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody CreateRentalRequestDto createRentalRequestDto
     ){
@@ -60,7 +60,7 @@ public class RentalController {
     }
 
     @GetMapping("/vehicle/{vehicleId}/requests")
-    public ResponseEntity<?> findRentalRequestsByVehicleId(
+    public ResponseEntity<List<RentalViewForRequests>> findRentalRequestsByVehicleId(
             @PathVariable(value = "vehicleId") Long vehicleId
     ){
         return ResponseEntity
@@ -68,7 +68,7 @@ public class RentalController {
     }
 
     @PostMapping("/change-status")
-    public ResponseEntity<?> changeRentalStatus(
+    public ResponseEntity<Integer> changeRentalStatus(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestBody ChangeRentalStatus dto
     ){
@@ -88,7 +88,7 @@ public class RentalController {
 
 
     @GetMapping("/list-all")
-    public ResponseEntity<?> fetchAllRentals(
+    public ResponseEntity<PageResponse<RentalListDto>> fetchAllRentals(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable

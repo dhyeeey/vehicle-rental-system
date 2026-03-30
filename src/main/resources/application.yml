@@ -50,7 +50,7 @@ server:
 
 app:
   security:
-    public-paths : /api/auth/login,/api/auth/createaccount,/api/vehicle/detail/**,/api/vehicle/explore/search,/uploads/**
+    public-paths : /api/auth/login,/v3/api-docs,/v3/api-docs/**,/swagger-ui.html,/swagger-ui/**,/api/auth/createaccount,/api/vehicle/detail/**,/api/vehicle/explore/search,/uploads/**
   upload:
     vehicles:
       image:

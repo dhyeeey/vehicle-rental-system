@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping(value = "/api/auth", produces = MediaType.APPLICATION_JSON_VALUE)
 public class LoginAndRegistrationController {
 
     private final AuthenticationManager authenticationManager;
@@ -39,7 +39,7 @@ public class LoginAndRegistrationController {
     }
 
     @PostMapping(value="/login")
-    public ResponseEntity<?> login(
+    public ResponseEntity<Void> login(
             HttpServletRequest request,
             @RequestBody(required = false) LoginPayloadBody body,
             Authentication authentication
@@ -87,7 +87,7 @@ public class LoginAndRegistrationController {
             value="/createaccount",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<?> createAccount(
+    public ResponseEntity<Void> createAccount(
             HttpServletRequest httpServletRequest,
             @Valid @RequestBody(required = true) CreateAccountPayloadBody createAccountPayloadBody
     ){

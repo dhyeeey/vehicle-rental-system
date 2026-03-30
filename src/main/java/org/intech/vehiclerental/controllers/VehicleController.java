@@ -1,6 +1,9 @@
 package org.intech.vehiclerental.controllers;
 
 import com.blazebit.persistence.PagedList;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.intech.vehiclerental.dto.paginationdto.PageResponse;
@@ -28,7 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/vehicle")
+@RequestMapping(value = "/api/vehicle", produces = MediaType.APPLICATION_JSON_VALUE)
 @Slf4j
 public class VehicleController {
 
@@ -47,7 +50,7 @@ public class VehicleController {
     /*--------------------------------------------GET--------------------------------------------------- */
 
     @GetMapping("/detail/{vehicleId}")
-    public ResponseEntity<?> getVehicleDetailsPublic(
+    public ResponseEntity<VehicleInfo> getVehicleDetailsPublic(
             @PathVariable(value = "vehicleId") Long vehicleId
     ){
         VehicleInfo vehicle = vehicleService.findVehicleInfoById(vehicleId).orElseThrow(
@@ -59,7 +62,7 @@ public class VehicleController {
 
 
     @GetMapping("/detail/edit-form/{vehicleId}")
-    public ResponseEntity<?> getVehicleDetails(
+    public ResponseEntity<VehicleInfo> getVehicleDetails(
             @PathVariable(value = "vehicleId") Long vehicleId
     ){
         VehicleInfo vehicle = vehicleService.findVehicleInfoById(vehicleId).orElseThrow(
@@ -70,7 +73,7 @@ public class VehicleController {
     }
 
     @GetMapping("/explore/search")
-    public ResponseEntity<?> getAllSearchVehicles(
+    public ResponseEntity<List<VehicleSearchInfo>> getAllSearchVehicles(
             Authentication authentication,
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @ModelAttribute VehicleFilter vehicleFilters
@@ -89,7 +92,7 @@ public class VehicleController {
     }
 
     @GetMapping("/all-fleet")
-    public ResponseEntity<?> getAllFleetVehicles(
+    public ResponseEntity<PageResponse<VehicleFleetDto>> getAllFleetVehicles(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(
                     size = 10,
@@ -112,10 +115,18 @@ public class VehicleController {
 
     /*--------------------------------------------POST--------------------------------------------------- */
 
+    @Operation(  // Swagger/OpenAPI 3.x annotation to describe the endpoint
+            summary = "Small summary of the end-point",
+            description = "A detailed description of the end-point"
+    )
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<RegisterVehicleResponseDTO> registerVehicle(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @ModelAttribute VehicleRegistrationDTO dto,
+            @Parameter(
+                    description = "Vehicle images files to be uploaded",
+                    content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+            )
             @RequestParam(value = "images", required = true) List<MultipartFile> images
     ) {
 
@@ -145,7 +156,7 @@ public class VehicleController {
     /*--------------------------------------------PATCH--------------------------------------------------- */
 
     @PatchMapping("/status")
-    public ResponseEntity<?> changeVehicleStatus(
+    public ResponseEntity<Void> changeVehicleStatus(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestBody VehicleStatusUpdateRequest vehicleStatusUpdateRequest
     ){
@@ -160,7 +171,7 @@ public class VehicleController {
     @PatchMapping(
             value = "/edit-vehicle-details/{vehicleId}"
     )
-    public ResponseEntity<?> updateVehicle(
+    public ResponseEntity<Integer> updateVehicle(
             @PathVariable Long vehicleId,
             @RequestBody VehicleUpdateFormData dto,
             @AuthenticationPrincipal CustomUserDetails user
@@ -171,7 +182,7 @@ public class VehicleController {
     /*--------------------------------------------DELETE--------------------------------------------------- */
 
     @DeleteMapping
-    public ResponseEntity<?> deleteVehicleFromFleet(
+    public ResponseEntity<Integer> deleteVehicleFromFleet(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestParam Long vehicleId
     ){

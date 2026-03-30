@@ -5,6 +5,7 @@ import org.intech.vehiclerental.models.AccountOwner;
 import org.intech.vehiclerental.models.CustomUserDetails;
 import org.intech.vehiclerental.services.AccountOwnerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping(value = "/api/user", produces = MediaType.APPLICATION_JSON_VALUE)
 public class UserController {
 
     private final AccountOwnerService accountOwnerService;
@@ -22,8 +23,8 @@ public class UserController {
         this.accountOwnerService = accountOwnerService;
     }
 
-    @GetMapping("/profile")
-    public ResponseEntity<?> getProfile(
+    @GetMapping(value = "/profile", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<AccountOwner> getProfile(
             Authentication authentication
     ) {
         String email = authentication.getName();
@@ -35,7 +36,7 @@ public class UserController {
     }
 
     @PatchMapping("/profile/remove-profile-image")
-    public ResponseEntity<?> removeProfileImage(
+    public ResponseEntity<Void> removeProfileImage(
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ){
         accountOwnerService.removeProfileImage(customUserDetails.getId());
@@ -44,7 +45,7 @@ public class UserController {
     }
 
     @PutMapping("/profile/edit-profile")
-    public ResponseEntity<?> editProfileDetails(
+    public ResponseEntity<Integer> editProfileDetails(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody EditAccountProfileDto editAccountProfileDto
     ){
@@ -54,7 +55,7 @@ public class UserController {
     }
 
     @PutMapping("/profile/edit-profile-image")
-    public ResponseEntity<?> editProfileImage(
+    public ResponseEntity<Void> editProfileImage(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(value = "file", required = true) MultipartFile file
     ){

@@ -1,10 +1,14 @@
 package org.intech.vehiclerental.dto.requestbody;
 
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import org.intech.vehiclerental.models.enums.FuelType;
 import org.intech.vehiclerental.models.enums.TransmissionType;
 import org.intech.vehiclerental.models.enums.VehicleType;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Set;
 
 public record VehicleRegistrationDTO(
