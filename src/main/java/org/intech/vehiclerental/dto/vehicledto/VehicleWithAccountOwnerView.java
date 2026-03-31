@@ -32,8 +32,6 @@ public interface VehicleWithAccountOwnerView {
 
     TransmissionType getTransmissionType();
 
-    Byte getQuantity();
-
     Integer getSeatingCapacity();
 
     Integer getMileage();

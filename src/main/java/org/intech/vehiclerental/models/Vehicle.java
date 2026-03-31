@@ -61,8 +61,11 @@ public class Vehicle {
     @Column(nullable = false, length = 20)
     private TransmissionType transmissionType;
 
-    @Column
-    private Byte quantity;
+    @Column(length = 500)
+    private String pickupLocation;
+
+    @Column(length = 500)
+    private String dropoffLocation;
 
     @Column(nullable = false)
     private Integer seatingCapacity;

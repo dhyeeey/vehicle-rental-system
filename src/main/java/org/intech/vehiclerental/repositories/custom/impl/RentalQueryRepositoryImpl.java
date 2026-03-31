@@ -7,18 +7,17 @@ import com.blazebit.persistence.PaginatedCriteriaBuilder;
 import com.blazebit.persistence.view.EntityViewManager;
 import com.blazebit.persistence.view.EntityViewSetting;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 import org.intech.vehiclerental.dto.rentaldto.RentalInfo;
 import org.intech.vehiclerental.dto.rentaldto.RentalListDto;
 import org.intech.vehiclerental.dto.rentaldto.RentalViewForRequests;
-import org.intech.vehiclerental.models.Rental;
-import org.intech.vehiclerental.models.Rental_;
-import org.intech.vehiclerental.models.User;
-import org.intech.vehiclerental.models.Vehicle;
+import org.intech.vehiclerental.models.*;
 import org.intech.vehiclerental.models.enums.RentalStatus;
 import org.intech.vehiclerental.repositories.custom.RentalQueryRepository;
 import org.intech.vehiclerental.repositories.datajpa.VehicleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
@@ -60,7 +59,22 @@ public class RentalQueryRepositoryImpl implements RentalQueryRepository {
         return Optional.ofNullable(result);
     }
 
-    public List<RentalViewForRequests> findRentalRequestsByVehicleId(Long vehicleId) {
+    public Boolean checkIfVehicleIsOwnedByUser(Long vehicleId, Long userId){
+        return !cbf.create(em, Long.class)
+                .from(Vehicle.class, "v")
+                .select("1L")
+                .where("v.id").eq(vehicleId)
+                .where("v.accountOwner.id").eq(userId)
+                .setMaxResults(1)
+                .getResultList()
+                .isEmpty();
+    }
+
+    public List<RentalViewForRequests> findRentalRequestsByVehicleId(Long vehicleId, Long userId) {
+
+        if(!checkIfVehicleIsOwnedByUser(vehicleId, userId)){
+            throw new RuntimeException("Unauthorized access to vehicle");
+        }
 
         CriteriaBuilder<Rental> cb =
                 cbf.create(em, Rental.class)
@@ -137,6 +151,81 @@ public class RentalQueryRepositoryImpl implements RentalQueryRepository {
                 .getResultList().isEmpty();
     }
 
+    public void deleteReview(Long reviewId, Long userId){
+        Review review = em.createQuery("""
+            SELECT r FROM Review r
+            WHERE r.id = :reviewId
+            AND r.reviewer.id = :userId
+            """, Review.class)
+                .setParameter("reviewId", reviewId)
+                .setParameter("userId", userId)
+                .getResultStream()
+                .findFirst()
+                .orElseThrow(() ->
+                        new RuntimeException("Review not found or not owned by user")
+                );
+
+        em.remove(review);
+    }
+
+    public void addVehicleReviewForRental(
+            Long rentalId, Long renterId, Float rating,
+            String comment
+    ){
+
+        // Validate rating
+        if (rating == null || rating < 1 || rating > 5) {
+            throw new IllegalArgumentException("Rating must be between 1 and 5");
+        }
+
+        // Fetch rental with conditions (ownership check included)
+        Rental rental = em.createQuery("""
+            SELECT r FROM Rental r
+            JOIN FETCH r.vehicle v
+            WHERE r.id = :rentalId
+            AND r.renter.id = :renterId
+            """, Rental.class)
+                .setParameter("rentalId", rentalId)
+                .setParameter("renterId", renterId)
+                .getResultStream()
+                .findFirst()
+                .orElseThrow(() ->
+                        new RuntimeException("Rental not found or does not belong to user")
+                );
+
+        // Ensure rental is completed
+        if (rental.getStatus() != RentalStatus.COMPLETED) {
+            throw new RuntimeException("Cannot review a rental that is not completed");
+        }
+
+        // Prevent duplicate review (1 review per rental)
+        boolean alreadyReviewed = em.createQuery("""
+            SELECT 1 FROM Review r WHERE r.rental.id = :rentalId and r.reviewer.id = :renterId
+            """)
+                .setParameter("rentalId", rentalId)
+                .setParameter("renterId",renterId)
+                .setMaxResults(1)
+                .getResultStream()
+                .findFirst()
+                .isEmpty();
+
+        if (alreadyReviewed) {
+            throw new RuntimeException("Review already exists for this rental from user");
+        }
+
+        // Create review
+        Review review = Review.builder()
+                .rating(rating)
+                .comment(comment)
+                .vehicle(rental.getVehicle())
+                .rental(rental)
+                .reviewer(rental.getRenter())
+                .build();
+
+        // Persist
+        em.persist(review);
+    }
+
     public Boolean existsOverlappingRental(Long vehicleId, Instant start, Instant end){
         return !cbf.create(em, Long.class)
                 .from(Rental.class,"r").select("1L")
@@ -150,15 +239,18 @@ public class RentalQueryRepositoryImpl implements RentalQueryRepository {
     }
 
     @Override
-    public int changeRentalStatus(Long rentalId, RentalStatus rentalStatus){
+    public int changeRentalStatus(Long rentalId, RentalStatus rentalStatus, Long userId){
+
+        if(!isCarOwnerAndLoggedUserSame(userId,rentalId)){
+            throw new AccessDeniedException("You are not allowed to modify this rental");
+        }
 
         Rental rental = em.find(Rental.class, rentalId);
         rental.setStatus(rentalStatus);
 
         if(rentalStatus == RentalStatus.CONFIRMED){
             Vehicle vehicle = rental.getVehicle();
-            vehicle.setQuantity((byte) (vehicle.getQuantity() - 1));
-            vehicle.setIsAvailable(vehicle.getQuantity() > 0);
+            vehicle.setIsAvailable(false);
         }
 
         return 1;

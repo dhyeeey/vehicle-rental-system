@@ -43,7 +43,7 @@ public interface VehicleService {
 
     Vehicle saveVehicle(Vehicle vehicle);
 
-    int deleteVehicleById(Long id, Long accountOwnerId);
+    int deleteVehicleById(Long vehicleId, Long accountOwnerId);
 
     int changeVehicleApprovalStatus(Long vehicleId, VehicleStatus vehicleStatus,
                              VehicleApprovalStatus vehicleApprovalStatus, Long accountOwnerId);

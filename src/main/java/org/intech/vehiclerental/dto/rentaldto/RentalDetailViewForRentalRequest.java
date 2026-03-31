@@ -40,10 +40,6 @@ public interface RentalDetailViewForRentalRequest {
 
     RentalStatus getStatus();
 
-    String getPickupLocation();
-
-    String getDropoffLocation();
-
     Integer getStartMileage();
 
     Integer getEndMileage();
@@ -74,8 +70,6 @@ public interface RentalDetailViewForRentalRequest {
         FuelType getFuelType();
 
         TransmissionType getTransmissionType();
-
-        Byte getQuantity();
 
         Integer getSeatingCapacity();
 

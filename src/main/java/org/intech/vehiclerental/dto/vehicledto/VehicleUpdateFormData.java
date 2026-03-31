@@ -26,6 +26,9 @@ public record VehicleUpdateFormData(
         String location,
         String description,
 
+        String pickupLocation,
+        String dropoffLocation,
+
         Set<String> features
 
 ) {}

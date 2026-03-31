@@ -148,8 +148,8 @@ public class VehicleServiceImpl implements VehicleService {
 
     @Override
     @Transactional
-    public int deleteVehicleById(Long id, Long accountOwnerId) {
-        int deleted = vehicleQueryRepository.deleteVehicleById(id, accountOwnerId);
+    public int deleteVehicleById(Long vehicleId, Long accountOwnerId) {
+        int deleted = vehicleQueryRepository.deleteVehicleById(vehicleId, accountOwnerId);
 
         if (deleted == 0) {
             throw new VehicleAccessDeniedException("Vehicle not found or not owned by you");

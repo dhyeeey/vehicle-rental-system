@@ -67,12 +67,6 @@ public class Rental {
     @Column(nullable = false, length = 20)
     private RentalStatus status;
 
-    @Column(length = 500)
-    private String pickupLocation;
-
-    @Column(length = 500)
-    private String dropoffLocation;
-
     @Column
     private Integer startMileage;
 

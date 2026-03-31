@@ -61,10 +61,11 @@ public class RentalController {
 
     @GetMapping("/vehicle/{vehicleId}/requests")
     public ResponseEntity<List<RentalViewForRequests>> findRentalRequestsByVehicleId(
-            @PathVariable(value = "vehicleId") Long vehicleId
+            @PathVariable(value = "vehicleId") Long vehicleId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
     ){
         return ResponseEntity
-                .ok(rentalService.findRentalRequestsByVehicleId(vehicleId));
+                .ok(rentalService.findRentalRequestsByVehicleId(vehicleId, customUserDetails.getId()));
     }
 
     @PostMapping("/change-status")
@@ -72,11 +73,19 @@ public class RentalController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestBody ChangeRentalStatus dto
     ){
-        if(!rentalService.isCarOwnerAndLoggedUserSame(customUserDetails.getId(),dto.rentalId())){
-            throw new AccessDeniedException("You are not allowed to modify this rental");
-        }
+        return ResponseEntity.ok(
+                rentalService.changeRentalStatus(
+                        dto.rentalId(),dto.status(), customUserDetails.getId()
+                )
+        );
+    }
 
-        return ResponseEntity.ok(rentalService.changeRentalStatus(dto.rentalId(),dto.status()));
+    @PostMapping("/add/review/rental/{rentalId}")
+    public ResponseEntity<?> addVehicleReviewForRental(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long rentalId
+    ){
+        return null;
     }
 
     @GetMapping("/rental-request-detail/{rentalId}")

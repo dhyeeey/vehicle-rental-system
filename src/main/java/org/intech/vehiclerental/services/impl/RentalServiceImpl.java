@@ -44,7 +44,7 @@ public class RentalServiceImpl implements RentalService {
         Vehicle vehicle = vehicleRepository.findEntityById(createRentalRequestDto.vehicleId())
                 .orElseThrow(()->new RuntimeException("Vehicle with provided id not found"));
 
-        if(vehicle.getQuantity() <= 0){
+        if(!vehicle.getIsAvailable()){
             throw new RuntimeException("Vehicle sold out");
         }
 
@@ -94,8 +94,8 @@ public class RentalServiceImpl implements RentalService {
 
     @Override
     @Transactional
-    public int changeRentalStatus(Long rentalId, RentalStatus rentalStatus){
-        return rentalQueryRepository.changeRentalStatus(rentalId, rentalStatus);
+    public int changeRentalStatus(Long rentalId, RentalStatus rentalStatus, Long userId){
+        return rentalQueryRepository.changeRentalStatus(rentalId, rentalStatus, userId);
     }
 
     @Override
@@ -120,8 +120,8 @@ public class RentalServiceImpl implements RentalService {
     }
 
     @Override
-    public List<RentalViewForRequests> findRentalRequestsByVehicleId(Long vehicleId){
-        return rentalQueryRepository.findRentalRequestsByVehicleId(vehicleId);
+    public List<RentalViewForRequests> findRentalRequestsByVehicleId(Long vehicleId, Long userId){
+        return rentalQueryRepository.findRentalRequestsByVehicleId(vehicleId, userId);
     }
 
     @Override

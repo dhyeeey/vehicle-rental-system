@@ -59,4 +59,9 @@ public interface VehicleFleetUpdateView {
     void setDescription(String description);
     String getDescription();
 
+    void setPickupLocation(String pickupLocation);
+    String getPickupLocation();
+
+    void setDropoffLocation(String dropoffLocation);
+    String getDropoffLocation();
 }

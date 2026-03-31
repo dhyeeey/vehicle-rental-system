@@ -175,9 +175,9 @@ public class VehicleQueryRepositoryImpl implements VehicleQueryRepository {
     }
 
     @Override
-    public int deleteVehicleById(Long id, Long accountOwnerId) {
+    public int deleteVehicleById(Long vehicleId, Long accountOwnerId) {
         Vehicle vehicle = cbf.create(em, Vehicle.class)
-                .where("id").eq(id)
+                .where("id").eq(vehicleId)
                 .where("accountOwner.id").eq(accountOwnerId)
                 .getSingleResultOrNull();
 

@@ -29,10 +29,6 @@ public interface RentalInfo {
 
     Instant getActualEndDateTime();
 
-    String getPickupLocation();
-
-    String getDropoffLocation();
-
     Integer getStartMileage();
 
     Integer getEndMileage();

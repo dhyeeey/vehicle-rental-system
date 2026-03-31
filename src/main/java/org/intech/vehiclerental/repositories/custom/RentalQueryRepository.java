@@ -23,7 +23,7 @@ public interface RentalQueryRepository {
             Pageable pageable
     );
 
-    List<RentalViewForRequests> findRentalRequestsByVehicleId(Long vehicleId);
+    List<RentalViewForRequests> findRentalRequestsByVehicleId(Long vehicleId, Long userId);
 
     PagedList<RentalListDto> findRentalPageByVehicle(
             Vehicle vehicle,
@@ -31,7 +31,7 @@ public interface RentalQueryRepository {
             Pageable pageable
     );
 
-    int changeRentalStatus(Long rentalId, RentalStatus rentalStatus);
+    int changeRentalStatus(Long rentalId, RentalStatus rentalStatus, Long userId);
 
     Boolean isCarOwnerAndLoggedUserSame(Long loggedUserId, Long rentalId);
 
