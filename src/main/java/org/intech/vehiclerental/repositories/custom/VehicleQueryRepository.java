@@ -6,6 +6,7 @@ import org.intech.vehiclerental.dto.vehicledto.VehicleListViewAdmin;
 import org.intech.vehiclerental.dto.vehicledto.VehicleSearchInfo;
 import org.intech.vehiclerental.dto.vehicledto.VehicleUpdateFormData;
 import org.intech.vehiclerental.models.Vehicle;
+import org.intech.vehiclerental.models.VehicleImage;
 import org.intech.vehiclerental.models.enums.VehicleApprovalStatus;
 import org.intech.vehiclerental.models.enums.VehicleStatus;
 import org.intech.vehiclerental.repositories.utility.VehicleFilter;
@@ -24,12 +25,7 @@ public interface VehicleQueryRepository {
 
     int updateVehicleStatus(Long vehicleId, VehicleStatus status, Long accountOwnerId);
 
-    List<VehicleSearchInfo> findVehicleSearchList(
-            String location,
-            Long minPrice,
-            Long maxPrice,
-            Integer minSeats
-    );
+    List<VehicleImage> fetchVehicleImagesForEditForm(Long userId, Long vehicleId);
 
     List<VehicleSearchInfo> findVehicleSearchSetByDifferentOwner(Long accountOwnerId, VehicleFilter vehicleFilters);
 

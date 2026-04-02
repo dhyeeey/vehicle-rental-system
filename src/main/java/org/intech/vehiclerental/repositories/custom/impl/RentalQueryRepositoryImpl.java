@@ -107,7 +107,7 @@ public class RentalQueryRepositoryImpl implements RentalQueryRepository {
                 evm.applySetting(
                         EntityViewSetting.create(RentalListDto.class),
                         cb
-                ).page(pageable.getOffset(), pageable.getPageSize());
+                ).page((int)pageable.getOffset(), pageable.getPageSize());
 
         return pageCb.getResultList();
     }
@@ -134,7 +134,7 @@ public class RentalQueryRepositoryImpl implements RentalQueryRepository {
                 evm.applySetting(
                         EntityViewSetting.create(RentalListDto.class),
                         cb
-                ).page(pageable.getOffset(), pageable.getPageSize());
+                ).page((int)pageable.getOffset(), pageable.getPageSize());
 
         return pageCb.getResultList();
     }

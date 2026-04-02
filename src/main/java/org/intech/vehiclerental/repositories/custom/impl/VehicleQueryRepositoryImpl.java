@@ -7,9 +7,10 @@ import com.blazebit.persistence.PaginatedCriteriaBuilder;
 import com.blazebit.persistence.view.EntityViewManager;
 import com.blazebit.persistence.view.EntityViewSetting;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaQuery;
 import org.intech.vehiclerental.dto.vehicledto.*;
 import org.intech.vehiclerental.mappers.VehicleMapper;
-import org.intech.vehiclerental.models.Vehicle;
+import org.intech.vehiclerental.models.*;
 import org.intech.vehiclerental.models.enums.VehicleApprovalStatus;
 import org.intech.vehiclerental.models.enums.VehicleStatus;
 import org.intech.vehiclerental.repositories.custom.VehicleQueryRepository;
@@ -75,53 +76,22 @@ public class VehicleQueryRepositoryImpl implements VehicleQueryRepository {
     }
 
     @Override
-    public int updateVehicleStatus(Long vehicleId, VehicleStatus status, Long accountOwnerId) {
+    public List<VehicleImage> fetchVehicleImagesForEditForm(Long userId, Long vehicleId){
+        CriteriaBuilder<VehicleImage> cb = cbf.create(em, VehicleImage.class)
+                .where(VehicleImage_.VEHICLE+"."+Vehicle_.ID).eq(vehicleId)
+                .where(VehicleImage_.VEHICLE+"."+ Vehicle_.ACCOUNT_OWNER+"."+ AccountOwner_.ID).eq(userId);
 
-        return cbf.update(em, Vehicle.class)
-                .set("status", status)
-                .where("id").eq(vehicleId)
-                .where("accountOwner.id").eq(accountOwnerId)
-                .executeUpdate();
+        return cb.getResultList();
     }
 
     @Override
-    public List<VehicleSearchInfo> findVehicleSearchList(
-            String location,
-            Long minPrice,
-            Long maxPrice,
-            Integer minSeats
-    ) {
+    public int updateVehicleStatus(Long vehicleId, VehicleStatus status, Long accountOwnerId) {
 
-        CriteriaBuilder<Vehicle> cb =
-                cbf.create(em, Vehicle.class);
-
-        if (location != null) {
-            cb.where("location")
-                    .like()
-                    .value("%" + location + "%");
-        }
-
-        if (minPrice != null) {
-            cb.where("pricePerDay").ge(minPrice);
-        }
-
-        if (maxPrice != null) {
-            cb.where("pricePerDay").le(maxPrice);
-        }
-
-        if (minSeats != null) {
-            cb.where("seatingCapacity").ge(minSeats);
-        }
-
-        cb.where("isAvailable").eq(true);
-
-        CriteriaBuilder<VehicleSearchInfo> viewCb =
-                evm.applySetting(
-                        EntityViewSetting.create(VehicleSearchInfo.class),
-                        cb
-                );
-
-        return viewCb.getResultList();
+        return cbf.update(em, Vehicle.class)
+                .set(Vehicle_.STATUS, status)
+                .where(Vehicle_.ID).eq(vehicleId)
+                .where(Vehicle_.ACCOUNT_OWNER+"."+AccountOwner_.ID).eq(accountOwnerId)
+                .executeUpdate();
     }
 
 
@@ -138,8 +108,6 @@ public class VehicleQueryRepositoryImpl implements VehicleQueryRepository {
 
         return cb;
     }
-
-
 
     @Override
     public List<VehicleSearchInfo> findVehicleSearchSetByDifferentOwner(Long accountOwnerId, VehicleFilter vehicleFilters) {
@@ -188,18 +156,6 @@ public class VehicleQueryRepositoryImpl implements VehicleQueryRepository {
         em.remove(vehicle);
 
         return 1;
-    }
-
-    private <T> boolean setIfChanged(T current,
-                                     T updated,
-                                     Consumer<T> setter) {
-
-        if (!Objects.equals(current, updated)) {
-            setter.accept(updated);
-            return true;
-        }
-
-        return false;
     }
 
     @Override

@@ -46,53 +46,51 @@ public class AdminController {
     }
 
     @GetMapping(value="/vehicles/list-all")
-    public ResponseEntity<PageResponse<VehicleListViewAdmin>> getVehicleListForAdminAndCompanyByStatus(
+    public PageResponse<VehicleListViewAdmin> getVehicleListForAdminAndCompanyByStatus(
             @RequestParam(required = false) VehicleStatus vehicleStatus,
             @RequestParam(required = false) VehicleApprovalStatus vehicleApprovalStatus,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ){
-        return ResponseEntity.ok(
-                new PageResponse<>(
-                        vehicleService
-                            .getVehicleListForAdminAndCompanyByStatus(
-                                    vehicleStatus,
-                                    vehicleApprovalStatus,
-                                    page,
-                                    size
-                            )
-                )
+        return new PageResponse<>(
+            vehicleService
+                    .getVehicleListForAdminAndCompanyByStatus(
+                            vehicleStatus,
+                            vehicleApprovalStatus,
+                            page,
+                            size
+                    )
         );
     }
 
     @GetMapping(value="/vehicle/{vehicleId}")
-    public ResponseEntity<VehicleInfo> getVehicleDetailForAdmin(
+    public VehicleInfo getVehicleDetailForAdmin(
             @PathVariable Long vehicleId
     ){
-        return ResponseEntity.ok(vehicleService.findVehicleInfoById(vehicleId).orElseGet(()->null));
+        return vehicleService.findVehicleInfoById(vehicleId).orElseGet(()->null);
     }
 
     @GetMapping("/list-users")
-    public ResponseEntity<PageResponse<ListUserAccountAdminView>> getUsersListForAdmin(
+    public PageResponse<ListUserAccountAdminView> getUsersListForAdmin(
             @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC)
             Pageable pageable
     ){
-        return ResponseEntity.ok(new PageResponse<>(adminService.findUsersListForAdmin(pageable)));
+        return new PageResponse<>(adminService.findUsersListForAdmin(pageable));
     }
 
     @GetMapping("/user-detail/{userId}")
-    public ResponseEntity<UserDetailAdminDto> getUserDetailForAdmin(@PathVariable Long userId){
-        return ResponseEntity.ok(adminService.findUserDetailForAdmin(userId));
+    public UserDetailAdminDto getUserDetailForAdmin(@PathVariable Long userId){
+        return adminService.findUserDetailForAdmin(userId);
     }
 
     @GetMapping("/user-detail/{userId}/rentals")
-    public ResponseEntity<List<RentalInfo>> getUserRentalsForAdmin(@PathVariable Long userId){
-        return ResponseEntity.ok(adminService.findRentalsOfUserForAdmin(userId));
+    public List<RentalInfo> getUserRentalsForAdmin(@PathVariable Long userId){
+        return adminService.findRentalsOfUserForAdmin(userId);
     }
 
     @GetMapping("/user-detail/{userId}/vehicles")
-    public ResponseEntity<List<VehicleInfo>> getUserVehiclesForAdmin(@PathVariable Long userId){
-        return ResponseEntity.ok(adminService.findUserVehiclesForAdmin(userId));
+    public List<VehicleInfo> getUserVehiclesForAdmin(@PathVariable Long userId){
+        return adminService.findUserVehiclesForAdmin(userId);
     }
 
     @DeleteMapping("/delete-user")
@@ -102,20 +100,15 @@ public class AdminController {
     }
 
     @PatchMapping("/change-vehicle-status")
-    public ResponseEntity<Integer> changeVehicleApprovalStatus(
+    public Integer changeVehicleApprovalStatus(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody ChangeVehicleStatusDto dto
     ){
 
-        int val = vehicleService.changeVehicleApprovalStatus(
-                dto.vehicleId(),
-                dto.vehicleStatus(),
-                dto.vehicleApprovalStatus(),
-                userDetails.getId()
+        return vehicleService.changeVehicleApprovalStatus(
+                dto.vehicleId(),dto.vehicleStatus(),
+                dto.vehicleApprovalStatus(),userDetails.getId()
         );
-
-        return ResponseEntity.ok(val);
     }
-
 
 }

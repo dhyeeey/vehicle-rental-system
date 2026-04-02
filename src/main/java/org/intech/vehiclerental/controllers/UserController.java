@@ -24,15 +24,11 @@ public class UserController {
     }
 
     @GetMapping(value = "/profile", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AccountOwner> getProfile(
+    public AccountOwner getProfile(
             Authentication authentication
     ) {
         String email = authentication.getName();
-
-        AccountOwner accountOwner =
-                accountOwnerService.findAccountByEmail(email);
-
-        return ResponseEntity.ok(accountOwner);
+        return accountOwnerService.findAccountByEmail(email);
     }
 
     @PatchMapping("/profile/remove-profile-image")
@@ -40,7 +36,6 @@ public class UserController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ){
         accountOwnerService.removeProfileImage(customUserDetails.getId());
-
         return ResponseEntity.ok().build();
     }
 

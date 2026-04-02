@@ -18,7 +18,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,7 +43,7 @@ public class RentalController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<CreateRentalResponseDto> createRental(
+    public CreateRentalResponseDto createRental(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody CreateRentalRequestDto createRentalRequestDto
     ){
@@ -56,27 +55,24 @@ public class RentalController {
 
         Rental rental = rentalService.createRental(user, createRentalRequestDto);
 
-        return ResponseEntity.ok(rentalMapper.toCreateRentalResponseDtoFromRental(rental));
+        return rentalMapper.toCreateRentalResponseDtoFromRental(rental);
     }
 
     @GetMapping("/vehicle/{vehicleId}/requests")
-    public ResponseEntity<List<RentalViewForRequests>> findRentalRequestsByVehicleId(
+    public List<RentalViewForRequests> findRentalRequestsByVehicleId(
             @PathVariable(value = "vehicleId") Long vehicleId,
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ){
-        return ResponseEntity
-                .ok(rentalService.findRentalRequestsByVehicleId(vehicleId, customUserDetails.getId()));
+        return rentalService.findRentalRequestsByVehicleId(vehicleId, customUserDetails.getId());
     }
 
     @PostMapping("/change-status")
-    public ResponseEntity<Integer> changeRentalStatus(
+    public Integer changeRentalStatus(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestBody ChangeRentalStatus dto
     ){
-        return ResponseEntity.ok(
-                rentalService.changeRentalStatus(
-                        dto.rentalId(),dto.status(), customUserDetails.getId()
-                )
+        return rentalService.changeRentalStatus(
+                dto.rentalId(),dto.status(), customUserDetails.getId()
         );
     }
 
@@ -89,15 +85,15 @@ public class RentalController {
     }
 
     @GetMapping("/rental-request-detail/{rentalId}")
-    public ResponseEntity<RentalDetailViewForRentalRequest> findRentalRequestDetailByRentalId(
+    public RentalDetailViewForRentalRequest findRentalRequestDetailByRentalId(
             @PathVariable Long rentalId
     ){
-        return ResponseEntity.ok(rentalService.findRentalDetailViewForRentalRequest(rentalId));
+        return rentalService.findRentalDetailViewForRentalRequest(rentalId);
     }
 
 
     @GetMapping("/list-all")
-    public ResponseEntity<PageResponse<RentalListDto>> fetchAllRentals(
+    public PageResponse<RentalListDto> fetchAllRentals(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable
@@ -115,7 +111,7 @@ public class RentalController {
                         pageable
                 );
 
-        return ResponseEntity.ok(new PageResponse<>(rentalListDtoPage));
+        return new PageResponse<>(rentalListDtoPage);
     }
 
 }

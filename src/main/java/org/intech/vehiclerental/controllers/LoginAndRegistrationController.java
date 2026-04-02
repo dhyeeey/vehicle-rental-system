@@ -88,7 +88,6 @@ public class LoginAndRegistrationController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<Void> createAccount(
-            HttpServletRequest httpServletRequest,
             @Valid @RequestBody(required = true) CreateAccountPayloadBody createAccountPayloadBody
     ){
         User user = loginAndRegistrationService.registerUser(createAccountPayloadBody);

@@ -84,8 +84,7 @@ public record VehicleFilter (
 
     @Filter(field = Vehicle_.APPROVED_AT, op = Operator.LE)
     Instant approvedBefore,
-
-
+    
     @Filter(field = Vehicle_.REVIEW_COUNT, op = Operator.GE)
     Integer minReviews,
 

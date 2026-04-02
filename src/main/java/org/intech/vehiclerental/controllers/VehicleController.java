@@ -12,6 +12,7 @@ import org.intech.vehiclerental.dto.requestbody.VehicleStatusUpdateRequest;
 import org.intech.vehiclerental.dto.vehicledto.*;
 import org.intech.vehiclerental.models.CustomUserDetails;
 import org.intech.vehiclerental.models.Vehicle;
+import org.intech.vehiclerental.models.VehicleImage;
 import org.intech.vehiclerental.repositories.utility.VehicleFilter;
 import org.intech.vehiclerental.services.ImageValidationService;
 import org.intech.vehiclerental.services.VehicleService;
@@ -50,30 +51,26 @@ public class VehicleController {
     /*--------------------------------------------GET--------------------------------------------------- */
 
     @GetMapping("/detail/{vehicleId}")
-    public ResponseEntity<VehicleInfo> getVehicleDetailsPublic(
+    public VehicleInfo getVehicleDetailsPublic(
             @PathVariable(value = "vehicleId") Long vehicleId
     ){
-        VehicleInfo vehicle = vehicleService.findVehicleInfoById(vehicleId).orElseThrow(
+        return vehicleService.findVehicleInfoById(vehicleId).orElseThrow(
                 ()->new RuntimeException("Vehicle not found")
         );
-
-        return ResponseEntity.ok(vehicle);
     }
 
 
     @GetMapping("/detail/edit-form/{vehicleId}")
-    public ResponseEntity<VehicleInfo> getVehicleDetails(
+    public VehicleInfo getVehicleDetails(
             @PathVariable(value = "vehicleId") Long vehicleId
     ){
-        VehicleInfo vehicle = vehicleService.findVehicleInfoById(vehicleId).orElseThrow(
+        return vehicleService.findVehicleInfoById(vehicleId).orElseThrow(
                 ()->new RuntimeException("Vehicle not found")
         );
-
-        return ResponseEntity.ok(vehicle);
     }
 
     @GetMapping("/explore/search")
-    public ResponseEntity<List<VehicleSearchInfo>> getAllSearchVehicles(
+    public List<VehicleSearchInfo> getAllSearchVehicles(
             Authentication authentication,
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @ModelAttribute VehicleFilter vehicleFilters
@@ -88,11 +85,21 @@ public class VehicleController {
             vehicles = vehicleService.findVehicleSearchSetByDifferentOwner(null, vehicleFilters);
         }
 
-        return ResponseEntity.ok(vehicles);
+        return vehicles;
+    }
+
+    @GetMapping("/edit-form/{vehicleId}/fetch-vehicle-images")
+    public List<VehicleImage> fetchVehicleImagesForEditForm(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long vehicleId
+    ){
+        return vehicleService.fetchVehicleImagesForEditForm(
+                customUserDetails.getId(), vehicleId
+        );
     }
 
     @GetMapping("/all-fleet")
-    public ResponseEntity<PageResponse<VehicleFleetDto>> getAllFleetVehicles(
+    public PageResponse<VehicleFleetDto> getAllFleetVehicles(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(
                     size = 10,
@@ -110,7 +117,7 @@ public class VehicleController {
                         pageable
                 );
 
-        return ResponseEntity.ok(new PageResponse<>(vehiclePage));
+        return new PageResponse<>(vehiclePage);
     }
 
     /*--------------------------------------------POST--------------------------------------------------- */

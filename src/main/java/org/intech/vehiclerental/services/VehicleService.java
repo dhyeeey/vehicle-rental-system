@@ -6,6 +6,7 @@ import org.intech.vehiclerental.dto.requestbody.VehicleRegistrationDTO;
 import org.intech.vehiclerental.dto.vehicledto.*;
 import org.intech.vehiclerental.models.AccountOwner;
 import org.intech.vehiclerental.models.Vehicle;
+import org.intech.vehiclerental.models.VehicleImage;
 import org.intech.vehiclerental.models.enums.VehicleApprovalStatus;
 import org.intech.vehiclerental.models.enums.VehicleStatus;
 import org.intech.vehiclerental.repositories.utility.VehicleFilter;
@@ -34,11 +35,6 @@ public interface VehicleService {
             Pageable pageable
     );
 
-    List<VehicleSearchInfo> findVehicleSearchList(String location,
-                                                  Long minPrice,
-                                                  Long maxPrice,
-                                                  Integer minSeats);
-
     List<VehicleSearchInfo> findVehicleSearchSetByDifferentOwner(Long accountOwnerId, VehicleFilter vehicleFilters);
 
     Vehicle saveVehicle(Vehicle vehicle);
@@ -49,6 +45,8 @@ public interface VehicleService {
                              VehicleApprovalStatus vehicleApprovalStatus, Long accountOwnerId);
 
     int updateVehiclePartial(Long vehicleId, VehicleUpdateFormData dto);
+
+    List<VehicleImage> fetchVehicleImagesForEditForm(Long userId, Long vehicleId);
 
     PagedList<VehicleListViewAdmin> getVehicleListForAdminAndCompanyByStatus(VehicleStatus vehicleStatus,
                                                                              VehicleApprovalStatus vehicleApprovalStatus, int page, int size);

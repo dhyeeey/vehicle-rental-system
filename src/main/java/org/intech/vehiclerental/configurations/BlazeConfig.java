@@ -73,21 +73,15 @@ public class BlazeConfig {
     EntityViewConfiguration entityViewConfiguration() {
 
         System.out.println("Initializing Blaze Entity Views");
-
         EntityViewConfiguration cfg = EntityViews.createDefaultConfiguration();
-
         Reflections reflections = new Reflections("org.intech.vehiclerental.dto");
-
         Set<Class<?>> entityViews =
                 reflections.getTypesAnnotatedWith(EntityView.class);
-
         System.out.println("Found entity views: " + entityViews.size());
-
         for (Class<?> view : entityViews) {
             System.out.println("Registering EntityView: " + view.getName());
             cfg.addEntityView(view);
         }
-
         return cfg;
     }
 

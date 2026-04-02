@@ -111,14 +111,6 @@ public class VehicleServiceImpl implements VehicleService {
         return vehicleQueryRepository.findVehicleFleetPageByOwner(accountOwnerId, status, isAvailable, pageable);
     }
 
-    @Override
-    public List<VehicleSearchInfo> findVehicleSearchList(String location,
-                                                         Long minPrice,
-                                                         Long maxPrice,
-                                                         Integer minSeats) {
-        return vehicleQueryRepository.findVehicleSearchList(location, minPrice, maxPrice, minSeats);
-    }
-
     @Transactional
     public void changeVehicleStatus(Long vehicleId, VehicleStatus status, Long accountOwnerId) {
 
@@ -156,6 +148,11 @@ public class VehicleServiceImpl implements VehicleService {
         }
 
         return deleted;
+    }
+
+    @Override
+    public List<VehicleImage> fetchVehicleImagesForEditForm(Long userId, Long vehicleId){
+        return vehicleQueryRepository.fetchVehicleImagesForEditForm(userId, vehicleId);
     }
 
     @Override
