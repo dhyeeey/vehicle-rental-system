@@ -1,9 +1,11 @@
 package org.intech.vehiclerental.repositories.custom;
 
 import com.blazebit.persistence.PagedList;
+import org.intech.vehiclerental.dto.rentaldto.ExistingReviewView;
 import org.intech.vehiclerental.dto.rentaldto.RentalInfo;
 import org.intech.vehiclerental.dto.rentaldto.RentalListDto;
 import org.intech.vehiclerental.dto.rentaldto.RentalViewForRequests;
+import org.intech.vehiclerental.dto.requestbody.SubmitReviewPayload;
 import org.intech.vehiclerental.models.Rental;
 import org.intech.vehiclerental.models.User;
 import org.intech.vehiclerental.models.Vehicle;
@@ -30,6 +32,10 @@ public interface RentalQueryRepository {
             RentalStatus status,
             Pageable pageable
     );
+
+    void addRentalReview(SubmitReviewPayload payload, Long userId);
+
+    ExistingReviewView fetchExistingReviewOfRental(Long rentalId, Long userId);
 
     int changeRentalStatus(Long rentalId, RentalStatus rentalStatus, Long userId);
 

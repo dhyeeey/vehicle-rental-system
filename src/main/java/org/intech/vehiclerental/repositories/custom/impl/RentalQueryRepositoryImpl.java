@@ -8,12 +8,15 @@ import com.blazebit.persistence.view.EntityViewManager;
 import com.blazebit.persistence.view.EntityViewSetting;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
+import org.intech.vehiclerental.dto.rentaldto.ExistingReviewView;
 import org.intech.vehiclerental.dto.rentaldto.RentalInfo;
 import org.intech.vehiclerental.dto.rentaldto.RentalListDto;
 import org.intech.vehiclerental.dto.rentaldto.RentalViewForRequests;
+import org.intech.vehiclerental.dto.requestbody.SubmitReviewPayload;
 import org.intech.vehiclerental.models.*;
 import org.intech.vehiclerental.models.enums.RentalStatus;
 import org.intech.vehiclerental.repositories.custom.RentalQueryRepository;
+import org.intech.vehiclerental.repositories.datajpa.RentalRepository;
 import org.intech.vehiclerental.repositories.datajpa.VehicleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -32,16 +35,19 @@ public class RentalQueryRepositoryImpl implements RentalQueryRepository {
     private final EntityViewManager evm;
 
     private final VehicleRepository vehicleRepository;
+    private final RentalRepository rentalRepository;
 
     @Autowired
     public RentalQueryRepositoryImpl(EntityManager em,
                                      CriteriaBuilderFactory cbf,
                                      EntityViewManager evm,
-                                     VehicleRepository vehicleRepository) {
+                                     VehicleRepository vehicleRepository,
+                                     RentalRepository rentalRepository) {
         this.em = em;
         this.cbf = cbf;
         this.evm = evm;
         this.vehicleRepository = vehicleRepository;
+        this.rentalRepository = rentalRepository;
     }
 
     @Override
@@ -57,6 +63,76 @@ public class RentalQueryRepositoryImpl implements RentalQueryRepository {
         ).getSingleResultOrNull();
 
         return Optional.ofNullable(result);
+    }
+
+    @Override
+    public ExistingReviewView fetchExistingReviewOfRental(Long rentalId, Long userId){
+        CriteriaBuilder<Review> cb = cbf.create(em, Review.class)
+                .where(Review_.RENTAL+"."+Rental_.ID)
+                .eq(rentalId)
+                .where(Review_.RENTAL+"."+Rental_.RENTER+"."+User_.ID).eq(userId);
+
+        return evm.applySetting(
+                EntityViewSetting.create(ExistingReviewView.class),cb
+        ).getSingleResultOrNull();
+
+    }
+
+    @Override
+    public void addRentalReview(SubmitReviewPayload payload, Long userId){
+
+        // Fetch rental with ownership check
+        Rental rental = em.createQuery("""
+            SELECT r FROM Rental r
+            WHERE r.id = :rentalId
+            AND r.renter.id = :userId
+            """, Rental.class)
+                .setParameter("rentalId", payload.rentalId())
+                .setParameter("userId", userId)
+                .getResultStream()
+                .findFirst()
+                .orElseThrow(() ->
+                        new RuntimeException("Rental not found or not owned by user")
+                );
+
+        // Ensure completed
+        if (rental.getStatus() != RentalStatus.COMPLETED) {
+            throw new RuntimeException("Rental is not completed yet");
+        }
+
+        // Prevent duplicate review
+        boolean alreadyReviewed = em.createQuery("""
+            SELECT 1 FROM Review r 
+            WHERE r.rental.id = :rentalId 
+            AND r.reviewer.id = :userId
+            """)
+                .setParameter("rentalId", payload.rentalId())
+                .setParameter("userId", userId)
+                .setMaxResults(1)
+                .getResultStream()
+                .findFirst()
+                .isPresent();
+
+        if (alreadyReviewed) {
+            throw new RuntimeException("Review already exists");
+        }
+
+        // Validate rating
+        if (payload.rating() == null || payload.rating() < 1 || payload.rating() > 5) {
+            throw new IllegalArgumentException("Rating must be between 1 and 5");
+        }
+
+        // Create review
+        Review review = Review.builder()
+                .rating(payload.rating())
+                .comment(payload.comment())
+                .rental(rental)
+                .reviewer(rental.getRenter())
+                .vehicle(rental.getVehicle())
+                .build();
+
+        // Persist
+        em.persist(review);
     }
 
     public Boolean checkIfVehicleIsOwnedByUser(Long vehicleId, Long userId){

@@ -4,6 +4,7 @@ import com.blazebit.persistence.PagedList;
 import org.intech.vehiclerental.dto.paginationdto.PageResponse;
 import org.intech.vehiclerental.dto.rentaldto.*;
 import org.intech.vehiclerental.dto.requestbody.ChangeRentalStatus;
+import org.intech.vehiclerental.dto.requestbody.SubmitReviewPayload;
 import org.intech.vehiclerental.mappers.RentalMapper;
 import org.intech.vehiclerental.models.AccountOwner;
 import org.intech.vehiclerental.models.CustomUserDetails;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -76,12 +78,22 @@ public class RentalController {
         );
     }
 
-    @PostMapping("/add/review/rental/{rentalId}")
-    public ResponseEntity<?> addVehicleReviewForRental(
+    @GetMapping("/{rentalId}/review")
+    public ReviewData fetchExistingReview(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long rentalId
     ){
-        return null;
+        return rentalService.fetchExistingReviewOfRental(rentalId, customUserDetails.getId());
+    }
+
+    @PostMapping("/add-review/{rentalId}")
+    public ResponseEntity<?> addVehicleReviewForRental(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long rentalId,
+            @RequestBody SubmitReviewPayload submitReviewPayload
+    ){
+        rentalService.addRentalReview(submitReviewPayload, customUserDetails.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @GetMapping("/rental-request-detail/{rentalId}")

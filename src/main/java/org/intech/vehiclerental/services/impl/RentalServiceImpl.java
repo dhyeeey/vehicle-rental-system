@@ -2,6 +2,7 @@ package org.intech.vehiclerental.services.impl;
 
 import com.blazebit.persistence.PagedList;
 import org.intech.vehiclerental.dto.rentaldto.*;
+import org.intech.vehiclerental.dto.requestbody.SubmitReviewPayload;
 import org.intech.vehiclerental.models.Rental;
 import org.intech.vehiclerental.models.User;
 import org.intech.vehiclerental.models.Vehicle;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -98,6 +100,20 @@ public class RentalServiceImpl implements RentalService {
         return rentalQueryRepository.changeRentalStatus(rentalId, rentalStatus, userId);
     }
 
+    @Override
+    public ReviewData fetchExistingReviewOfRental(Long rentalId, Long userId){
+        ExistingReviewView existingReviewView = rentalQueryRepository.fetchExistingReviewOfRental(rentalId, userId);
+        return new ReviewData(
+                Objects.nonNull(existingReviewView),
+                existingReviewView
+        );
+    }
+
+    @Override
+    @Transactional
+    public void addRentalReview(SubmitReviewPayload payload, Long userId){
+        rentalQueryRepository.addRentalReview(payload, userId);
+    }
 
     @Override
     public PagedList<RentalListDto> findRentalPageByRenter(User renter,

@@ -2,6 +2,7 @@ package org.intech.vehiclerental.services;
 
 import com.blazebit.persistence.PagedList;
 import org.intech.vehiclerental.dto.rentaldto.*;
+import org.intech.vehiclerental.dto.requestbody.SubmitReviewPayload;
 import org.intech.vehiclerental.models.Rental;
 import org.intech.vehiclerental.models.User;
 import org.intech.vehiclerental.models.Vehicle;
@@ -33,6 +34,10 @@ public interface RentalService {
             RentalStatus status,
             Pageable pageable
     );
+
+    void addRentalReview(SubmitReviewPayload payload, Long userId);
+
+    ReviewData fetchExistingReviewOfRental(Long rentalId, Long userId);
 
     RentalDetailViewForRentalRequest findRentalDetailViewForRentalRequest(Long rentalId);
 
