@@ -171,10 +171,12 @@ public class RentalQueryRepositoryImpl implements RentalQueryRepository {
 
         CriteriaBuilder<Rental> cb =
                 cbf.create(em, Rental.class)
-                        .where("renter").eq(renter);
+                        .where(Rental_.RENTER).eq(renter);
 
         if (status != null) {
-            cb.where("status").eq(status);
+            cb.where(Rental_.STATUS).eq(status);
+        }else {
+            cb.where(Rental_.STATUS).notEq(RentalStatus.COMPLETED);
         }
 
         cb.orderByDesc("createdAt").orderByDesc("id");

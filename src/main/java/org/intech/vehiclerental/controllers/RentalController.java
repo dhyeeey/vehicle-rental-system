@@ -103,12 +103,12 @@ public class RentalController {
         return rentalService.findRentalDetailViewForRentalRequest(rentalId);
     }
 
-
     @GetMapping("/list-all")
     public PageResponse<RentalListDto> fetchAllRentals(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
-            Pageable pageable
+            Pageable pageable,
+            @RequestParam(value = "status", required = false) RentalStatus rentalStatus
     ) {
         AccountOwner accountOwner = accountOwnerService.findByIdOrThrow(userDetails.getId());
 
@@ -119,7 +119,7 @@ public class RentalController {
         PagedList<RentalListDto> rentalListDtoPage =
                 rentalService.findRentalPageByRenter(
                         user,
-                        RentalStatus.PENDING,
+                        rentalStatus,
                         pageable
                 );
 
